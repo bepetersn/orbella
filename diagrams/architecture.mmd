@@ -1,0 +1,50 @@
+flowchart TD
+  HTML[worldle-lite.html]
+  D3[D3 CDN]
+  CONFIG[src/config.js]
+  STORE[src/store/index.js and store modules]
+  THEME[src/theme.js]
+  AUDIO[src/audio.js]
+  MAP[src/map/worldMap.js]
+  CORE[src/app/runtime.js]
+  INPUT[src/app/input.js]
+  ROUND_UI[src/app/round/ui.js]
+  ROUND_TRANSITION[src/app/round/transitions.js]
+  ROUND_FLOW[src/app/round/control.js]
+  ROUND_INDEX[src/app/round/index.js]
+  BOOT[src/app/bootstrap.js]
+  CSS[styles.css]
+
+  HTML --> CSS
+  HTML --> D3
+  HTML --> CONFIG
+  HTML --> STORE
+  HTML --> THEME
+  HTML --> AUDIO
+  HTML --> MAP
+  HTML --> CORE
+  HTML --> INPUT
+  HTML --> ROUND_UI
+  HTML --> ROUND_TRANSITION
+  HTML --> ROUND_FLOW
+  HTML --> ROUND_INDEX
+  HTML --> BOOT
+
+  CONFIG --> COPY[Copy + constants]
+  STORE --> STATE[Shared game state]
+  THEME --> THEME_STATE[Theme system]
+  AUDIO --> AUDIO_STATE[Audio + vibration]
+  MAP --> MAP_STATE[Map rendering + zoom]
+  CORE --> RUNTIME[Runtime context]
+  INPUT --> AUTOCOMPLETE[Input + autocomplete]
+  ROUND_INDEX --> ROUND_API[Runtime round API]
+  ROUND_FLOW --> ROUND_ORCHESTRATION[Round orchestration]
+  ROUND_UI --> ROUND_RENDER[Feedback + stats + guess pills]
+  ROUND_TRANSITION --> ROUND_TIMERS[Transition timers + progress UI]
+  BOOT --> STARTUP[App startup]
+  INPUT --> STATE
+  ROUND_FLOW --> STATE
+
+  style STORE fill:#eef8e8,stroke:#66a61e,stroke-width:2px
+  style BOOT fill:#fff4e6,stroke:#e67e22,stroke-width:2px
+  style HTML fill:#f3f3f3,stroke:#666,stroke-width:2px

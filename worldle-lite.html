@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Worldle Lite</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script>
+    (() => {
+      const themeKey = "worldle-lite-theme";
+      let storedTheme = null;
+
+      try {
+        storedTheme = window.localStorage.getItem(themeKey);
+      } catch {
+        storedTheme = null;
+      }
+
+      const preferredTheme = storedTheme === "light" || storedTheme === "dark"
+        ? storedTheme
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+
+      document.documentElement.dataset.theme = preferredTheme;
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div id="topbar">
+  <button id="debug-toggle" type="button" aria-label="Toggle debug mode" aria-pressed="false">Debug: Off</button>
+  <button id="theme-toggle" type="button" aria-label="Toggle theme" aria-pressed="false">Dark mode</button>
+  <span id="build-marker" aria-label="Build marker">Build: loading…</span>
+</div>
+
+<header id="hero" aria-labelledby="app-title">
+  <p class="eyebrow" id="hero-eyebrow">Geography guessing game</p>
+  <h1 id="app-title">Worldle Lite</h1>
+  <p id="app-subtitle">Guess the country highlighted on the map. Each round gives you three distinct misses, and revealing the answer leaves the round revealed until you start a new game.</p>
+  <div id="hero-rules" aria-label="How each round works">
+    <span class="rule-chip" id="rule-misses">3 guesses per round</span>
+    <span class="rule-chip" id="rule-autocomplete">Autocomplete suggestions</span>
+    <span class="rule-chip" id="rule-reveal">Reveal to show the answer</span>
+  </div>
+</header>
+
+<div id="map-controls">
+  <label for="continent-filter">Region:</label>
+  <select id="continent-filter" aria-label="Filter by continent">
+    <option value="">All continents</option>
+  </select>
+  <label class="toggle-chip" id="auto-advance-toggle-label" for="auto-advance-toggle">
+    <input id="auto-advance-toggle" type="checkbox" checked />
+    <span>Auto-advance</span>
+  </label>
+  <button id="btn-reset" type="button">New game</button>
+</div>
+
+<div id="map-container">
+  <svg id="map" viewBox="0 0 960 500"></svg>
+</div>
+
+<div id="map-legend" aria-label="Map legend">
+  <div class="legend-item"><span class="legend-swatch legend-target"></span><span>Target country</span></div>
+  <div class="legend-item"><span class="legend-swatch legend-correct"></span><span>Solved country</span></div>
+  <div class="legend-item"><span class="legend-swatch legend-guess"></span><span>Missed guess</span></div>
+</div>
+
+<div id="main-content">
+<div id="below-map">
+  <div id="score">
+    <span class="score-item" id="score-solved">Solved: <span id="numCorrect">0</span> / <span id="numPlayed">0</span></span>
+    <span class="score-item" id="score-hints">Hints used: <span id="numHintsUsed">0</span></span>
+    <span class="score-item" id="hint-usage">0/2</span>
+  </div>
+  <div id="feedback"></div>
+  <div id="round-transition" aria-live="polite" aria-hidden="true">
+    <div id="round-transition-label"></div>
+    <div id="round-transition-track">
+      <div id="round-transition-fill"></div>
+    </div>
+  </div>
+  <div id="reveal-panel">
+    <div id="revealTarget"></div>
+  </div>
+  <div id="hint-panel" aria-live="polite">
+    <div id="hint-text"></div>
+  </div>
+  <div id="controls">
+    <div class="input-wrapper">
+      <input id="guessInput" placeholder="Type a country name..." autocomplete="off" spellcheck="false" inputmode="search" enterkeyhint="go" />
+      <div id="suggestions"></div>
+    </div>
+    <button id="btn-hint" type="button">Hint</button>
+    <button id="btn-reveal" type="button">Reveal</button>
+    <button id="btn-replay-halo" type="button">Replay halo</button>
+    <button id="btn-next-round" type="button" hidden>Next round</button>
+  </div>
+</div>
+
+  <div id="guess-list-wrap" aria-label="Your Guesses">
+    <div id="guess-list-label">Your Guesses</div>
+    <div id="guess-list" role="list" aria-live="polite"></div>
+  </div>
+</div>
+
+<div id="celebration" aria-hidden="true">
+  <div id="celebration-card" role="status" aria-live="polite">
+    <div id="celebration-title">Congratulations!</div>
+    <div id="celebration-text"></div>
+  </div>
+  <div id="confetti-layer" aria-hidden="true"></div>
+</div>
+
+<script src="src/vendor/d3.v7.min.js"></script>
+<script src="src/config.js"></script>
+<script src="src/theme.js"></script>
+<script src="src/audio.js"></script>
+<script src="src/map/geometry.js"></script>
+<script src="src/map/worldMap.js"></script>
+<script src="src/targetSelector.js"></script>
+<script src="src/store/constants.js"></script>
+<script src="src/store/normalize.js"></script>
+<script src="src/store/lookup.js"></script>
+<script src="src/store/reducer.js"></script>
+<script src="src/store/query.js"></script>
+<script src="src/store/round.js"></script>
+<script src="src/store/actions.js"></script>
+<script src="src/store/index.js"></script>
+<script src="src/app/runtime.js"></script>
+<script src="src/app/debug.js"></script>
+<script src="src/app/autoAdvance.js"></script>
+<script src="src/app/input.js"></script>
+<script src="src/app/round/ui.js"></script>
+<script src="src/app/round/transitions.js"></script>
+<script src="src/app/round/control.js"></script>
+<script src="src/app/round/index.js"></script>
+<script src="src/app/bootstrap.js"></script>
+</body>
+</html>

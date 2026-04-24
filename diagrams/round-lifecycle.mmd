@@ -1,0 +1,32 @@
+
+flowchart TD
+  START[Start round] --> TARGET[Pick playable country]
+  TARGET --> STATE[gameStore.startRound]
+  STATE --> READY[Enable guess / reveal controls]
+
+  READY --> INPUT[Player enters guess]
+  INPUT --> VALID{Valid country?}
+  VALID -- no --> INVALID[Keep input active]
+  VALID -- yes --> SUBMIT[gameStore.submitRoundGuess]
+
+  SUBMIT --> RESULT{Result}
+  RESULT -- correct --> WIN[Mark country correct]
+  RESULT -- guess --> MISS[Mark guess]
+  RESULT -- duplicate --> DUP[Shake input]
+  RESULT -- missed --> LOSS[Three misses reached]
+  RESULT -- revealed --> REVEAL[Show answer panel]
+
+  WIN --> ADVANCE[Show success feedback]
+  MISS --> ADVANCE
+  LOSS --> ADVANCE
+  REVEAL --> END[Show answer and lock round]
+  DUP --> INPUT
+
+  ADVANCE --> TRANSITION[Show round transition]
+  TRANSITION --> NEXT[Start next round]
+  NEXT --> TARGET
+
+  END --> STAY[Stay on revealed round]
+
+  style STATE fill:#eef7ff,stroke:#4a90e2,stroke-width:2px
+  style ADVANCE fill:#fff4e6,stroke:#e67e22,stroke-width:2px
