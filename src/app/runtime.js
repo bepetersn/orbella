@@ -19,6 +19,26 @@
     gameConfig: window.gameConfig,
   };
 
+  // Lightweight runtime logger that respects the UI debug toggle
+  function _isDebugEnabled() {
+    try {
+      return Boolean(window.__WORLDLE_DEBUG__ ?? IMPORTS.gameConfig?.DEBUG);
+    } catch {
+      return Boolean(IMPORTS.gameConfig && IMPORTS.gameConfig.DEBUG);
+    }
+  }
+
+  const worldleLiteLogger = {
+    debug: (...args) => { if (_isDebugEnabled()) { (console.debug || console.log).apply(console, args); } },
+    info: (...args) => { if (_isDebugEnabled()) { (console.info || console.log).apply(console, args); } },
+    warn: (...args) => { (console.warn || console.log).apply(console, args); },
+    error: (...args) => { (console.error || console.log).apply(console, args); },
+    group: (...args) => { if (_isDebugEnabled() && console.group) console.group(...args); },
+    groupEnd: () => { if (_isDebugEnabled() && console.groupEnd) console.groupEnd(); }
+  };
+
+  window.worldleLiteLogger = worldleLiteLogger;
+
   const {
     COPY,
     W,
@@ -31,7 +51,11 @@
     COUNTRIES_GEOJSON_URL,
     COUNTRY_NAME_PROPERTY,
     COUNTRY_CONTINENT_PROPERTY,
-    COUNTRY_CONTINENT_MEMBERSHIPS
+    COUNTRY_CONTINENT_MEMBERSHIPS,
+    MAP_PAN_SENSITIVITY_X,
+    MAP_PAN_SENSITIVITY_Y,
+    MAP_DEBUG_INTERACTIONS,
+    MAP_MAX_LATITUDE
   } = IMPORTS.gameConfig;
   const gameStore = IMPORTS.gameStore;
   const targetSelector = IMPORTS.targetSelector.createTargetSelector();
@@ -52,7 +76,11 @@
       COUNTRY_NAME_PROPERTY,
       COUNTRY_CONTINENT_PROPERTY,
       COUNTRY_CONTINENT_MEMBERSHIPS,
-      MAP_SELECTOR: "#map",
+      MAP_PAN_SENSITIVITY_X,
+      MAP_PAN_SENSITIVITY_Y,
+      MAP_DEBUG_INTERACTIONS,
+      MAP_MAX_LATITUDE,
+      MAP_SELECTOR: "#globeViz",
       WRONG_MSG_CLASS: "wrong-msg",
       FAILURE_MSG_CLASS: "failure-msg",
       CORRECT_MSG_CLASS: "correct-msg",

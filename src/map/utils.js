@@ -155,7 +155,11 @@ export function normalizeCountryFeature(ctx, feature) {
       continent: normalizedContinent,
       continents: normalizedMemberships,
       flagCode,
-      flagEmoji: flagEmojiFromCountryCode(flagCode)
+      flagEmoji: flagEmojiFromCountryCode(flagCode),
+      // `playable` flag: explicit property if present, otherwise infer from EXCLUDED
+      playable: typeof feature.properties?.playable === "boolean"
+        ? feature.properties.playable
+        : !Boolean(feature.properties?.EXCLUDED)
     }
   };
 }

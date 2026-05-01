@@ -1,127 +1,89 @@
-/**
- * @fileoverview App entry point – initialises all subsystems and starts the
- * first round.
- *
- * Evaluates after every other module has registered itself on `window`.
- * Calls `initializeApp`, which: populates text content from config copy,
- * creates the world map, wires event listeners, fetches country GeoJSON, and
- * kicks off the first round.
- */
+// Bootstrap: initialize UI, load countries, render globe, and start the round.
 (() => {
-  const runtime = window.worldleLiteRuntime;
-  const { dom, config, actions } = runtime;
-  const { COPY, W, H } = config;
-  const IMPORTS = runtime.IMPORTS;
+  const runtime = window.worldleLiteRuntime || {};
+  const dom = runtime.dom || {};
+  const config = runtime.config || {};
+  const actions = runtime.actions || {};
+  const COPY = config.COPY || {};
+  const IMPORTS = runtime.IMPORTS || {};
 
   function initializeCopy() {
-    // 1. Page metadata
-    document.title = COPY.pageTitle;
-
-    if (dom.buildMarker) {
-      dom.buildMarker.textContent = `Build: ${runtime.BUILD_ID}`;
-    }
-
-    // 2. Hero copy
-    if (dom.heroEyebrow) {
-      dom.heroEyebrow.textContent = COPY.hero.eyebrow;
-    }
-
-    if (dom.heroTitle) {
-      dom.heroTitle.textContent = COPY.hero.title;
-    }
-
-    if (dom.heroSubtitle) {
-      dom.heroSubtitle.textContent = COPY.hero.subtitle;
-    }
-
-    if (dom.ruleMisses) {
-      dom.ruleMisses.textContent = COPY.hero.misses;
-    }
-
-    if (dom.ruleAutocomplete) {
-      dom.ruleAutocomplete.textContent = COPY.hero.autocomplete;
-    }
-
-    if (dom.ruleReveal) {
-      dom.ruleReveal.textContent = COPY.hero.reveal;
-    }
-
-    // 3. Action labels
-    if (dom.revealBtn) {
-      dom.revealBtn.textContent = COPY.buttons.showAnswer;
-    }
-
-    if (dom.replayHaloBtn) {
-      dom.replayHaloBtn.textContent = COPY.buttons.replayHalo;
-    }
-
-    if (dom.nextRoundBtn) {
-      dom.nextRoundBtn.textContent = COPY.buttons.nextRound;
-    }
-
-    if (dom.autoAdvanceLabel) {
-      dom.autoAdvanceLabel.lastElementChild.textContent = COPY.buttons.autoAdvance;
-    }
-
-    if (dom.hintBtn) {
-      dom.hintBtn.textContent = COPY.buttons.hint;
-    }
-
-    if (dom.resetBtn) {
-      dom.resetBtn.textContent = COPY.buttons.reset;
-    }
-
-    window.worldleLiteDebug?.syncDebugToggleUi();
+    document.title = COPY.pageTitle || document.title;
+    try {
+      if (dom.buildMarker) dom.buildMarker.textContent = `Build: ${runtime.BUILD_ID || ''}`;
+      if (dom.heroTitle) dom.heroTitle.textContent = COPY.hero?.title || '';
+      if (dom.heroSubtitle) dom.heroSubtitle.textContent = COPY.hero?.subtitle || '';
+      if (dom.revealBtn) dom.revealBtn.textContent = COPY.buttons?.showAnswer || '';
+      if (dom.nextRoundBtn) dom.nextRoundBtn.textContent = COPY.buttons?.nextRound || '';
+      if (dom.hintBtn) dom.hintBtn.textContent = COPY.buttons?.hint || '';
+    } catch (e) { /* ignore UI update failures */ }
+    window.worldleLiteDebug?.syncDebugToggleUi?.();
   }
 
   function initializeWorldMap() {
-    runtime.worldMapInst = runtime.IMPORTS.worldMap.createWorldMap({
-      d3: runtime.IMPORTS.d3,
-      selector: config.MAP_SELECTOR,
-      width: W,
-      height: H,
-      countriesGeoJsonUrl: config.COUNTRIES_GEOJSON_URL,
-      countryNameProperty: config.COUNTRY_NAME_PROPERTY,
-      countryContinentProperty: config.COUNTRY_CONTINENT_PROPERTY,
-      countryContinentMemberships: config.COUNTRY_CONTINENT_MEMBERSHIPS
-    });
+    // Deprecated: Globe.gl is used instead of the SVG worldMap.
   }
 
   function bindEventListeners() {
-    // 1. Round action buttons
-    if (dom.revealBtn && runtime.round?.revealAnswer) {
-      dom.revealBtn.addEventListener("click", runtime.round.revealAnswer);
-    }
-
-    if (dom.replayHaloBtn && runtime.round?.replayHalo) {
-      dom.replayHaloBtn.addEventListener("click", runtime.round.replayHalo);
-    }
-
-    if (dom.hintBtn && runtime.round?.showNextHint) {
-      dom.hintBtn.addEventListener("click", runtime.round.showNextHint);
-    }
-
-    if (dom.resetBtn && runtime.round?.resetAll) {
-      dom.resetBtn.addEventListener("click", runtime.round.resetAll);
-    }
-
-    if (dom.nextRoundBtn && runtime.round?.advanceToNextRound) {
-      dom.nextRoundBtn.addEventListener("click", runtime.round.advanceToNextRound);
-    }
-
-    window.worldleLiteDebug?.bindDebugToggle();
-
-    // 2. Input handlers
-    if (runtime.input) {
-      runtime.input.bindInputHandlers();
-    }
+    if (dom.revealBtn) dom.revealBtn.addEventListener('click', () => runtime.round?.revealAnswer?.());
+    if (dom.hintBtn) dom.hintBtn.addEventListener('click', () => runtime.round?.showNextHint?.());
+    if (dom.nextRoundBtn) dom.nextRoundBtn.addEventListener('click', () => runtime.round?.advanceToNextRound?.());
+    window.worldleLiteDebug?.bindDebugToggle?.();
+    runtime.input?.bindInputHandlers?.();
   }
 
-  function loadCountries() {
-    return runtime.worldMapInst.loadCountries().then((loadedCountries) => {
-      actions.loadCountriesIntoState(loadedCountries);
-      runtime.input.populateContinentFilter(loadedCountries.countriesData);
-    });
+  // Bootstrap is the authoritative loader for country GeoJSON. It loads the
+  // data, populates the store, initializes the globe renderer, and starts
+  // the first round. This function centralizes that flow.
+  async function loadAndInitCountries() {
+    const baseUrl = config.COUNTRIES_GEOJSON_URL || window.gameConfig?.COUNTRIES_GEOJSON_URL || 'data/generated/world-countries.render.json';
+    // Append a cache-busting timestamp so regenerated JSON is loaded immediately
+    const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+    try {
+      const data = IMPORTS.d3?.json ? await IMPORTS.d3.json(url) : await fetch(url).then((r) => r.json());
+      console.info('bootstrap: loaded countries JSON', { url, features: Array.isArray(data?.features) ? data.features.length : 0 });
+      const features = Array.isArray(data?.features) ? data.features : [];
+      const countryNames = features.map((f) => f.properties?.name).filter(Boolean).sort();
+      const countryByName = new Map(features.map((f) => [String(f.properties?.name || '').toLowerCase(), f]));
+
+      const loader = runtime.actions?.loadCountriesIntoState || window._gameStore?.loadCountriesIntoState;
+      if (typeof loader === 'function') loader({ countriesData: features, countryNames, countryByName });
+
+      // Populate continent filter UI if the input module is available.
+      try {
+        if (runtime.input && typeof runtime.input.populateContinentFilter === 'function') {
+          runtime.input.populateContinentFilter(features);
+        }
+      } catch (e) { console.warn('bootstrap: populateContinentFilter failed', e); }
+
+      if (typeof window.createWorldleGlobe === 'function') {
+        try {
+          console.info('bootstrap: calling createWorldleGlobe');
+          window.createWorldleGlobe(data);
+        } catch (e) { console.error('bootstrap: createWorldleGlobe threw', e); }
+      } else {
+        console.warn('bootstrap: createWorldleGlobe not defined');
+      }
+
+      // Ensure a minimal worldMapInst stub exists so `startRound` can
+      // safely call `runtime.worldMapInst.resetRoundState()` even if the
+      // globe failed to initialize or hasn't set the runtime hook yet.
+      if (!window.worldleLiteRuntime) window.worldleLiteRuntime = runtime;
+      if (!window.worldleLiteRuntime.worldMapInst) {
+        window.worldleLiteRuntime.worldMapInst = {
+          resetRoundState: () => {},
+          markTarget: () => {},
+          zoomToCountry: () => {},
+          showLocationHalo: () => {},
+          setRegionFilter: () => {},
+          loadCountries: () => Promise.resolve({ countriesData: features, countryNames, countryByName })
+        };
+      }
+
+      runtime.round?.startRound?.();
+    } catch (err) {
+      console.error('bootstrap: failed to load countries GeoJSON:', err);
+    }
   }
 
   /**
@@ -132,17 +94,9 @@
   function initializeApp() {
     window.__WORLDLE_DEBUG__ = window.worldleLiteDebug?.resolveDebugMode?.() ?? Boolean(config.DEBUG);
     initializeCopy();
-    initializeWorldMap();
-
-    if (IMPORTS.themeSystem) {
-      IMPORTS.themeSystem.initializeTheme(dom.themeToggle);
-    }
-
+    IMPORTS.themeSystem?.initializeTheme?.(dom.themeToggle);
     bindEventListeners();
-    loadCountries().then(() => {
-      window.worldleLiteDebug?.installDebugHelpers();
-      runtime.round.startRound();
-    });
+    loadAndInitCountries();
   }
 
   window.worldleLiteApp = { initializeApp };

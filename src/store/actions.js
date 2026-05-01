@@ -12,6 +12,9 @@
    * @param {{ countriesData: object[], countryNames: string[], countryByName: Map<string, object> }} loadedCountries
    */
   function loadCountriesIntoState(loadedCountries) {
+    try { window.worldleLiteLogger?.info('[actions] loadCountriesIntoState', { countries: loadedCountries?.countriesData?.length || 0 }); } catch (e) {}
+    // Populate the store with the provided country data.
+    // (Any previous sentinel-based deduplication removed — bootstrap owns loading.)
     const guessLookup = createCountryGuessLookup(loadedCountries.countriesData, loadedCountries.countryByName);
 
     dispatch({
@@ -31,6 +34,13 @@
    * @param {number} selectedIndex
    */
   function setSelectedIndex(selectedIndex) {
+    try { window.worldleLiteLogger?.debug('[actions] setSelectedIndex', selectedIndex); } catch (e) {}
+    try {
+      if (_store.state && typeof _store.state.selectedIndex !== 'undefined' && _store.state.selectedIndex === selectedIndex) {
+        // no-op: same index already set
+        return;
+      }
+    } catch (e) { /* ignore */ }
     dispatch({ type: STATE_ACTIONS.setSelectedIndex, selectedIndex });
   }
 
@@ -39,35 +49,42 @@
    * @param {object | null} targetCountry
    */
   function setTargetCountry(targetCountry) {
+    try { window.worldleLiteLogger?.info('[actions] setTargetCountry', targetCountry && (targetCountry.properties?.name || targetCountry)); } catch (e) {}
     dispatch({ type: STATE_ACTIONS.setTargetCountry, targetCountry });
   }
 
   function showFirstRound() {
+    try { window.worldleLiteLogger?.debug('[actions] showFirstRound'); } catch (e) {}
     dispatch({ type: STATE_ACTIONS.showFirstRound });
   }
 
   function incrementCorrect() {
+    try { window.worldleLiteLogger?.debug('[actions] incrementCorrect'); } catch (e) {}
     dispatch({ type: STATE_ACTIONS.incrementCorrect });
   }
 
   function incrementPlayed() {
+    try { window.worldleLiteLogger?.debug('[actions] incrementPlayed'); } catch (e) {}
     dispatch({ type: STATE_ACTIONS.incrementPlayed });
   }
 
   function incrementHintsUsed() {
+    try { window.worldleLiteLogger?.debug('[actions] incrementHintsUsed'); } catch (e) {}
     dispatch({ type: STATE_ACTIONS.incrementHintsUsed });
   }
 
   /** Reset `numCorrect` and `numPlayed` to 0. */
   function resetScores() {
+    try { window.worldleLiteLogger?.info('[actions] resetScores'); } catch (e) {}
     dispatch({ type: STATE_ACTIONS.resetScores });
   }
 
   /**
-   * Store the active continent filter name, or `null` to show all continents.
+   * Store the active continent filter name, or `null` to show all countries.
    * @param {string | null} selectedContinent
    */
   function setSelectedContinent(selectedContinent) {
+    try { window.worldleLiteLogger?.debug('[actions] setSelectedContinent', selectedContinent); } catch (e) {}
     dispatch({ type: STATE_ACTIONS.setSelectedContinent, selectedContinent });
   }
 

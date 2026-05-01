@@ -11,6 +11,7 @@ Worldle Lite is a lightweight, single-page geography guessing game. Each round z
 - `src/audio.js` owns tone generation, win/loss cues, and vibration feedback.
 - `src/map/worldMap.js` owns SVG setup, GeoJSON loading, and country map rendering.
 - `src/map/geometry.js` owns continent-aware multipolygon trimming for regional map views.
+- `tools/data/` owns preprocessing scripts that derive browser-ready data from the canonical GeoJSON source.
 - `src/app/runtime.js` builds the shared runtime context, `src/app/input.js` handles autocomplete and input, `src/app/round/` contains round UI/transition/flow modules, and `src/app/bootstrap.js` starts the app.
 - `styles.css` contains all visual styling for the game shell and states.
 - `diagrams/` holds the architecture and round lifecycle diagrams.
@@ -59,11 +60,12 @@ Then open `http://localhost:8000/worldle-lite.html`.
 
 ## Notes
 
-- The game uses a vendored Natural Earth-derived GeoJSON file at `data/world-countries.geojson`; the raw source fields stay intact and are normalized in `src/map/worldMap.js`.
+- The game uses a vendored Natural Earth-derived GeoJSON file at `data/world-countries.json`; preprocessing in `tools/data/` derives a browser-ready feature collection at `data/generated/world-countries.render.json`.
 - The app only needs a small country model: one stable id, one canonical display name, optional aliases, one continent value, and an exclusion flag for non-playable features.
 - `src/config.js` chooses `NAME_EN` as the canonical display field; `NAME_ALIASES` adds alternate guesses, while the raw Natural Earth metadata stays intact.
 - `NAME_ALIASES` is for alternate guesses only; it should help matching without producing duplicate visible suggestions.
 - `CONTINENT` becomes the app’s normalized continent fields, while the source ids (`ADM0_A3`, `ISO_A3`, `ISO_A2`, `WB_A2`, `WB_A3`, `ISO_N3`, `WIKIDATAID`) are preserved as metadata.
+- The generated dataset keeps the raw geometry plus normalized lookup fields so the browser stays simple while the data shape remains reusable.
 - Audio and vibration require browser support and user interaction before they will activate.
 - Round state and transitions live in `src/store/`; `src/app/round/control.js` handles round flow, `src/app/round/ui.js` handles round UI rendering, and `src/map/worldMap.js` handles the map visuals and source-specific normalization.
 

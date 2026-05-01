@@ -111,7 +111,7 @@
         const countryName = country?.properties?.name ?? "";
         window.__WORLDLE_DEBUG_LAST_COUNTRY__ = country || null;
         window.__WORLDLE_DEBUG_LAST_COUNTRY_NAME__ = countryName;
-        console.log("[worldle-lite] clicked country:", countryName);
+        window.worldleLiteLogger?.debug("[worldle-lite] clicked country:", countryName);
 
         if (reset) {
           runtime.worldMapInst.resetRoundState();
@@ -252,7 +252,7 @@
       const country = runtime.actions.resolveCountryGuess(String(countryName ?? "").trim());
 
       if (!country) {
-        console.warn("[worldle-lite] Country not found:", countryName);
+        window.worldleLiteLogger?.warn("[worldle-lite] Country not found:", countryName);
         return false;
       }
 

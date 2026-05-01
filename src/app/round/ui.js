@@ -70,6 +70,7 @@
   }
 
   function showCelebration(message) {
+    try { window.worldleLiteLogger?.info('[round UI] showCelebration', message); } catch (e) {}
     if (!dom.celebration) {
       return;
     }
@@ -95,6 +96,7 @@
    * @param {string} className  e.g. `config.CORRECT_MSG_CLASS`
    */
   function setFeedback(message, className) {
+    try { window.worldleLiteLogger?.debug('[round UI] setFeedback', { message, className }); } catch (e) {}
     if (!dom.feedback) {
       return;
     }
@@ -136,6 +138,7 @@
   }
 
   function setHints(hints = []) {
+    try { window.worldleLiteLogger?.debug('[round UI] setHints', hints); } catch (e) {}
     if (!dom.hintText) {
       return;
     }
@@ -189,6 +192,7 @@
 
   /** Sync the score display with the current `store.numCorrect` and `store.numPlayed` values. */
   function updateStats() {
+    try { window.worldleLiteLogger?.debug('[round UI] updateStats', { numCorrect: state.store.numCorrect, numPlayed: state.store.numPlayed, numHintsUsed: state.store.numHintsUsed }); } catch (e) {}
     if (dom.scoreCorrect) {
       dom.scoreCorrect.textContent = state.store.numCorrect;
     }
@@ -287,7 +291,13 @@
         nextPill.appendChild(flag);
       }
 
-      renderLinkedCountryName(nextPill, displayName, "guess-name guess-name-link");
+      // Render the linked country name into a child container so
+      // `renderLinkedCountryName` doesn't clear the pill's contents
+      // (which would remove the flag we just appended).
+      const nameContainer = document.createElement("span");
+      nameContainer.className = "guess-name-container";
+      renderLinkedCountryName(nameContainer, displayName, "guess-name guess-name-link");
+      nextPill.appendChild(nameContainer);
     } else {
       if (flagEmoji) {
         const flag = document.createElement("span");

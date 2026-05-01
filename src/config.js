@@ -9,11 +9,16 @@
 window.gameConfig = {
   W: 960,
   H: 500,
+  MAP_PROJECTION_MODE: "rounded",
   DEBUG: true,
+  MAP_PAN_SENSITIVITY_X: 1.0,
+  MAP_PAN_SENSITIVITY_Y: 1.0,
+  MAP_DEBUG_INTERACTIONS: true,
+  MAP_MAX_LATITUDE: 89.0,
   DEBUG_STORAGE_KEY: "worldle-lite-debug",
   AUTO_ADVANCE_STORAGE_KEY: "worldle-lite-auto-advance",
   THEME_STORAGE_KEY: "worldle-lite-theme",
-  COUNTRIES_GEOJSON_URL: "data/world-countries.json",
+  COUNTRIES_GEOJSON_URL: "data/generated/world-countries.render.json",
   COUNTRY_NAME_PROPERTY: "NAME_EN",
   COUNTRY_CONTINENT_PROPERTY: "CONTINENT",
   COUNTRY_CONTINENT_MEMBERSHIPS: new Map([

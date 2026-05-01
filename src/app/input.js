@@ -236,7 +236,7 @@
 
     const allContinentsOption = dom.continentFilter.querySelector('option[value=""]');
     if (allContinentsOption) {
-      allContinentsOption.textContent = `All continents (${countriesData.length})`;
+      allContinentsOption.textContent = `All countries (${countriesData.length})`;
     }
 
     continents.forEach((continent) => {

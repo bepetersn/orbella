@@ -103,7 +103,22 @@
   }
 
   function dispatch(action) {
+    try {
+      window.worldleLiteLogger?.debug('[store] dispatch', action && action.type ? action.type : action, action);
+    } catch (e) { /* ignore logging errors */ }
+
     currentState = reducer(currentState, action);
+
+    try {
+      // Log a small snapshot of the resulting state for quick debugging
+      window.worldleLiteLogger?.debug('[store] newState', {
+        numCorrect: currentState.numCorrect,
+        numPlayed: currentState.numPlayed,
+        selectedContinent: currentState.selectedContinent,
+        round: currentState.round && { outcome: currentState.round.outcome, missesUsed: currentState.round.missesUsed }
+      });
+    } catch (e) { /* ignore logging errors */ }
+
     return currentState;
   }
 

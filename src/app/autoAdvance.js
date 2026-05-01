@@ -58,6 +58,7 @@
     }
 
     runtime.autoAdvanceEnabled = nextEnabled;
+    try { window.worldleLiteLogger?.info('[autoAdvance] setAutoAdvanceEnabled', { nextEnabled, storageKey: getAutoAdvanceStorageKey() }); } catch (e) {}
     syncAutoAdvanceUi(nextEnabled);
   }
 

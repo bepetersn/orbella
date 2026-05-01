@@ -67,7 +67,7 @@ function createWorldMap({
   ctx.zoom = d3.zoom()
     .scaleExtent([1, 50])
     .on("zoom", (event) => {
-      ctx.g.attr("transform", event.transform);
+      ctx.g.attr("transform", event.transform.toString());
     });
 
   svg.call(ctx.zoom);

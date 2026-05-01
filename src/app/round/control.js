@@ -67,6 +67,8 @@
    * @param {boolean} [options.autoAdvance]    If `false`, skip the transition timer.
    */
   function finishRound({ outcome, message, feedbackClass, advanceAfterMs, transitionLabel, autoAdvance = true }) {
+    try { window.worldleLiteLogger?.info('[round] finishRound', { outcome, message, autoAdvance }); } catch (e) {}
+    try { window.worldleLiteLogger?.debug('[round] finishRound - autoAdvance state', { runtimeAutoAdvanceEnabled: runtime.autoAdvanceEnabled, autoAdvanceIsEnabledFn: runtime.autoAdvance?.isEnabled?.() }); } catch (e) {}
     const { setFeedback, updateStats } = runtime.roundUi;
     const { beginRoundTransition, scrollStatusIntoView } = runtime.roundTransitions;
     const autoAdvanceEnabled = runtime.autoAdvance?.isEnabled?.() ?? true;
@@ -89,6 +91,7 @@
   }
 
   function advanceToNextRound() {
+    try { window.worldleLiteLogger?.debug('[round] advanceToNextRound'); } catch (e) {}
     runtime.roundTransitions.clearRoundTransition();
     startRound();
   }
@@ -100,6 +103,7 @@
    * @param {object|null} match  GeoJSON feature for the matched country.
    */
   function handleWin(match) {
+    try { window.worldleLiteLogger?.info('[round] handleWin', match && (match.properties?.name || match)); } catch (e) {}
     if (!match) {
       return;
     }
@@ -129,6 +133,7 @@
    * @param {boolean}     shouldEndRound  `true` if this was the last allowed miss.
    */
   function handleGuess(match, remaining, shouldEndRound) {
+    try { window.worldleLiteLogger?.debug('[round] handleGuess', { match: match && (match.properties?.name || match), remaining, shouldEndRound }); } catch (e) {}
     if (!match) {
       return;
     }
@@ -172,6 +177,7 @@
    * dispatch the appropriate win/wrong handler.  Primes audio on every call.
    */
   function submitGuess() {
+    try { window.worldleLiteLogger?.debug('[round] submitGuess - invoked'); } catch (e) {}
     runtime.IMPORTS.audioFeedback.primeAudio();
 
     const roundState = actions.getRoundState(config.MAX_MISSES_PER_ROUND);
@@ -181,6 +187,7 @@
     }
 
     const userGuess = dom.input.value.trim();
+    try { window.worldleLiteLogger?.debug('[round] submitGuess - userGuess', userGuess); } catch (e) {}
     const result = actions.submitRoundGuess(userGuess, config.MAX_MISSES_PER_ROUND);
     const match = actions.resolveCountryGuess(userGuess);
 
@@ -191,6 +198,7 @@
     }
 
     if (result.status === "duplicate") {
+      try { window.worldleLiteLogger?.debug('[round] submitGuess - duplicate'); } catch (e) {}
       runtime.roundUi.shakeInput();
       return;
     }
@@ -265,6 +273,7 @@
    * Re-show the target halo without changing round state.
    */
   function replayHalo() {
+    try { window.worldleLiteLogger?.debug('[round] replayHalo'); } catch (e) {}
     const replayCountry = window.__WORLDLE_DEBUG__
       ? window.worldleLiteDebug?.getLastClickedCountry?.() || state.store.targetCountry
       : state.store.targetCountry;
@@ -281,6 +290,7 @@
    * Syncs hint button state regardless of whether a new hint was revealed.
    */
   function showNextHint() {
+    try { window.worldleLiteLogger?.debug('[round] showNextHint'); } catch (e) {}
     const result = actions.requestRoundHint();
 
     if (!result.changed) {
@@ -300,6 +310,8 @@
    * state, mark the target on the map, and animate the map zoom to the target.
    */
   function startRound() {
+    try { window.worldleLiteLogger?.info('[round] startRound - selecting next target', { selectedContinent: state.store.selectedContinent, countriesAvailable: (state.store.countriesData || []).length }); } catch (e) {}
+    // Normal startRound flow — bootstrap is responsible for initial sequencing.
     const { clearRoundTransition } = runtime.roundTransitions;
     const { clearFeedback, clearHints, renderGuessPlaceholders } = runtime.roundUi;
 
@@ -326,10 +338,12 @@
     const nextTargetCountry = state.targetSelector.getNextTarget(candidatePool, poolKey);
 
     if (!nextTargetCountry) {
+      try { window.worldleLiteLogger?.warn('[round] startRound - no target selected'); } catch (e) {}
       return;
     }
 
     // 3. Initialize store & UI
+    try { window.worldleLiteLogger?.info('[round] startRound - nextTarget', nextTargetCountry && (nextTargetCountry.properties?.name || nextTargetCountry)); } catch (e) {}
     actions.setTargetCountry(nextTargetCountry);
     actions.setSelectedIndex(-1);
     runtime.worldMapInst.markTarget(nextTargetCountry);
@@ -370,6 +384,7 @@
       return;
     }
 
+    try { window.worldleLiteLogger?.debug('[round] revealAnswer'); } catch (e) {}
     const result = actions.revealRoundAnswer();
 
     if (!result.changed) {

@@ -49,7 +49,7 @@
 <div id="map-controls">
   <label for="continent-filter">Region:</label>
   <select id="continent-filter" aria-label="Filter by continent">
-    <option value="">All continents</option>
+    <option value="">All countries</option>
   </select>
   <label class="toggle-chip" id="auto-advance-toggle-label" for="auto-advance-toggle">
     <input id="auto-advance-toggle" type="checkbox" checked />
@@ -59,7 +59,7 @@
 </div>
 
 <div id="map-container">
-  <svg id="map" viewBox="0 0 960 500"></svg>
+  <div id="globeViz" style="width:100%;height:600px"></div>
 </div>
 
 <div id="map-legend" aria-label="Map legend">
@@ -119,7 +119,10 @@
 <script src="src/theme.js"></script>
 <script src="src/audio.js"></script>
 <script src="src/map/geometry.js"></script>
-<script src="src/map/worldMap.js"></script>
+<!-- Prefer a local vendored copy if present (drop src/vendor/globe.gl.min.js to pin a version),
+     then fall back to the CDN. -->
+<script src="src/vendor/globe.gl.min.js"></script>
+<script src="src/map/globe.js"></script>
 <script src="src/targetSelector.js"></script>
 <script src="src/store/constants.js"></script>
 <script src="src/store/normalize.js"></script>
