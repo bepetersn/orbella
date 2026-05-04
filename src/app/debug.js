@@ -5,6 +5,7 @@
  * exposed on `window` for map inspection/testing.
  */
 (() => {
+  console.log('[debug] debug.js loaded');
   let debugTooltipEl = null;
   let debugHelpersInstalled = false;
 
@@ -19,6 +20,10 @@
   function getCountrySelection() {
     const d3 = getD3();
     return d3 ? d3.selectAll("#map .country") : null;
+  }
+
+  function getGlobe() {
+    return getRuntime()?.globe || null;
   }
 
   function ensureTooltip() {
@@ -58,37 +63,103 @@
   }
 
   function enableDebugHoverInspect() {
-    const countries = getCountrySelection();
-    if (!countries) {
+    const globe = getGlobe();
+    const container = document.getElementById('globeViz');
+    
+    if (!globe || !container || typeof globe.onPolygonHover !== 'function') {
+      console.warn('[debug-hover] enableDebugHoverInspect: missing globe, container, or onPolygonHover method');
       return;
     }
 
-    countries
-      .on("mouseenter.debugHover", (event, country) => {
-        showTooltip(country?.properties?.name ?? "", event);
-      })
-      .on("mousemove.debugHover", (event) => {
-        moveTooltip(event);
-      })
-      .on("mouseleave.debugHover", () => {
+    // Store current country being hovered and last mouse position
+    let currentHoveredCountry = null;
+    let lastMouseEvent = null;
+
+    globe.onPolygonHover((country) => {
+      currentHoveredCountry = country;
+      if (!country) {
         hideTooltip();
-      });
+      } else {
+        showTooltip(country?.properties?.name ?? "", lastMouseEvent);
+      }
+    });
+
+    // Track tooltip position with mousemove on the globe container
+    const handleMouseMove = (event) => {
+      lastMouseEvent = event;
+      if (currentHoveredCountry) {
+        moveTooltip(event);
+      }
+    };
+
+    container.addEventListener('mousemove', handleMouseMove);
+    // Store reference so we can remove it later
+    container._debugHoverMouseMoveHandler = handleMouseMove;
   }
 
   function disableDebugHoverInspect() {
-    const countries = getCountrySelection();
-    if (!countries) {
-      return;
+    const globe = getGlobe();
+    const container = document.getElementById('globeViz');
+    
+    if (globe && typeof globe.onPolygonHover === 'function') {
+      // Reset to default behavior (no hover tooltip)
+      globe.onPolygonHover(null);
     }
 
-    countries
-      .on("mouseenter.debugHover", null)
-      .on("mousemove.debugHover", null)
-      .on("mouseleave.debugHover", null);
+    if (container && container._debugHoverMouseMoveHandler) {
+      container.removeEventListener('mousemove', container._debugHoverMouseMoveHandler);
+      delete container._debugHoverMouseMoveHandler;
+    }
 
     hideTooltip();
     
     debugHelpersInstalled = false;
+  }
+
+  /**
+   * Fully apply a debug-selected country as the new round target.
+   * Updates both the visual map state and the store/round state so that
+   * guesses work correctly against the new target.
+   */
+  function applyDebugTarget(country, options = {}) {
+    const runtime = getRuntime();
+    if (!runtime || !country) {
+      return;
+    }
+
+    const {
+      reset = true,
+      mark = true,
+      zoom = true,
+      halo = false
+    } = options;
+
+    if (reset) {
+      // Reset visual map state
+      runtime.worldMapInst?.resetRoundState();
+      // Reset UI state
+      runtime.roundTransitions?.clearRoundTransition?.();
+      runtime.roundUi?.clearFeedback?.();
+      runtime.roundUi?.clearHints?.();
+      runtime.roundUi?.renderGuessPlaceholders?.();
+      runtime.input?.clearForm?.();
+      runtime.input?.syncGuessButtonState?.(false);
+      // Update store: set the new target country and reset round state
+      runtime.actions?.setTargetCountry?.(country);
+      runtime.actions?.startRound?.(country.properties?.name ?? "");
+    }
+
+    if (mark) {
+      runtime.worldMapInst?.markTarget?.(country);
+    }
+
+    if (zoom) {
+      runtime.worldMapInst?.zoomToCountry?.(country);
+    }
+
+    if (halo) {
+      runtime.worldMapInst?.showLocationHalo?.(country);
+    }
   }
 
   function enableDebugClickInspect(options = {}) {
@@ -113,21 +184,7 @@
         window.__WORLDLE_DEBUG_LAST_COUNTRY_NAME__ = countryName;
         window.worldleLiteLogger?.debug("[worldle-lite] clicked country:", countryName);
 
-        if (reset) {
-          runtime.worldMapInst.resetRoundState();
-        }
-
-        if (mark) {
-          runtime.worldMapInst.markTarget(country);
-        }
-
-        if (zoom) {
-          runtime.worldMapInst.zoomToCountry(country);
-        }
-
-        if (halo) {
-          runtime.worldMapInst.showLocationHalo(country);
-        }
+        applyDebugTarget(country, { reset, mark, zoom, halo });
       });
   }
 
@@ -184,12 +241,12 @@
     }
 
     const debugEnabled = Boolean(window.__WORLDLE_DEBUG__);
-    debugToggle.textContent = debugEnabled ? "Debug: On" : "Debug: Off";
-    debugToggle.setAttribute("aria-pressed", String(debugEnabled));
+    debugToggle.checked = debugEnabled;
   }
 
   function toggleDebugMode() {
     const nextDebugMode = !Boolean(window.__WORLDLE_DEBUG__);
+    console.log('[debug] toggleDebugMode', { nextDebugMode });
 
     try {
       window.localStorage.setItem(getDebugStorageKey(), nextDebugMode ? "on" : "off");
@@ -200,8 +257,10 @@
     window.__WORLDLE_DEBUG__ = nextDebugMode;
 
     if (nextDebugMode) {
+      console.log('[debug] debug mode ON, installing helpers');
       installDebugHelpers();
     } else {
+      console.log('[debug] debug mode OFF, disabling helpers');
       // Only disable if helpers were actually installed (i.e., after map loads)
       if (debugHelpersInstalled) {
         disableDebugClickInspect();
@@ -219,26 +278,36 @@
       return;
     }
 
-    debugToggle.addEventListener("click", toggleDebugMode);
+    debugToggle.addEventListener("change", toggleDebugMode);
   }
 
   function installDebugHelpers() {
     const runtime = getRuntime();
+    console.log('[debug-hover] installDebugHelpers called', { debugEnabled: window.__WORLDLE_DEBUG__, hasRuntime: !!runtime });
+    
     if (!window.__WORLDLE_DEBUG__ || !runtime) {
+      console.log('[debug-hover] installDebugHelpers: debug not enabled or no runtime');
       return;
     }
 
     // Prevent installing helpers multiple times, which would attach duplicate event listeners
     if (debugHelpersInstalled) {
+      console.log('[debug-hover] installDebugHelpers: already installed');
       return;
     }
 
-    // Only install if country elements are actually present in the DOM
+    // Check if globe (Globe.gl) is available, or fall back to checking for SVG country elements
+    const globe = getGlobe();
     const countries = getCountrySelection();
-    if (!countries || countries.empty()) {
-      // Map not loaded yet; will be called again by bootstrap.js after map loads
+    const hasGlobeOrMap = globe || (countries && !countries.empty());
+    
+    if (!hasGlobeOrMap) {
+      // Map/globe not loaded yet; will be called again by bootstrap.js after map loads
+      console.log('[debug-hover] installDebugHelpers: globe/map not loaded yet', { hasGlobe: !!globe, hasCountries: !!countries });
       return;
     }
+
+    console.log('[debug-hover] installing debug helpers...');
 
     window.debugGetLastClickedCountryName = () => window.__WORLDLE_DEBUG_LAST_COUNTRY_NAME__ || null;
     window.debugGetLastClickedCountry = () => window.__WORLDLE_DEBUG_LAST_COUNTRY__ || null;
@@ -266,21 +335,7 @@
         halo = true
       } = options;
 
-      if (reset) {
-        runtime.worldMapInst.resetRoundState();
-      }
-
-      if (mark) {
-        runtime.worldMapInst.markTarget(country);
-      }
-
-      if (zoom) {
-        runtime.worldMapInst.zoomToCountry(country);
-      }
-
-      if (halo) {
-        runtime.worldMapInst.showLocationHalo(country);
-      }
+      applyDebugTarget(country, { reset, mark, zoom, halo });
 
       return true;
     };
@@ -299,6 +354,7 @@
     window.debugEnableClickZoom();
     
     debugHelpersInstalled = true;
+    console.log('[debug-hover] debug helpers installed successfully');
   }
 
   window.worldleLiteDebug = {

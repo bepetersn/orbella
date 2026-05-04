@@ -118,7 +118,7 @@
   }
 
   function formatHintText(hint) {
-    if (!hint) {
+    if (!hint || typeof hint !== 'object') {
       return "";
     }
 
@@ -127,11 +127,11 @@
     }
 
     if (hint.type === "first-letter") {
-      return config.COPY.hints.firstLetter.replace("{letter}", hint.value);
+      return config.COPY.hints.firstLetter.replace("{letter}", hint.value || "");
     }
 
     if (hint.type === "letter-count") {
-      return config.COPY.hints.letterCount.replace("{count}", String(hint.value));
+      return config.COPY.hints.letterCount.replace("{count}", String(hint.value ?? 0));
     }
 
     return "";
@@ -201,8 +201,12 @@
       dom.scorePlayed.textContent = state.store.numPlayed;
     }
 
-    if (dom.scoreHints) {
-      dom.scoreHints.textContent = state.store.numHintsUsed ?? 0;
+    if (dom.hintsUsedInRound) {
+      dom.hintsUsedInRound.textContent = state.store.numHintsUsed ?? 0;
+    }
+
+    if (dom.totalHintsUsed) {
+      dom.totalHintsUsed.textContent = state.store.numHintsUsed ?? 0;
     }
   }
 
@@ -258,8 +262,9 @@
    * Fill the next empty pill in the guess history list.
    * @param {object|string} countryOrName
    * @param {"correct"|"guess"} resultType
+   * @param {{ distanceKm: number, arrow: string } | null} [proximityInfo]
    */
-  function fillNextGuessPill(countryOrName, resultType = "guess") {
+  function fillNextGuessPill(countryOrName, resultType = "guess", proximityInfo = null) {
     if (!dom.guessList) {
       return;
     }
@@ -311,6 +316,22 @@
       name.className = "guess-name";
       name.textContent = displayName;
       nextPill.appendChild(name);
+
+      if (proximityInfo) {
+        const badge = document.createElement("span");
+        badge.className = "proximity-badge";
+        if (proximityInfo.adjacent) {
+          badge.textContent = `${proximityInfo.arrow} Adjacent`;
+          badge.setAttribute("aria-label", "Adjacent to the target");
+        } else {
+          const formattedDist = proximityInfo.distanceKm >= 1000
+            ? `${(proximityInfo.distanceKm / 1000).toFixed(1).replace(/\.0$/, "")}k km`
+            : `${proximityInfo.distanceKm} km`;
+          badge.textContent = `${proximityInfo.arrow} ${formattedDist}`;
+          badge.setAttribute("aria-label", `${formattedDist} away`);
+        }
+        nextPill.appendChild(badge);
+      }
     }
   }
 

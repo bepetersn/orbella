@@ -100,10 +100,61 @@ function _buildFeatureFromParts(feature, parts) {
 }
 
 /**
- * Return a `Map<string, GeoJSONFeature>` suitable for rendering.  For
- * countries that have polygon parts outside `continentName`, only the
- * parts whose centroid falls within the continent's bounding box are kept.
- * Single-continent countries are returned unmodified.
+ * Return true if the centroid [lon, lat] of a polygon part falls inside any
+ * of the exclusion bounding boxes `[[minLon, minLat, maxLon, maxLat], ...]`.
+ */
+function _isExcludedByBounds(geoCentroid, exclusionBoxes) {
+  const [lon, lat] = geoCentroid;
+  return exclusionBoxes.some(
+    ([minLon, minLat, maxLon, maxLat]) =>
+      lon >= minLon && lon <= maxLon && lat >= minLat && lat <= maxLat
+  );
+}
+
+/**
+ * Strip any polygon parts that are explicitly excluded via
+ * `deps.excludedPolygonBounds` (a `Map<string, number[][]>`).  Returns the
+ * feature unmodified when there are no exclusions configured for it.
+ */
+function _applyExclusionBounds(deps, country) {
+  const excludedBounds = deps.excludedPolygonBounds;
+  if (!excludedBounds || excludedBounds.size === 0) {
+    return country;
+  }
+
+  const key = deps.getCountryKey(country);
+  const boxes = excludedBounds.get(key);
+  if (!boxes || !boxes.length) {
+    return country;
+  }
+
+  const parts = getGeometryPolygonParts(country);
+  if (parts.length <= 1) {
+    return country;
+  }
+
+  const keptParts = parts.filter((partCoordinates) => {
+    const partFeature = createPolygonFeature(country.properties, partCoordinates);
+    const geoCentroid = deps.d3.geoCentroid(partFeature);
+    return !_isExcludedByBounds(geoCentroid, boxes);
+  });
+
+  if (keptParts.length === parts.length) {
+    return country;
+  }
+
+  // Always keep at least the first part so the country isn't invisible.
+  const finalParts = keptParts.length > 0 ? keptParts : [parts[0]];
+  return _buildFeatureFromParts(country, finalParts);
+}
+
+/**
+ * Return a `Map<string, GeoJSONFeature>` suitable for rendering.  When
+ * `continentName` is set, countries that span multiple continents have their
+ * out-of-continent polygon parts trimmed using the geographic-distance
+ * heuristic.  Regardless of continent filter, any parts explicitly listed in
+ * `deps.excludedPolygonBounds` are always stripped (e.g. French Guiana from
+ * France).
  *
  * @param {object}        deps
  * @param {object[]}      allCountriesData  Normalised GeoJSON feature array.
@@ -113,24 +164,27 @@ function _buildFeatureFromParts(feature, parts) {
 function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
   const { getCountryKey, matchesContinent } = deps;
 
-  // 1. Build the default untrimmed render map.
+  // 1. Apply explicit exclusion bounds to every country (always active).
+  const trimmedData = allCountriesData.map((country) => _applyExclusionBounds(deps, country));
+
+  // 2. Build the base render map from exclusion-trimmed data.
   const defaultMap = new Map(
-    allCountriesData.map((country) => [getCountryKey(country), country])
+    trimmedData.map((country) => [getCountryKey(country), country])
   );
 
   if (!continentName) {
     return defaultMap;
   }
 
-  // 2. Narrow to countries that belong to the selected continent.
-  const countriesInContinent = allCountriesData
+  // 3. Narrow to countries that belong to the selected continent.
+  const countriesInContinent = trimmedData
     .filter((country) => matchesContinent(country, continentName));
 
   if (!countriesInContinent.length) {
     return defaultMap;
   }
 
-  // 3. Compute per-country polygon-part stats (area + centroids).
+  // 4. Compute per-country polygon-part stats (area + centroids).
   const countryStats = countriesInContinent
     .map((country) => {
       const parts = getGeometryPolygonParts(country)
@@ -156,12 +210,9 @@ function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
     return defaultMap;
   }
 
-  // 4. Keep only parts geographically close to each country's primary part.
-  
-  // Keep polygon parts whose geographic centroid is within MAX_PART_GEO_DISTANCE_RAD
-  // of the country's primary part centroid.  This is projection-agnostic and correctly
-  // retains outlier-but-contiguous territory (e.g. Alaska, ~42°) while trimming
-  // distant overseas territories (e.g. French Guiana from France, ~70°).
+  // 5. Keep only parts geographically close to each country's primary part.
+  //    Retains contiguous outliers like Alaska (~42°) while trimming truly
+  //    distant parts.
   const MAX_PART_GEO_DISTANCE_RAD = 60 * Math.PI / 180;
 
   countryStats.forEach((entry) => {
@@ -183,7 +234,7 @@ function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
     defaultMap.set(getCountryKey(entry.country), _buildFeatureFromParts(entry.country, keptParts));
   });
 
-  // 5. Return the continent-trimmed render map.
+  // 6. Return the continent-trimmed render map.
   return defaultMap;
 }
 
@@ -198,7 +249,7 @@ function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
  * @param {Function}  options.getCountryKey            `(feature) => string` lower-cased country key.
  * @returns {{ buildRenderableMapForContinent: Function }}
  */
-function createContinentGeometryFilter({ d3, path, projection, isCountryInContinent, getCountryKey }) {
+function createContinentGeometryFilter({ d3, path, projection, isCountryInContinent, getCountryKey, excludedPolygonBounds }) {
   const matchesContinent = typeof isCountryInContinent === "function"
     ? isCountryInContinent
     : (country, continentName) => country?.properties?.continent === continentName;
@@ -208,7 +259,8 @@ function createContinentGeometryFilter({ d3, path, projection, isCountryInContin
     path,
     projection,
     getCountryKey,
-    matchesContinent
+    matchesContinent,
+    excludedPolygonBounds: excludedPolygonBounds instanceof Map ? excludedPolygonBounds : new Map()
   };
 
   return {
@@ -216,9 +268,60 @@ function createContinentGeometryFilter({ d3, path, projection, isCountryInContin
   };
 }
 
+// ============================================================================
+// Proximity Utilities (distance + bearing between two country centers)
+// ============================================================================
+
+/**
+ * Compute the great-circle distance in kilometres between two [lon, lat] points
+ * using the Haversine formula.
+ *
+ * @param {[number, number]} centerA  [lon, lat] of the first point.
+ * @param {[number, number]} centerB  [lon, lat] of the second point.
+ * @returns {number}  Distance in km, rounded to the nearest integer.
+ */
+function haversineDistanceKm(centerA, centerB) {
+  const R = 6371; // Earth's mean radius in km
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const [lon1, lat1] = centerA;
+  const [lon2, lat2] = centerB;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+/**
+ * Compute the initial compass bearing (in degrees, 0 = North, clockwise) from
+ * `centerA` toward `centerB`, then map it to one of 8 Unicode arrow characters.
+ *
+ * @param {[number, number]} centerA  [lon, lat] of the origin point.
+ * @param {[number, number]} centerB  [lon, lat] of the destination point.
+ * @returns {string}  One of ↑ ↗ → ↘ ↓ ↙ ← ↖
+ */
+function compassBearing(centerA, centerB) {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const toDeg = (rad) => (rad * 180) / Math.PI;
+  const [lon1, lat1] = centerA;
+  const [lon2, lat2] = centerB;
+  const dLon = toRad(lon2 - lon1);
+  const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+  const x =
+    Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+    Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+  const bearing = (toDeg(Math.atan2(y, x)) + 360) % 360;
+  const arrows = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
+  const index = Math.round(bearing / 45) % 8;
+  return arrows[index];
+}
+
 // Export for window global access (maintains backward compatibility)
 if (typeof window !== 'undefined') {
   window.continentGeometry = {
-    createContinentGeometryFilter
+    createContinentGeometryFilter,
+    haversineDistanceKm,
+    compassBearing
   };
 }

@@ -43,17 +43,8 @@
     return country?.properties?.continent === selectedContinent;
   }
 
-  function resolveEligibleCountry(countryName) {
-    const matchedCountry = actions.resolveCountryGuess(countryName);
-    if (!matchedCountry) {
-      return null;
-    }
-
-    return matchedCountry;
-  }
-
   function getSuggestionVisuals(countryName) {
-    const matchedCountry = resolveEligibleCountry(countryName);
+    const matchedCountry = actions.resolveCountryGuess(countryName);
     const properties = matchedCountry?.properties ?? {};
 
     return {
@@ -69,7 +60,7 @@
    */
   function validateInput() {
     const value = dom.input.value.trim();
-    const isValid = Boolean(resolveEligibleCountry(value));
+    const isValid = Boolean(actions.resolveCountryGuess(value));
 
     syncGuessButtonState(isValid);
 
@@ -94,7 +85,7 @@
     const matches = normalizedValue
       ? actions
         .getSuggestedCountryNames(normalizedValue, 24)
-        .filter((countryName) => Boolean(resolveEligibleCountry(countryName)))
+        .filter((countryName) => Boolean(actions.resolveCountryGuess(countryName)))
         .slice(0, config.MAX_SUGGESTIONS)
       : [];
 
@@ -248,7 +239,6 @@
 
     lastAppliedContinent = dom.continentFilter.value || null;
 
-    dom.continentFilter.addEventListener("input", applyContinentSelection);
     dom.continentFilter.addEventListener("change", applyContinentSelection);
   }
 

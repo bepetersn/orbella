@@ -25,7 +25,11 @@
   }
 
   function toLooseGuessKey(guessName) {
-    return normalizeGuess(guessName).replace(looseKeyNonAlphaNumericPattern, "");
+    const normalized = normalizeGuess(guessName);
+    return normalized
+      .split(/\s+/)
+      .filter(word => word.length > 1)
+      .join("");
   }
 
   _store.normalizeGuess = normalizeGuess;

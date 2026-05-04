@@ -550,7 +550,7 @@ const flagDisplayNames = typeof Intl !== "undefined" && typeof Intl.DisplayNames
   ? new Intl.DisplayNames(["en"], { type: "region" })
   : null;
 
-const normalizedFlagCodeOverrides = new Map([
+const isoCodeOverrides = new Map([
   ["czech republic", "CZ"],
   ["democratic republic of the congo", "CD"],
   ["east timor", "TL"],
@@ -621,14 +621,14 @@ function buildRegionNameToCodes() {
   return lookup;
 }
 
-function resolveCountryFlagCode(countryName) {
+function resolveIsoCode(countryName) {
   const normalizedName = normalizeCountryLookupName(countryName);
 
   if (!normalizedName) {
     return null;
   }
 
-  const override = normalizedFlagCodeOverrides.get(normalizedName);
+  const override = isoCodeOverrides.get(normalizedName);
   if (override) {
     return override;
   }
@@ -673,7 +673,7 @@ function normalizeCountryFeature(ctx, feature) {
     ...configuredMemberships
   ].filter(Boolean))];
   const normalizedContinent = normalizedMemberships[0] || sourceContinent;
-  const flagCode = resolveCountryFlagCode(normalizedName);
+  const isoCode = resolveIsoCode(normalizedName);
 
   return {
     ...feature,
@@ -685,8 +685,8 @@ function normalizeCountryFeature(ctx, feature) {
       synonyms: aliasNames,
       continent: normalizedContinent,
       continents: normalizedMemberships,
-      flagCode,
-      flagEmoji: flagEmojiFromCountryCode(flagCode)
+      isoCode,
+      flagEmoji: flagEmojiFromCountryCode(isoCode)
     }
   };
 }

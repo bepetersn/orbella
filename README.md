@@ -11,7 +11,7 @@ Worldle Lite is a lightweight, single-page geography guessing game. Each round z
 - `src/audio.js` owns tone generation, win/loss cues, and vibration feedback.
 - `src/map/worldMap.js` owns SVG setup, GeoJSON loading, and country map rendering.
 - `src/map/geometry.js` owns continent-aware multipolygon trimming for regional map views.
-- `tools/data/` owns preprocessing scripts that derive browser-ready data from the canonical GeoJSON source.
+- `pipeline/` owns preprocessing scripts that derive browser-ready data from the canonical GeoJSON source.
 - `src/app/runtime.js` builds the shared runtime context, `src/app/input.js` handles autocomplete and input, `src/app/round/` contains round UI/transition/flow modules, and `src/app/bootstrap.js` starts the app.
 - `styles.css` contains all visual styling for the game shell and states.
 - `diagrams/` holds the architecture and round lifecycle diagrams.
@@ -30,7 +30,7 @@ Worldle Lite is a lightweight, single-page geography guessing game. Each round z
 
 1. Open `worldle-lite.html` in a modern browser.
 2. If your browser blocks loading the map data from a local file, serve the folder with a simple local web server instead.
-3. The page loads a vendored local copy of D3 (`src/vendor/d3.v7.min.js`) and fetches country GeoJSON from the local `data/` folder, so a simple local web server is the easiest way to run it reliably.
+3. The page loads a vendored local copy of D3 (`src/vendor/d3.v7.min.js`) and fetches country GeoJSON from the local `pipeline/data/` folder, so a simple local web server is the easiest way to run it reliably.
 
 ### Example local server
 
@@ -60,7 +60,7 @@ Then open `http://localhost:8000/worldle-lite.html`.
 
 ## Notes
 
-- The game uses a vendored Natural Earth-derived GeoJSON file at `data/world-countries.json`; preprocessing in `tools/data/` derives a browser-ready feature collection at `data/generated/world-countries.render.json`.
+- The game uses a vendored Natural Earth-derived GeoJSON file at `pipeline/data/world-countries.json`; preprocessing in `pipeline/` derives a browser-ready feature collection at `pipeline/data/generated/world-countries.render.json`.
 - The app only needs a small country model: one stable id, one canonical display name, optional aliases, one continent value, and an exclusion flag for non-playable features.
 - `src/config.js` chooses `NAME_EN` as the canonical display field; `NAME_ALIASES` adds alternate guesses, while the raw Natural Earth metadata stays intact.
 - `NAME_ALIASES` is for alternate guesses only; it should help matching without producing duplicate visible suggestions.

@@ -12,7 +12,7 @@ This folder owns the lightweight preprocessing step for country data.
 Run the generator after changing the source GeoJSON or the normalization rules:
 
 ```bash
-node tools/data/generate-world-countries.mjs
+node generate-world-countries.mjs
 ```
 
 The script keeps the geometry intact and adds normalized lookup fields that the browser app can use directly.

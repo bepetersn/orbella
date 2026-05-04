@@ -19,8 +19,15 @@
   function playTone(freq, type, duration, volume = 0.1) {
     initAudio();
 
+    if (!audioCtx) {
+      return;
+    }
+
+    // Resume audio context if it's suspended (due to browser autoplay policy)
     if (audioCtx.state === "suspended") {
-      audioCtx.resume();
+      audioCtx.resume().catch(err => {
+        console.warn('Failed to resume audio context:', err);
+      });
     }
 
     const osc = audioCtx.createOscillator();
@@ -30,12 +37,12 @@
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
     gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
-    osc.start();
+    osc.start(audioCtx.currentTime);
     osc.stop(audioCtx.currentTime + duration);
   }
 
@@ -49,15 +56,34 @@
   }
 
   /**
-   * Play a short ascending two-tone win cue (C5 → E5) and fire a brief
-   * double-pulse vibration on devices that support the Vibration API.
+   * Play a cheerful ascending major-chord arpeggio (C5 → E5 → G5 → C6) with
+   * a short shimmer on the final note, then fire a triple-pulse vibration.
    */
   function correct() {
-    playTone(523.25, "sine", 0.5);
-    playTone(659.25, "sine", 0.5);
+    initAudio();
+    if (!audioCtx) return;
+
+    // Each note: [frequency Hz, start offset ms, duration s, volume]
+    const notes = [
+      [392.00, 0,   0.18, 0.12],   // G4
+      [493.88, 130, 0.18, 0.13],   // B4
+      [587.33, 250, 0.18, 0.13],   // D5
+      [783.99, 370, 0.45, 0.11],   // G5  — held longer
+    ];
+
+    notes.forEach(([freq, offsetMs, dur, vol]) => {
+      setTimeout(() => {
+        // Primary sine tone
+        playTone(freq, "sine", dur, vol);
+        // Subtle triangle shimmer one octave up for sparkle on the last note
+        if (offsetMs === 370) {
+          playTone(freq * 2, "triangle", dur * 0.6, 0.03);
+        }
+      }, offsetMs);
+    });
 
     if (navigator.vibrate) {
-      navigator.vibrate([50, 30, 50]);
+      navigator.vibrate([40, 25, 40, 25, 60]);
     }
   }
 

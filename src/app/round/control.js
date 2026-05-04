@@ -124,6 +124,43 @@
   }
 
   /**
+   * Compute proximity between a guessed country and the current target.
+   *
+   * Returns `{ adjacent: true, arrow }` when the two countries share a border,
+   * `{ adjacent: false, distanceKm, arrow }` when a measurable gap exists, or
+   * `null` when the required geometry data is unavailable.
+   *
+   * @param {object} guessFeature   GeoJSON feature for the guessed country.
+   * @param {object} targetFeature  GeoJSON feature for the target country.
+   * @returns {{ adjacent: boolean, arrow: string, distanceKm?: number } | null}
+   */
+  function computeProximityInfo(guessFeature, targetFeature) {
+    try {
+      const geo = window.continentGeometry;
+      const guessCenter = guessFeature.properties.geometryCenter;
+      const targetCenter = targetFeature.properties.geometryCenter;
+
+      const centersAvailable =
+        Array.isArray(guessCenter) && guessCenter.length >= 2 &&
+        Array.isArray(targetCenter) && targetCenter.length >= 2;
+
+      const adjacent = (guessFeature.properties.neighborIsoCodes ?? []).includes(targetFeature.properties.isoCode);
+
+      const arrow = centersAvailable ? geo.compassBearing(guessCenter, targetCenter) : "";
+
+      if (adjacent) {
+        return { adjacent: true, arrow };
+      }
+
+      if (centersAvailable) {
+        return { adjacent: false, distanceKm: geo.haversineDistanceKm(guessCenter, targetCenter), arrow };
+      }
+    } catch (e) { try { window.worldleLiteLogger?.warn('[round] computeProximityInfo failed', e); } catch (_) {} }
+
+    return null;
+  }
+
+  /**
    * Record an incorrect guess: fill the next guess pill and mark the country
    * on the map.  If this was the last allowed miss, finish the round as missed;
    * otherwise play wrong audio and shake the input.
@@ -139,8 +176,9 @@
     }
 
     const { fillNextGuessPill, setFeedback, shakeInput } = runtime.roundUi;
+    const proximityInfo = computeProximityInfo(match, state.store.targetCountry);
 
-    fillNextGuessPill(match, "guess");
+    fillNextGuessPill(match, "guess", proximityInfo);
     runtime.worldMapInst.markWrong(match);
 
     if (shouldEndRound) {
@@ -215,8 +253,15 @@
    * the input placeholder, the reveal button, and the hint button.
    */
   function renderRoundState() {
-    // 1. Guard: required reveal UI node must exist.
-    if (!dom.revealTarget) {
+    // 1. Guard: required nodes must exist.
+    if (!dom.revealTarget || !state || !state.store || !actions || !config) {
+      console.warn('[round] renderRoundState early return - missing dom, state, actions, or config', { 
+        domRevealTarget: !!dom.revealTarget,
+        state: !!state,
+        store: !!state?.store,
+        actions: !!actions,
+        config: !!config
+      });
       return;
     }
 
@@ -245,7 +290,9 @@
     }
 
     // 4. Render input/reveal control states.
-    dom.input.placeholder = roundState.outcome === ROUND_OUTCOME.active ? config.COPY.input.idlePlaceholder : config.COPY.input.lockedPlaceholder;
+    if (dom.input) {
+      dom.input.placeholder = roundState.outcome === ROUND_OUTCOME.active ? config.COPY.input.idlePlaceholder : config.COPY.input.lockedPlaceholder;
+    }
 
     if (dom.revealBtn) {
       dom.revealBtn.disabled = roundState.outcome !== ROUND_OUTCOME.active;
@@ -271,6 +318,7 @@
 
   /**
    * Re-show the target halo without changing round state.
+   * Uses a custom startTime option to make it initiate immediately.
    */
   function replayHalo() {
     try { window.worldleLiteLogger?.debug('[round] replayHalo'); } catch (e) {}
@@ -282,7 +330,8 @@
       return;
     }
 
-    runtime.worldMapInst.showLocationHalo(replayCountry);
+    // Pass startTime option to make halo initiate immediately without delay
+    runtime.worldMapInst.showLocationHalo(replayCountry, { startTime: Date.now() });
   }
 
   /**
@@ -290,15 +339,19 @@
    * Syncs hint button state regardless of whether a new hint was revealed.
    */
   function showNextHint() {
+    console.log('[round] showNextHint called');
     try { window.worldleLiteLogger?.debug('[round] showNextHint'); } catch (e) {}
     const result = actions.requestRoundHint();
+    console.log('[round] requestRoundHint returned:', result);
 
     if (!result.changed) {
+      console.log('[round] no change, result.changed is false');
       runtime.roundUi.updateHintUsage();
       syncHintState();
       return;
     }
 
+    console.log('[round] changed=true, calling setHints with:', result.revealedHints);
     runtime.roundUi.setHints(result.revealedHints);
     runtime.roundUi.updateHintUsage();
     runtime.roundUi.updateStats();
@@ -311,6 +364,19 @@
    */
   function startRound() {
     try { window.worldleLiteLogger?.info('[round] startRound - selecting next target', { selectedContinent: state.store.selectedContinent, countriesAvailable: (state.store.countriesData || []).length }); } catch (e) {}
+    
+    // Guard: ensure runtime is fully initialized
+    if (!runtime.roundUi || !runtime.input || !runtime.worldMapInst || !actions) {
+      try { window.worldleLiteLogger?.error('[round] startRound - runtime not fully initialized yet'); } catch (e) {}
+      console.error('[round] startRound early exit - runtime not initialized:', {
+        roundUi: !!runtime.roundUi,
+        input: !!runtime.input,
+        worldMapInst: !!runtime.worldMapInst,
+        actions: !!actions
+      });
+      return;
+    }
+    
     // Normal startRound flow — bootstrap is responsible for initial sequencing.
     const { clearRoundTransition } = runtime.roundTransitions;
     const { clearFeedback, clearHints, renderGuessPlaceholders } = runtime.roundUi;
@@ -319,6 +385,10 @@
 
     // 1. Reset prior round
     clearRoundTransition();
+    if (runtime.roundRevealTimer) {
+      clearTimeout(runtime.roundRevealTimer);
+      runtime.roundRevealTimer = null;
+    }
     runtime.roundUi.clearCelebration();
     runtime.input.clearForm();
     runtime.input.syncGuessButtonState(false);
@@ -370,7 +440,7 @@
     runtime.roundRevealTimer = setTimeout(() => {
       runtime.roundRevealTimer = null;
       runtime.worldMapInst.showLocationHalo(nextTargetCountry);
-      dom.input.focus();
+      dom.input.focus({ preventScroll: true });
     }, 1100);
   }
 

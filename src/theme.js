@@ -3,7 +3,7 @@
  *
  * Resolves the active theme from `localStorage` (falling back to the OS
  * `prefers-color-scheme` media query), applies it to the document root, and
- * wires the toggle button so clicking it cycles between `"light"` and
+ * wires the toggle checkbox so changing it cycles between `"light"` and
  * `"dark"`.
  *
  * Exported as {@link window.themeSystem}.
@@ -31,8 +31,8 @@
   }
 
   /**
-   * Update the toggle button's text content and ARIA attributes to reflect
-   * `theme`.  Does nothing when no button element has been registered.
+   * Update the toggle checkbox's checked state to reflect `theme`.
+   * Does nothing when no checkbox element has been registered.
    * @param {"dark" | "light"} theme
    */
   function syncThemeToggle(theme) {
@@ -41,14 +41,12 @@
     }
 
     const isDark = theme === "dark";
-    themeToggleElement.textContent = isDark ? COPY.themeToggle.lightText : COPY.themeToggle.darkText;
-    themeToggleElement.setAttribute("aria-label", isDark ? COPY.themeToggle.lightAriaLabel : COPY.themeToggle.darkAriaLabel);
-    themeToggleElement.setAttribute("aria-pressed", String(isDark));
+    themeToggleElement.checked = isDark;
   }
 
   /**
    * Set `document.documentElement.dataset.theme` to `theme` and sync the
-   * toggle button's text and ARIA attributes via {@link syncThemeToggle}.
+   * toggle checkbox's state via {@link syncThemeToggle}.
    * @param {"dark" | "light"} theme
    */
   function applyTheme(theme) {
@@ -57,8 +55,35 @@
   }
 
   /**
+   * Update the globe texture and colors when theme changes.
+   * @param {"dark" | "light"} theme
+   */
+  function updateGlobeTexture(theme) {
+    try {
+      const globe = window.worldleLiteRuntime?.worldMapInst?.globe;
+      if (globe && typeof globe.globeImageUrl === 'function') {
+        const globeImg = theme === 'dark' ? 'img/earth-dark.jpg' : 'img/earth-light.jpg';
+        globe.globeImageUrl(globeImg);
+        
+        // Force polygon colors to update by re-setting the data
+        // This triggers the color callbacks with the new theme colors
+        try {
+          const currentData = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
+          if (currentData) {
+            globe.polygonsData(currentData);
+          }
+        } catch (e) {
+          // Ignore if polygonsData isn't available
+        }
+      }
+    } catch (e) {
+      // Ignore globe update failures; the theme CSS still updates
+    }
+  }
+
+  /**
    * Flip the active theme between `"dark"` and `"light"`, persist the new
-   * value to `localStorage`, and apply it to the document and toggle button.
+   * value to `localStorage`, and apply it to the document and toggle checkbox.
    */
   function toggleTheme() {
     const currentTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
@@ -71,12 +96,13 @@
     }
 
     applyTheme(nextTheme);
+    updateGlobeTexture(nextTheme);
   }
 
   /**
    * Store a reference to `themeToggleElementArg`, apply the initial theme, and
-   * attach the click listener that calls {@link toggleTheme}.
-   * Safe to call with `null` when no toggle button is present.
+   * attach the change listener that calls {@link toggleTheme}.
+   * Safe to call with `null` when no toggle checkbox is present.
    * @param {HTMLElement | null} themeToggleElementArg
    */
   function initializeTheme(themeToggleElementArg) {
@@ -84,7 +110,7 @@
     applyTheme(getInitialTheme());
 
     if (themeToggleElement) {
-      themeToggleElement.addEventListener("click", toggleTheme);
+      themeToggleElement.addEventListener("change", toggleTheme);
     }
   }
 

@@ -73,8 +73,17 @@
   function requestRoundHint(maxHintsPerRound = MAX_HINTS_PER_ROUND) {
     const roundState = getCurrentState().round;
     const targetCountry = getCurrentState().targetCountry;
+    
+    try { window.worldleLiteLogger?.debug('[store] requestRoundHint called', { 
+      canSubmit: canSubmitRound(), 
+      targetName: roundState.targetName, 
+      hintLevel: roundState.hintLevel,
+      targetCountryName: targetCountry?.properties?.name,
+      maxHintsPerRound
+    }); } catch (e) {}
 
     if (!canSubmitRound() || !roundState.targetName) {
+      try { window.worldleLiteLogger?.warn('[store] requestRoundHint early exit', { canSubmit: canSubmitRound(), hasTargetName: !!roundState.targetName }); } catch (e) {}
       return {
         changed: false,
         outcome: roundState.outcome,
@@ -85,6 +94,7 @@
     }
 
     if (roundState.hintLevel >= maxHintsPerRound) {
+      try { window.worldleLiteLogger?.warn('[store] requestRoundHint - max hints reached', { hintLevel: roundState.hintLevel, maxHintsPerRound }); } catch (e) {}
       return {
         changed: false,
         outcome: roundState.outcome,
@@ -100,6 +110,9 @@
       : nextHintLevel === 2
         ? { type: "first-letter", value: getFirstLetter(roundState.targetName) }
         : { type: "letter-count", value: getLetterCount(roundState.targetName) };
+    
+    try { window.worldleLiteLogger?.debug('[store] generated new hint', { nextHintLevel, nextHint, targetName: roundState.targetName }); } catch (e) {}
+    
     const nextRoundState = {
       ...roundState,
       hintLevel: nextHintLevel,
@@ -109,7 +122,7 @@
     dispatch({ type: STATE_ACTIONS.setRoundState, round: nextRoundState });
     _store.incrementHintsUsed?.();
 
-    return {
+    const result = {
       changed: true,
       outcome: nextRoundState.outcome,
       hintLevel: nextRoundState.hintLevel,
@@ -117,6 +130,9 @@
       revealedHints: [...nextRoundState.revealedHints],
       hintsRemaining: Math.max(0, maxHintsPerRound - nextRoundState.hintLevel)
     };
+    
+    try { window.worldleLiteLogger?.debug('[store] requestRoundHint returning', { result }); } catch (e) {}
+    return result;
   }
 
   function submitRoundGuess(guessName, maxMissesPerRound = 3) {

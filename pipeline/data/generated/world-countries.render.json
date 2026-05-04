@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "generatedAt": "2026-04-30T18:39:13.509Z",
+  "generatedAt": "2026-05-03T20:11:07.147Z",
   "source": "data/world-countries.json",
   "schema": "worldle-lite-country-render-v1",
   "features": [
@@ -17,7 +17,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "FJ",
+        "isoCode": "FJ",
         "flagEmoji": "🇫🇯",
         "geometryBounds": [
           -180,
@@ -26,11 +26,13 @@
           -16.020882
         ],
         "geometryCenter": [
-          0,
+          97.17534954545458,
           -17.154436
         ],
         "geometryPointCount": 22,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -151,7 +153,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "TZ",
+        "isoCode": "TZ",
         "flagEmoji": "🇹🇿",
         "geometryBounds": [
           29.339998,
@@ -164,7 +166,27 @@
           -6.335469
         ],
         "geometryPointCount": 52,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Burundi",
+          "Democratic Republic of the Congo",
+          "Kenya",
+          "Malawi",
+          "Mozambique",
+          "Rwanda",
+          "Uganda",
+          "Zambia"
+        ],
+        "neighborIsoCodes": [
+          "BI",
+          "CD",
+          "KE",
+          "MW",
+          "MZ",
+          "RW",
+          "UG",
+          "ZM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -395,7 +417,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "CA",
+        "isoCode": "CA",
         "flagEmoji": "🇨🇦",
         "geometryBounds": [
           -140.99778,
@@ -408,7 +430,13 @@
           62.4541725
         ],
         "geometryPointCount": 794,
-        "geometryRingCount": 30
+        "geometryRingCount": 30,
+        "neighbors": [
+          "United States of America"
+        ],
+        "neighborIsoCodes": [
+          "US"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -3741,7 +3769,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "US",
+        "isoCode": "US",
         "flagEmoji": "🇺🇸",
         "geometryBounds": [
           -171.791111,
@@ -3754,7 +3782,15 @@
           45.136977
         ],
         "geometryPointCount": 447,
-        "geometryRingCount": 10
+        "geometryRingCount": 10,
+        "neighbors": [
+          "Canada",
+          "Mexico"
+        ],
+        "neighborIsoCodes": [
+          "CA",
+          "MX"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -5603,7 +5639,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "KZ",
+        "isoCode": "KZ",
         "flagEmoji": "🇰🇿",
         "geometryBounds": [
           46.466446,
@@ -5616,7 +5652,21 @@
           48.0237875
         ],
         "geometryPointCount": 112,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Kyrgyzstan",
+          "People's Republic of China",
+          "Russia",
+          "Turkmenistan",
+          "Uzbekistan"
+        ],
+        "neighborIsoCodes": [
+          "KG",
+          "CN",
+          "RU",
+          "TM",
+          "UZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -6087,7 +6137,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "UZ",
+        "isoCode": "UZ",
         "flagEmoji": "🇺🇿",
         "geometryBounds": [
           55.928917,
@@ -6100,7 +6150,21 @@
           41.365899
         ],
         "geometryPointCount": 54,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Afghanistan",
+          "Kazakhstan",
+          "Kyrgyzstan",
+          "Tajikistan",
+          "Turkmenistan"
+        ],
+        "neighborIsoCodes": [
+          "AF",
+          "KZ",
+          "KG",
+          "TJ",
+          "TM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -6339,7 +6403,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "PG",
+        "isoCode": "PG",
         "flagEmoji": "🇵🇬",
         "geometryBounds": [
           141.00021,
@@ -6352,7 +6416,13 @@
           -6.576239
         ],
         "geometryPointCount": 81,
-        "geometryRingCount": 4
+        "geometryRingCount": 4,
+        "neighbors": [
+          "Indonesia"
+        ],
+        "neighborIsoCodes": [
+          "ID"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -6713,7 +6783,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "ID",
+        "isoCode": "ID",
         "flagEmoji": "🇮🇩",
         "geometryBounds": [
           95.293026,
@@ -6726,7 +6796,17 @@
           -2.440083
         ],
         "geometryPointCount": 250,
-        "geometryRingCount": 13
+        "geometryRingCount": 13,
+        "neighbors": [
+          "East Timor",
+          "Malaysia",
+          "Papua New Guinea"
+        ],
+        "neighborIsoCodes": [
+          "TL",
+          "MY",
+          "PG"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -7799,7 +7879,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "AR",
+        "isoCode": "AR",
         "flagEmoji": "🇦🇷",
         "geometryBounds": [
           -73.415436,
@@ -7812,7 +7892,21 @@
           -38.541155
         ],
         "geometryPointCount": 121,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Bolivia",
+          "Brazil",
+          "Chile",
+          "Paraguay",
+          "Uruguay"
+        ],
+        "neighborIsoCodes": [
+          "BO",
+          "BR",
+          "CL",
+          "PY",
+          "UY"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -8325,7 +8419,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "CL",
+        "isoCode": "CL",
         "flagEmoji": "🇨🇱",
         "geometryBounds": [
           -75.644395,
@@ -8338,7 +8432,17 @@
           -36.595921
         ],
         "geometryPointCount": 114,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Argentina",
+          "Bolivia",
+          "Peru"
+        ],
+        "neighborIsoCodes": [
+          "AR",
+          "BO",
+          "PE"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -8823,7 +8927,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "CD",
+        "isoCode": "CD",
         "flagEmoji": "🇨🇩",
         "geometryBounds": [
           12.182337,
@@ -8836,7 +8940,29 @@
           -4.0005695
         ],
         "geometryPointCount": 124,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Angola",
+          "Burundi",
+          "Central African Republic",
+          "Republic of the Congo",
+          "Rwanda",
+          "South Sudan",
+          "Tanzania",
+          "Uganda",
+          "Zambia"
+        ],
+        "neighborIsoCodes": [
+          "AO",
+          "BI",
+          "CF",
+          "CG",
+          "RW",
+          "SS",
+          "TZ",
+          "UG",
+          "ZM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -9355,7 +9481,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "SO",
+        "isoCode": "SO",
         "flagEmoji": "🇸🇴",
         "geometryBounds": [
           40.98105,
@@ -9368,7 +9494,15 @@
           5.170695
         ],
         "geometryPointCount": 37,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Ethiopia",
+          "Kenya"
+        ],
+        "neighborIsoCodes": [
+          "ET",
+          "KE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -9539,7 +9673,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "KE",
+        "isoCode": "KE",
         "flagEmoji": "🇰🇪",
         "geometryBounds": [
           33.893569,
@@ -9552,7 +9686,21 @@
           0.41461499999999996
         ],
         "geometryPointCount": 37,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Ethiopia",
+          "Somalia",
+          "South Sudan",
+          "Tanzania",
+          "Uganda"
+        ],
+        "neighborIsoCodes": [
+          "ET",
+          "SO",
+          "SS",
+          "TZ",
+          "UG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -9723,7 +9871,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "SD",
+        "isoCode": "SD",
         "flagEmoji": "🇸🇩",
         "geometryBounds": [
           21.93681,
@@ -9736,7 +9884,25 @@
           15.114594
         ],
         "geometryPointCount": 81,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Central African Republic",
+          "Chad",
+          "Egypt",
+          "Eritrea",
+          "Ethiopia",
+          "Libya",
+          "South Sudan"
+        ],
+        "neighborIsoCodes": [
+          "CF",
+          "TD",
+          "EG",
+          "ER",
+          "ET",
+          "LY",
+          "SS"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -10083,7 +10249,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "TD",
+        "isoCode": "TD",
         "flagEmoji": "🇹🇩",
         "geometryBounds": [
           13.540394,
@@ -10096,7 +10262,21 @@
           15.4158225
         ],
         "geometryPointCount": 58,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Cameroon",
+          "Central African Republic",
+          "Libya",
+          "Niger",
+          "Sudan"
+        ],
+        "neighborIsoCodes": [
+          "CM",
+          "CF",
+          "LY",
+          "NE",
+          "SD"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -10351,7 +10531,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "HT",
+        "isoCode": "HT",
         "flagEmoji": "🇭🇹",
         "geometryBounds": [
           -74.458034,
@@ -10364,7 +10544,13 @@
           18.973338499999997
         ],
         "geometryPointCount": 21,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Dominican Republic"
+        ],
+        "neighborIsoCodes": [
+          "DO"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -10471,7 +10657,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "DO",
+        "isoCode": "DO",
         "flagEmoji": "🇩🇴",
         "geometryBounds": [
           -71.945112,
@@ -10484,7 +10670,13 @@
           18.7417375
         ],
         "geometryPointCount": 26,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Haiti"
+        ],
+        "neighborIsoCodes": [
+          "HT"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -10618,7 +10810,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "RU",
+        "isoCode": "RU",
         "flagEmoji": "🇷🇺",
         "geometryBounds": [
           -180,
@@ -10627,11 +10819,43 @@
           81.2504
         ],
         "geometryCenter": [
-          0,
+          76.91548398080006,
           61.200908
         ],
         "geometryPointCount": 625,
-        "geometryRingCount": 14
+        "geometryRingCount": 14,
+        "neighbors": [
+          "Azerbaijan",
+          "Belarus",
+          "Estonia",
+          "Finland",
+          "Georgia",
+          "Kazakhstan",
+          "Latvia",
+          "Lithuania",
+          "Mongolia",
+          "North Korea",
+          "Norway",
+          "People's Republic of China",
+          "Poland",
+          "Ukraine"
+        ],
+        "neighborIsoCodes": [
+          "AZ",
+          "BY",
+          "EE",
+          "FI",
+          "GE",
+          "KZ",
+          "LV",
+          "LT",
+          "MN",
+          "KP",
+          "NO",
+          "CN",
+          "PL",
+          "UA"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -13208,7 +13432,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "BS",
+        "isoCode": "BS",
         "flagEmoji": "🇧🇸",
         "geometryBounds": [
           -78.98,
@@ -13221,7 +13445,9 @@
           25.375
         ],
         "geometryPointCount": 21,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -13338,7 +13564,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "NO",
+        "isoCode": "NO",
         "flagEmoji": "🇳🇴",
         "geometryBounds": [
           4.992078,
@@ -13351,7 +13577,17 @@
           69.368014
         ],
         "geometryPointCount": 88,
-        "geometryRingCount": 4
+        "geometryRingCount": 4,
+        "neighbors": [
+          "Finland",
+          "Russia",
+          "Sweden"
+        ],
+        "neighborIsoCodes": [
+          "FI",
+          "RU",
+          "SE"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -13747,7 +13983,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "TL",
+        "isoCode": "TL",
         "flagEmoji": "🇹🇱",
         "geometryBounds": [
           124.968682,
@@ -13760,7 +13996,13 @@
           -8.833259000000002
         ],
         "geometryPointCount": 11,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Indonesia"
+        ],
+        "neighborIsoCodes": [
+          "ID"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -13827,7 +14069,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "ZA",
+        "isoCode": "ZA",
         "flagEmoji": "🇿🇦",
         "geometryBounds": [
           16.344977,
@@ -13840,7 +14082,23 @@
           -28.4552395
         ],
         "geometryPointCount": 94,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Botswana",
+          "Eswatini",
+          "Lesotho",
+          "Mozambique",
+          "Namibia",
+          "Zimbabwe"
+        ],
+        "neighborIsoCodes": [
+          "BW",
+          "SZ",
+          "LS",
+          "MZ",
+          "NA",
+          "ZW"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -14241,7 +14499,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "LS",
+        "isoCode": "LS",
         "flagEmoji": "🇱🇸",
         "geometryBounds": [
           26.999262,
@@ -14254,7 +14512,13 @@
           -29.646304
         ],
         "geometryPointCount": 12,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "South Africa"
+        ],
+        "neighborIsoCodes": [
+          "ZA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -14325,7 +14589,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "MX",
+        "isoCode": "MX",
         "flagEmoji": "🇲🇽",
         "geometryBounds": [
           -117.12776,
@@ -14338,7 +14602,17 @@
           23.6298295
         ],
         "geometryPointCount": 170,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belize",
+          "Guatemala",
+          "United States of America"
+        ],
+        "neighborIsoCodes": [
+          "BZ",
+          "GT",
+          "US"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -15041,7 +15315,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "UY",
+        "isoCode": "UY",
         "flagEmoji": "🇺🇾",
         "geometryBounds": [
           -58.427074,
@@ -15054,7 +15328,15 @@
           -32.5311665
         ],
         "geometryPointCount": 21,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Argentina",
+          "Brazil"
+        ],
+        "neighborIsoCodes": [
+          "AR",
+          "BR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -15161,7 +15443,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "BR",
+        "isoCode": "BR",
         "flagEmoji": "🇧🇷",
         "geometryBounds": [
           -73.987235,
@@ -15174,7 +15456,31 @@
           -14.261945999999998
         ],
         "geometryPointCount": 203,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Argentina",
+          "Bolivia",
+          "Colombia",
+          "France",
+          "Guyana",
+          "Paraguay",
+          "Peru",
+          "Suriname",
+          "Uruguay",
+          "Venezuela"
+        ],
+        "neighborIsoCodes": [
+          "AR",
+          "BO",
+          "CO",
+          "FR",
+          "GY",
+          "PY",
+          "PE",
+          "SR",
+          "UY",
+          "VE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -16009,7 +16315,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "BO",
+        "isoCode": "BO",
         "flagEmoji": "🇧🇴",
         "geometryBounds": [
           -69.590424,
@@ -16022,7 +16328,21 @@
           -16.3174535
         ],
         "geometryPointCount": 60,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Argentina",
+          "Brazil",
+          "Chile",
+          "Paraguay",
+          "Peru"
+        ],
+        "neighborIsoCodes": [
+          "AR",
+          "BR",
+          "CL",
+          "PY",
+          "PE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -16285,7 +16605,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "PE",
+        "isoCode": "PE",
         "flagEmoji": "🇵🇪",
         "geometryBounds": [
           -81.410943,
@@ -16298,7 +16618,21 @@
           -9.20259
         ],
         "geometryPointCount": 76,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Bolivia",
+          "Brazil",
+          "Chile",
+          "Colombia",
+          "Ecuador"
+        ],
+        "neighborIsoCodes": [
+          "BO",
+          "BR",
+          "CL",
+          "CO",
+          "EC"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -16632,7 +16966,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "CO",
+        "isoCode": "CO",
         "flagEmoji": "🇨🇴",
         "geometryBounds": [
           -78.990935,
@@ -16645,7 +16979,21 @@
           4.069558
         ],
         "geometryPointCount": 100,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Brazil",
+          "Ecuador",
+          "Panama",
+          "Peru",
+          "Venezuela"
+        ],
+        "neighborIsoCodes": [
+          "BR",
+          "EC",
+          "PA",
+          "PE",
+          "VE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -17068,7 +17416,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "PA",
+        "isoCode": "PA",
         "flagEmoji": "🇵🇦",
         "geometryBounds": [
           -82.965783,
@@ -17081,7 +17429,15 @@
           8.4160755
         ],
         "geometryPointCount": 52,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Colombia",
+          "Costa Rica"
+        ],
+        "neighborIsoCodes": [
+          "CO",
+          "CR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -17312,7 +17668,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "CR",
+        "isoCode": "CR",
         "flagEmoji": "🇨🇷",
         "geometryBounds": [
           -85.941725,
@@ -17325,7 +17681,15 @@
           9.7210735
         ],
         "geometryPointCount": 36,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Nicaragua",
+          "Panama"
+        ],
+        "neighborIsoCodes": [
+          "NI",
+          "PA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -17492,7 +17856,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "NI",
+        "isoCode": "NI",
         "flagEmoji": "🇳🇮",
         "geometryBounds": [
           -87.668493,
@@ -17505,7 +17869,15 @@
           12.871552999999999
         ],
         "geometryPointCount": 52,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Costa Rica",
+          "Honduras"
+        ],
+        "neighborIsoCodes": [
+          "CR",
+          "HN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -17736,7 +18108,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "HN",
+        "isoCode": "HN",
         "flagEmoji": "🇭🇳",
         "geometryBounds": [
           -89.353326,
@@ -17749,7 +18121,17 @@
           14.495046
         ],
         "geometryPointCount": 57,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "El Salvador",
+          "Guatemala",
+          "Nicaragua"
+        ],
+        "neighborIsoCodes": [
+          "SV",
+          "GT",
+          "NI"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -18000,7 +18382,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "SV",
+        "isoCode": "SV",
         "flagEmoji": "🇸🇻",
         "geometryBounds": [
           -90.095555,
@@ -18013,7 +18395,15 @@
           13.786575
         ],
         "geometryPointCount": 20,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Guatemala",
+          "Honduras"
+        ],
+        "neighborIsoCodes": [
+          "GT",
+          "HN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -18116,7 +18506,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "GT",
+        "isoCode": "GT",
         "flagEmoji": "🇬🇹",
         "geometryBounds": [
           -92.229249,
@@ -18129,7 +18519,19 @@
           15.777332000000001
         ],
         "geometryPointCount": 35,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belize",
+          "El Salvador",
+          "Honduras",
+          "Mexico"
+        ],
+        "neighborIsoCodes": [
+          "BZ",
+          "SV",
+          "HN",
+          "MX"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -18292,7 +18694,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "BZ",
+        "isoCode": "BZ",
         "flagEmoji": "🇧🇿",
         "geometryBounds": [
           -89.229122,
@@ -18305,7 +18707,15 @@
           17.19346
         ],
         "geometryPointCount": 20,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Guatemala",
+          "Mexico"
+        ],
+        "neighborIsoCodes": [
+          "GT",
+          "MX"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -18408,7 +18818,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "VE",
+        "isoCode": "VE",
         "flagEmoji": "🇻🇪",
         "geometryBounds": [
           -73.304952,
@@ -18421,7 +18831,17 @@
           6.4433795
         ],
         "geometryPointCount": 92,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Brazil",
+          "Colombia",
+          "Guyana"
+        ],
+        "neighborIsoCodes": [
+          "BR",
+          "CO",
+          "GY"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -18812,7 +19232,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "GY",
+        "isoCode": "GY",
         "flagEmoji": "🇬🇾",
         "geometryBounds": [
           -61.410303,
@@ -18825,7 +19245,17 @@
           4.8175615
         ],
         "geometryPointCount": 40,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Brazil",
+          "Suriname",
+          "Venezuela"
+        ],
+        "neighborIsoCodes": [
+          "BR",
+          "SR",
+          "VE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -19008,7 +19438,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "SR",
+        "isoCode": "SR",
         "flagEmoji": "🇸🇷",
         "geometryBounds": [
           -58.044694,
@@ -19021,7 +19451,17 @@
           3.921479
         ],
         "geometryPointCount": 26,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Brazil",
+          "France",
+          "Guyana"
+        ],
+        "neighborIsoCodes": [
+          "BR",
+          "FR",
+          "GY"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -19148,7 +19588,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "FR",
+        "isoCode": "FR",
         "flagEmoji": "🇫🇷",
         "geometryBounds": [
           -54.524754,
@@ -19161,7 +19601,27 @@
           26.6009475
         ],
         "geometryPointCount": 74,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [
+          "Belgium",
+          "Brazil",
+          "Germany",
+          "Italy",
+          "Luxembourg",
+          "Spain",
+          "Suriname",
+          "Switzerland"
+        ],
+        "neighborIsoCodes": [
+          "BE",
+          "BR",
+          "DE",
+          "IT",
+          "LU",
+          "ES",
+          "SR",
+          "CH"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -19490,7 +19950,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "EC",
+        "isoCode": "EC",
         "flagEmoji": "🇪🇨",
         "geometryBounds": [
           -80.967765,
@@ -19503,7 +19963,15 @@
           -1.7891024999999998
         ],
         "geometryPointCount": 33,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Colombia",
+          "Peru"
+        ],
+        "neighborIsoCodes": [
+          "CO",
+          "PE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -19658,7 +20126,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "JM",
+        "isoCode": "JM",
         "flagEmoji": "🇯🇲",
         "geometryBounds": [
           -78.337719,
@@ -19671,7 +20139,9 @@
           18.112667000000002
         ],
         "geometryPointCount": 11,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -19738,7 +20208,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "CU",
+        "isoCode": "CU",
         "flagEmoji": "🇨🇺",
         "geometryBounds": [
           -84.974911,
@@ -19751,7 +20221,9 @@
           21.522046000000003
         ],
         "geometryPointCount": 42,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -19942,7 +20414,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "ZW",
+        "isoCode": "ZW",
         "flagEmoji": "🇿🇼",
         "geometryBounds": [
           25.264226,
@@ -19955,7 +20427,19 @@
           -18.8896995
         ],
         "geometryPointCount": 37,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Botswana",
+          "Mozambique",
+          "South Africa",
+          "Zambia"
+        ],
+        "neighborIsoCodes": [
+          "BW",
+          "MZ",
+          "ZA",
+          "ZM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -20126,7 +20610,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "BW",
+        "isoCode": "BW",
         "flagEmoji": "🇧🇼",
         "geometryBounds": [
           19.895458,
@@ -20139,7 +20623,19 @@
           -22.2451795
         ],
         "geometryPointCount": 40,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Namibia",
+          "South Africa",
+          "Zambia",
+          "Zimbabwe"
+        ],
+        "neighborIsoCodes": [
+          "NA",
+          "ZA",
+          "ZM",
+          "ZW"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -20322,7 +20818,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "NA",
+        "isoCode": "NA",
         "flagEmoji": "🇳🇦",
         "geometryBounds": [
           11.734199,
@@ -20335,7 +20831,19 @@
           -22.993402500000002
         ],
         "geometryPointCount": 44,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Angola",
+          "Botswana",
+          "South Africa",
+          "Zambia"
+        ],
+        "neighborIsoCodes": [
+          "AO",
+          "BW",
+          "ZA",
+          "ZM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -20534,7 +21042,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "SN",
+        "isoCode": "SN",
         "flagEmoji": "🇸🇳",
         "geometryBounds": [
           -17.625043,
@@ -20547,7 +21055,21 @@
           14.465177
         ],
         "geometryPointCount": 44,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Guinea",
+          "Guinea-Bissau",
+          "Mali",
+          "Mauritania",
+          "The Gambia"
+        ],
+        "neighborIsoCodes": [
+          "GN",
+          "GW",
+          "ML",
+          "MR",
+          "GM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -20746,7 +21268,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "ML",
+        "isoCode": "ML",
         "flagEmoji": "🇲🇱",
         "geometryBounds": [
           -12.17075,
@@ -20759,7 +21281,25 @@
           17.5354675
         ],
         "geometryPointCount": 76,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Algeria",
+          "Burkina Faso",
+          "Guinea",
+          "Ivory Coast",
+          "Mauritania",
+          "Niger",
+          "Senegal"
+        ],
+        "neighborIsoCodes": [
+          "DZ",
+          "BF",
+          "GN",
+          "CI",
+          "MR",
+          "NE",
+          "SN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -21086,7 +21626,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "MR",
+        "isoCode": "MR",
         "flagEmoji": "🇲🇷",
         "geometryBounds": [
           -17.063423,
@@ -21099,7 +21639,17 @@
           21.006289000000002
         ],
         "geometryPointCount": 39,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Algeria",
+          "Mali",
+          "Senegal"
+        ],
+        "neighborIsoCodes": [
+          "DZ",
+          "ML",
+          "SN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -21278,7 +21828,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "BJ",
+        "isoCode": "BJ",
         "flagEmoji": "🇧🇯",
         "geometryBounds": [
           0.772336,
@@ -21291,7 +21841,19 @@
           9.188897
         ],
         "geometryPointCount": 25,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Burkina Faso",
+          "Niger",
+          "Nigeria",
+          "Togo"
+        ],
+        "neighborIsoCodes": [
+          "BF",
+          "NE",
+          "NG",
+          "TG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -21414,7 +21976,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "NE",
+        "isoCode": "NE",
         "flagEmoji": "🇳🇪",
         "geometryBounds": [
           0.295646,
@@ -21427,7 +21989,27 @@
           17.5659175
         ],
         "geometryPointCount": 58,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Algeria",
+          "Benin",
+          "Burkina Faso",
+          "Cameroon",
+          "Chad",
+          "Libya",
+          "Mali",
+          "Nigeria"
+        ],
+        "neighborIsoCodes": [
+          "DZ",
+          "BJ",
+          "BF",
+          "CM",
+          "TD",
+          "LY",
+          "ML",
+          "NG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -21682,7 +22264,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "NG",
+        "isoCode": "NG",
         "flagEmoji": "🇳🇬",
         "geometryBounds": [
           2.691702,
@@ -21695,7 +22277,17 @@
           9.053259
         ],
         "geometryPointCount": 58,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Benin",
+          "Cameroon",
+          "Niger"
+        ],
+        "neighborIsoCodes": [
+          "BJ",
+          "CM",
+          "NE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -21950,7 +22542,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "CM",
+        "isoCode": "CM",
         "flagEmoji": "🇨🇲",
         "geometryBounds": [
           8.488816,
@@ -21963,7 +22555,25 @@
           7.2935345
         ],
         "geometryPointCount": 61,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Central African Republic",
+          "Chad",
+          "Equatorial Guinea",
+          "Gabon",
+          "Niger",
+          "Nigeria",
+          "Republic of the Congo"
+        ],
+        "neighborIsoCodes": [
+          "CF",
+          "TD",
+          "GQ",
+          "GA",
+          "NE",
+          "NG",
+          "CG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -22230,7 +22840,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "TG",
+        "isoCode": "TG",
         "flagEmoji": "🇹🇬",
         "geometryBounds": [
           -0.049785,
@@ -22243,7 +22853,17 @@
           8.4737595
         ],
         "geometryPointCount": 19,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Benin",
+          "Burkina Faso",
+          "Ghana"
+        ],
+        "neighborIsoCodes": [
+          "BJ",
+          "BF",
+          "GH"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -22342,7 +22962,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "GH",
+        "isoCode": "GH",
         "flagEmoji": "🇬🇭",
         "geometryBounds": [
           -3.24437,
@@ -22355,7 +22975,17 @@
           7.9044015
         ],
         "geometryPointCount": 25,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Burkina Faso",
+          "Ivory Coast",
+          "Togo"
+        ],
+        "neighborIsoCodes": [
+          "BF",
+          "CI",
+          "TG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -22491,7 +23121,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "CI",
+        "isoCode": "CI",
         "flagEmoji": "🇨🇮",
         "geometryBounds": [
           -8.60288,
@@ -22504,7 +23134,21 @@
           7.4311745
         ],
         "geometryPointCount": 46,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Burkina Faso",
+          "Ghana",
+          "Guinea",
+          "Liberia",
+          "Mali"
+        ],
+        "neighborIsoCodes": [
+          "BF",
+          "GH",
+          "GN",
+          "LR",
+          "ML"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -22711,7 +23355,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "GN",
+        "isoCode": "GN",
         "flagEmoji": "🇬🇳",
         "geometryBounds": [
           -15.130311,
@@ -22724,7 +23368,23 @@
           9.947610000000001
         ],
         "geometryPointCount": 70,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Guinea-Bissau",
+          "Ivory Coast",
+          "Liberia",
+          "Mali",
+          "Senegal",
+          "Sierra Leone"
+        ],
+        "neighborIsoCodes": [
+          "GW",
+          "CI",
+          "LR",
+          "ML",
+          "SN",
+          "SL"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -23027,7 +23687,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "GW",
+        "isoCode": "GW",
         "flagEmoji": "🇬🇼",
         "geometryBounds": [
           -16.677452,
@@ -23040,7 +23700,15 @@
           11.834291
         ],
         "geometryPointCount": 19,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Guinea",
+          "Senegal"
+        ],
+        "neighborIsoCodes": [
+          "GN",
+          "SN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -23139,7 +23807,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "LR",
+        "isoCode": "LR",
         "flagEmoji": "🇱🇷",
         "geometryBounds": [
           -11.438779,
@@ -23152,7 +23820,17 @@
           6.448405
         ],
         "geometryPointCount": 27,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Guinea",
+          "Ivory Coast",
+          "Sierra Leone"
+        ],
+        "neighborIsoCodes": [
+          "GN",
+          "CI",
+          "SL"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -23283,7 +23961,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "SL",
+        "isoCode": "SL",
         "flagEmoji": "🇸🇱",
         "geometryBounds": [
           -13.24655,
@@ -23296,7 +23974,15 @@
           8.4164505
         ],
         "geometryPointCount": 22,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Guinea",
+          "Liberia"
+        ],
+        "neighborIsoCodes": [
+          "GN",
+          "LR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -23407,7 +24093,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "BF",
+        "isoCode": "BF",
         "flagEmoji": "🇧🇫",
         "geometryBounds": [
           -5.470565,
@@ -23420,7 +24106,23 @@
           12.3634965
         ],
         "geometryPointCount": 39,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Benin",
+          "Ghana",
+          "Ivory Coast",
+          "Mali",
+          "Niger",
+          "Togo"
+        ],
+        "neighborIsoCodes": [
+          "BJ",
+          "GH",
+          "CI",
+          "ML",
+          "NE",
+          "TG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -23599,7 +24301,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "CF",
+        "isoCode": "CF",
         "flagEmoji": "🇨🇫",
         "geometryBounds": [
           14.459407,
@@ -23612,7 +24314,23 @@
           6.7050175
         ],
         "geometryPointCount": 62,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Cameroon",
+          "Chad",
+          "Democratic Republic of the Congo",
+          "Republic of the Congo",
+          "South Sudan",
+          "Sudan"
+        ],
+        "neighborIsoCodes": [
+          "CM",
+          "TD",
+          "CD",
+          "CG",
+          "SS",
+          "SD"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -23883,7 +24601,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "CG",
+        "isoCode": "CG",
         "flagEmoji": "🇨🇬",
         "geometryBounds": [
           11.093773,
@@ -23896,7 +24614,21 @@
           -0.654895
         ],
         "geometryPointCount": 49,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Angola",
+          "Cameroon",
+          "Central African Republic",
+          "Democratic Republic of the Congo",
+          "Gabon"
+        ],
+        "neighborIsoCodes": [
+          "AO",
+          "CM",
+          "CF",
+          "CD",
+          "GA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -24115,7 +24847,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "GA",
+        "isoCode": "GA",
         "flagEmoji": "🇬🇦",
         "geometryBounds": [
           8.797996,
@@ -24128,7 +24860,17 @@
           -0.8260345
         ],
         "geometryPointCount": 31,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Cameroon",
+          "Equatorial Guinea",
+          "Republic of the Congo"
+        ],
+        "neighborIsoCodes": [
+          "CM",
+          "GQ",
+          "CG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -24275,7 +25017,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "GQ",
+        "isoCode": "GQ",
         "flagEmoji": "🇬🇶",
         "geometryBounds": [
           9.305613,
@@ -24288,7 +25030,15 @@
           1.6469930000000002
         ],
         "geometryPointCount": 7,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Cameroon",
+          "Gabon"
+        ],
+        "neighborIsoCodes": [
+          "CM",
+          "GA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -24339,7 +25089,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "ZM",
+        "isoCode": "ZM",
         "flagEmoji": "🇿🇲",
         "geometryBounds": [
           21.887843,
@@ -24352,7 +25102,27 @@
           -13.099743
         ],
         "geometryPointCount": 61,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Angola",
+          "Botswana",
+          "Democratic Republic of the Congo",
+          "Malawi",
+          "Mozambique",
+          "Namibia",
+          "Tanzania",
+          "Zimbabwe"
+        ],
+        "neighborIsoCodes": [
+          "AO",
+          "BW",
+          "CD",
+          "MW",
+          "MZ",
+          "NA",
+          "TZ",
+          "ZW"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -24619,7 +25389,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "MW",
+        "isoCode": "MW",
         "flagEmoji": "🇲🇼",
         "geometryBounds": [
           32.688165,
@@ -24632,7 +25402,17 @@
           -13.015949500000001
         ],
         "geometryPointCount": 28,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Mozambique",
+          "Tanzania",
+          "Zambia"
+        ],
+        "neighborIsoCodes": [
+          "MZ",
+          "TZ",
+          "ZM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -24767,7 +25547,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "MZ",
+        "isoCode": "MZ",
         "flagEmoji": "🇲🇿",
         "geometryBounds": [
           30.179481,
@@ -24780,7 +25560,23 @@
           -18.529643999999998
         ],
         "geometryPointCount": 79,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Eswatini",
+          "Malawi",
+          "South Africa",
+          "Tanzania",
+          "Zambia",
+          "Zimbabwe"
+        ],
+        "neighborIsoCodes": [
+          "SZ",
+          "MW",
+          "ZA",
+          "TZ",
+          "ZM",
+          "ZW"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -25126,7 +25922,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "SZ",
+        "isoCode": "SZ",
         "flagEmoji": "🇸🇿",
         "geometryBounds": [
           30.676609,
@@ -25139,7 +25935,15 @@
           -26.473035000000003
         ],
         "geometryPointCount": 11,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Mozambique",
+          "South Africa"
+        ],
+        "neighborIsoCodes": [
+          "MZ",
+          "ZA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -25206,7 +26010,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "AO",
+        "isoCode": "AO",
         "flagEmoji": "🇦🇴",
         "geometryBounds": [
           11.640096,
@@ -25219,7 +26023,19 @@
           -11.1843295
         ],
         "geometryPointCount": 75,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Democratic Republic of the Congo",
+          "Namibia",
+          "Republic of the Congo",
+          "Zambia"
+        ],
+        "neighborIsoCodes": [
+          "CD",
+          "NA",
+          "CG",
+          "ZM"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -25548,7 +26364,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "BI",
+        "isoCode": "BI",
         "flagEmoji": "🇧🇮",
         "geometryBounds": [
           29.024926,
@@ -25561,7 +26377,17 @@
           -3.4242350000000004
         ],
         "geometryPointCount": 13,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Democratic Republic of the Congo",
+          "Rwanda",
+          "Tanzania"
+        ],
+        "neighborIsoCodes": [
+          "CD",
+          "RW",
+          "TZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -25636,7 +26462,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "IL",
+        "isoCode": "IL",
         "flagEmoji": "🇮🇱",
         "geometryBounds": [
           34.265433,
@@ -25649,7 +26475,21 @@
           31.389376
         ],
         "geometryPointCount": 26,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Egypt",
+          "Jordan",
+          "Lebanon",
+          "Palestine",
+          "Syria"
+        ],
+        "neighborIsoCodes": [
+          "EG",
+          "JO",
+          "LB",
+          "PS",
+          "SY"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -25776,7 +26616,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "LB",
+        "isoCode": "LB",
         "flagEmoji": "🇱🇧",
         "geometryBounds": [
           35.126053,
@@ -25789,7 +26629,15 @@
           33.866977
         ],
         "geometryPointCount": 11,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Israel",
+          "Syria"
+        ],
+        "neighborIsoCodes": [
+          "IL",
+          "SY"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -25856,7 +26704,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "MG",
+        "isoCode": "MG",
         "flagEmoji": "🇲🇬",
         "geometryBounds": [
           43.254187,
@@ -25869,7 +26717,9 @@
           -18.820995500000002
         ],
         "geometryPointCount": 49,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -26095,7 +26945,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "PS",
+        "isoCode": "PS",
         "flagEmoji": "🇵🇸",
         "geometryBounds": [
           34.927408,
@@ -26108,7 +26958,15 @@
           31.942973000000002
         ],
         "geometryPointCount": 9,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Israel",
+          "Jordan"
+        ],
+        "neighborIsoCodes": [
+          "IL",
+          "JO"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -26167,7 +27025,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "GM",
+        "isoCode": "GM",
         "flagEmoji": "🇬🇲",
         "geometryBounds": [
           -16.841525,
@@ -26180,7 +27038,13 @@
           13.503388000000001
         ],
         "geometryPointCount": 16,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Senegal"
+        ],
+        "neighborIsoCodes": [
+          "SN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -26267,7 +27131,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "TN",
+        "isoCode": "TN",
         "flagEmoji": "🇹🇳",
         "geometryBounds": [
           7.524482,
@@ -26280,7 +27144,15 @@
           33.828775
         ],
         "geometryPointCount": 31,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Algeria",
+          "Libya"
+        ],
+        "neighborIsoCodes": [
+          "DZ",
+          "LY"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -26427,7 +27299,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "DZ",
+        "isoCode": "DZ",
         "flagEmoji": "🇩🇿",
         "geometryBounds": [
           -8.6844,
@@ -26440,7 +27312,23 @@
           28.0878725
         ],
         "geometryPointCount": 62,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Libya",
+          "Mali",
+          "Mauritania",
+          "Morocco",
+          "Niger",
+          "Tunisia"
+        ],
+        "neighborIsoCodes": [
+          "LY",
+          "ML",
+          "MR",
+          "MA",
+          "NE",
+          "TN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -26711,7 +27599,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "JO",
+        "isoCode": "JO",
         "flagEmoji": "🇯🇴",
         "geometryBounds": [
           34.922603,
@@ -26724,7 +27612,23 @@
           31.288090500000003
         ],
         "geometryPointCount": 19,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Egypt",
+          "Iraq",
+          "Israel",
+          "Palestine",
+          "Saudi Arabia",
+          "Syria"
+        ],
+        "neighborIsoCodes": [
+          "EG",
+          "IQ",
+          "IL",
+          "PS",
+          "SA",
+          "SY"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -26823,7 +27727,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "AE",
+        "isoCode": "AE",
         "flagEmoji": "🇦🇪",
         "geometryBounds": [
           51.579519,
@@ -26836,7 +27740,15 @@
           24.276206000000002
         ],
         "geometryPointCount": 22,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Oman",
+          "Saudi Arabia"
+        ],
+        "neighborIsoCodes": [
+          "OM",
+          "SA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -26947,7 +27859,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "QA",
+        "isoCode": "QA",
         "flagEmoji": "🇶🇦",
         "geometryBounds": [
           50.743911,
@@ -26960,7 +27872,13 @@
           25.3354565
         ],
         "geometryPointCount": 9,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Saudi Arabia"
+        ],
+        "neighborIsoCodes": [
+          "SA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -27019,7 +27937,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "KW",
+        "isoCode": "KW",
         "flagEmoji": "🇰🇼",
         "geometryBounds": [
           46.568713,
@@ -27032,7 +27950,15 @@
           29.2925665
         ],
         "geometryPointCount": 9,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Iraq",
+          "Saudi Arabia"
+        ],
+        "neighborIsoCodes": [
+          "IQ",
+          "SA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -27091,7 +28017,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "IQ",
+        "isoCode": "IQ",
         "flagEmoji": "🇮🇶",
         "geometryBounds": [
           38.792341,
@@ -27104,7 +28030,23 @@
           33.2421445
         ],
         "geometryPointCount": 30,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Iran",
+          "Jordan",
+          "Kuwait",
+          "Saudi Arabia",
+          "Syria",
+          "Turkey"
+        ],
+        "neighborIsoCodes": [
+          "IR",
+          "JO",
+          "KW",
+          "SA",
+          "SY",
+          "TR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -27247,7 +28189,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "OM",
+        "isoCode": "OM",
         "flagEmoji": "🇴🇲",
         "geometryBounds": [
           52.00001,
@@ -27260,7 +28202,17 @@
           21.5234925
         ],
         "geometryPointCount": 47,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Saudi Arabia",
+          "United Arab Emirates",
+          "Yemen"
+        ],
+        "neighborIsoCodes": [
+          "SA",
+          "AE",
+          "YE"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -27477,7 +28429,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "VU",
+        "isoCode": "VU",
         "flagEmoji": "🇻🇺",
         "geometryBounds": [
           166.629137,
@@ -27490,7 +28442,9 @@
           -15.6121735
         ],
         "geometryPointCount": 12,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -27567,7 +28521,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "KH",
+        "isoCode": "KH",
         "flagEmoji": "🇰🇭",
         "geometryBounds": [
           102.348099,
@@ -27580,7 +28534,17 @@
           12.528564
         ],
         "geometryPointCount": 17,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Laos",
+          "Thailand",
+          "Vietnam"
+        ],
+        "neighborIsoCodes": [
+          "LA",
+          "TH",
+          "VN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -27671,7 +28635,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "TH",
+        "isoCode": "TH",
         "flagEmoji": "🇹🇭",
         "geometryBounds": [
           97.375896,
@@ -27684,7 +28648,19 @@
           13.054617
         ],
         "geometryPointCount": 64,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Cambodia",
+          "Laos",
+          "Malaysia",
+          "Myanmar"
+        ],
+        "neighborIsoCodes": [
+          "KH",
+          "LA",
+          "MY",
+          "MM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -27963,7 +28939,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "LA",
+        "isoCode": "LA",
         "flagEmoji": "🇱🇦",
         "geometryBounds": [
           100.115988,
@@ -27976,7 +28952,21 @@
           18.172922
         ],
         "geometryPointCount": 37,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Cambodia",
+          "Myanmar",
+          "People's Republic of China",
+          "Thailand",
+          "Vietnam"
+        ],
+        "neighborIsoCodes": [
+          "KH",
+          "MM",
+          "CN",
+          "TH",
+          "VN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -28154,7 +29144,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "MM",
+        "isoCode": "MM",
         "flagEmoji": "🇲🇲",
         "geometryBounds": [
           92.303234,
@@ -28167,7 +29157,21 @@
           19.1344525
         ],
         "geometryPointCount": 70,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Bangladesh",
+          "India",
+          "Laos",
+          "People's Republic of China",
+          "Thailand"
+        ],
+        "neighborIsoCodes": [
+          "BD",
+          "IN",
+          "LA",
+          "CN",
+          "TH"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -28470,7 +29474,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "VN",
+        "isoCode": "VN",
         "flagEmoji": "🇻🇳",
         "geometryBounds": [
           102.170436,
@@ -28483,7 +29487,17 @@
           15.9759115
         ],
         "geometryPointCount": 44,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Cambodia",
+          "Laos",
+          "People's Republic of China"
+        ],
+        "neighborIsoCodes": [
+          "KH",
+          "LA",
+          "CN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -28692,7 +29706,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "KP",
+        "isoCode": "KP",
         "flagEmoji": "🇰🇵",
         "geometryBounds": [
           124.265625,
@@ -28705,7 +29719,17 @@
           40.327229
         ],
         "geometryPointCount": 48,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "People's Republic of China",
+          "Russia",
+          "South Korea"
+        ],
+        "neighborIsoCodes": [
+          "CN",
+          "RU",
+          "KR"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -28933,7 +29957,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "KR",
+        "isoCode": "KR",
         "flagEmoji": "🇰🇷",
         "geometryBounds": [
           126.117398,
@@ -28946,7 +29970,13 @@
           36.501144499999995
         ],
         "geometryPointCount": 19,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "North Korea"
+        ],
+        "neighborIsoCodes": [
+          "KP"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -29045,7 +30075,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "MN",
+        "isoCode": "MN",
         "flagEmoji": "🇲🇳",
         "geometryBounds": [
           87.751264,
@@ -29058,7 +30088,15 @@
           46.822388000000004
         ],
         "geometryPointCount": 75,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "People's Republic of China",
+          "Russia"
+        ],
+        "neighborIsoCodes": [
+          "CN",
+          "RU"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -29381,7 +30419,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "IN",
+        "isoCode": "IN",
         "flagEmoji": "🇮🇳",
         "geometryBounds": [
           68.176645,
@@ -29394,7 +30432,23 @@
           21.729772500000003
         ],
         "geometryPointCount": 136,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Bangladesh",
+          "Bhutan",
+          "Myanmar",
+          "Nepal",
+          "Pakistan",
+          "People's Republic of China"
+        ],
+        "neighborIsoCodes": [
+          "BD",
+          "BT",
+          "MM",
+          "NP",
+          "PK",
+          "CN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -29961,7 +31015,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "BD",
+        "isoCode": "BD",
         "flagEmoji": "🇧🇩",
         "geometryBounds": [
           88.084422,
@@ -29974,7 +31028,15 @@
           23.558704499999997
         ],
         "geometryPointCount": 36,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "India",
+          "Myanmar"
+        ],
+        "neighborIsoCodes": [
+          "IN",
+          "MM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -30141,7 +31203,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "BT",
+        "isoCode": "BT",
         "flagEmoji": "🇧🇹",
         "geometryBounds": [
           88.814248,
@@ -30154,7 +31216,15 @@
           27.507921
         ],
         "geometryPointCount": 13,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "India",
+          "People's Republic of China"
+        ],
+        "neighborIsoCodes": [
+          "IN",
+          "CN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -30229,7 +31299,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "NP",
+        "isoCode": "NP",
         "flagEmoji": "🇳🇵",
         "geometryBounds": [
           80.088425,
@@ -30242,7 +31312,15 @@
           28.410307500000002
         ],
         "geometryPointCount": 23,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "India",
+          "People's Republic of China"
+        ],
+        "neighborIsoCodes": [
+          "IN",
+          "CN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -30357,7 +31435,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "PK",
+        "isoCode": "PK",
         "flagEmoji": "🇵🇰",
         "geometryBounds": [
           60.874248,
@@ -30370,7 +31448,19 @@
           30.412498
         ],
         "geometryPointCount": 66,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Afghanistan",
+          "India",
+          "Iran",
+          "People's Republic of China"
+        ],
+        "neighborIsoCodes": [
+          "AF",
+          "IN",
+          "IR",
+          "CN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -30657,7 +31747,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "AF",
+        "isoCode": "AF",
         "flagEmoji": "🇦🇫",
         "geometryBounds": [
           60.52843,
@@ -30670,7 +31760,23 @@
           33.902427
         ],
         "geometryPointCount": 69,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Iran",
+          "Pakistan",
+          "People's Republic of China",
+          "Tajikistan",
+          "Turkmenistan",
+          "Uzbekistan"
+        ],
+        "neighborIsoCodes": [
+          "IR",
+          "PK",
+          "CN",
+          "TJ",
+          "TM",
+          "UZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -30969,7 +32075,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "TJ",
+        "isoCode": "TJ",
         "flagEmoji": "🇹🇯",
         "geometryBounds": [
           67.44222,
@@ -30982,7 +32088,19 @@
           38.849192
         ],
         "geometryPointCount": 41,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Afghanistan",
+          "Kyrgyzstan",
+          "People's Republic of China",
+          "Uzbekistan"
+        ],
+        "neighborIsoCodes": [
+          "AF",
+          "KG",
+          "CN",
+          "UZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -31169,7 +32287,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "KG",
+        "isoCode": "KG",
         "flagEmoji": "🇰🇬",
         "geometryBounds": [
           69.464887,
@@ -31182,7 +32300,19 @@
           41.288900999999996
         ],
         "geometryPointCount": 35,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Kazakhstan",
+          "People's Republic of China",
+          "Tajikistan",
+          "Uzbekistan"
+        ],
+        "neighborIsoCodes": [
+          "KZ",
+          "CN",
+          "TJ",
+          "UZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -31345,7 +32475,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "TM",
+        "isoCode": "TM",
         "flagEmoji": "🇹🇲",
         "geometryBounds": [
           52.50246,
@@ -31358,7 +32488,19 @@
           39.011107499999994
         ],
         "geometryPointCount": 54,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Afghanistan",
+          "Iran",
+          "Kazakhstan",
+          "Uzbekistan"
+        ],
+        "neighborIsoCodes": [
+          "AF",
+          "IR",
+          "KZ",
+          "UZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -31597,7 +32739,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "IR",
+        "isoCode": "IR",
         "flagEmoji": "🇮🇷",
         "geometryBounds": [
           44.109225,
@@ -31610,7 +32752,25 @@
           32.39562
         ],
         "geometryPointCount": 76,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Afghanistan",
+          "Armenia",
+          "Azerbaijan",
+          "Iraq",
+          "Pakistan",
+          "Turkey",
+          "Turkmenistan"
+        ],
+        "neighborIsoCodes": [
+          "AF",
+          "AM",
+          "AZ",
+          "IQ",
+          "PK",
+          "TR",
+          "TM"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -31937,7 +33097,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "SY",
+        "isoCode": "SY",
         "flagEmoji": "🇸🇾",
         "geometryBounds": [
           35.700798,
@@ -31950,7 +33110,21 @@
           34.7714055
         ],
         "geometryPointCount": 27,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Iraq",
+          "Israel",
+          "Jordan",
+          "Lebanon",
+          "Turkey"
+        ],
+        "neighborIsoCodes": [
+          "IQ",
+          "IL",
+          "JO",
+          "LB",
+          "TR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -32081,7 +33255,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "AM",
+        "isoCode": "AM",
         "flagEmoji": "🇦🇲",
         "geometryBounds": [
           43.582746,
@@ -32094,7 +33268,19 @@
           39.994665
         ],
         "geometryPointCount": 20,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Azerbaijan",
+          "Georgia",
+          "Iran",
+          "Turkey"
+        ],
+        "neighborIsoCodes": [
+          "AZ",
+          "GE",
+          "IR",
+          "TR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -32197,7 +33383,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "SE",
+        "isoCode": "SE",
         "flagEmoji": "🇸🇪",
         "geometryBounds": [
           11.027369,
@@ -32210,7 +33396,15 @@
           62.233992
         ],
         "geometryPointCount": 40,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Finland",
+          "Norway"
+        ],
+        "neighborIsoCodes": [
+          "FI",
+          "NO"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -32393,7 +33587,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "BY",
+        "isoCode": "BY",
         "flagEmoji": "🇧🇾",
         "geometryBounds": [
           23.199494,
@@ -32406,7 +33600,21 @@
           53.7443165
         ],
         "geometryPointCount": 45,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Latvia",
+          "Lithuania",
+          "Poland",
+          "Russia",
+          "Ukraine"
+        ],
+        "neighborIsoCodes": [
+          "LV",
+          "LT",
+          "PL",
+          "RU",
+          "UA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -32609,7 +33817,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "UA",
+        "isoCode": "UA",
         "flagEmoji": "🇺🇦",
         "geometryBounds": [
           22.085608,
@@ -32622,7 +33830,25 @@
           48.81419150000001
         ],
         "geometryPointCount": 93,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belarus",
+          "Hungary",
+          "Moldova",
+          "Poland",
+          "Romania",
+          "Russia",
+          "Slovakia"
+        ],
+        "neighborIsoCodes": [
+          "BY",
+          "HU",
+          "MD",
+          "PL",
+          "RO",
+          "RU",
+          "SK"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -33017,7 +34243,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "PL",
+        "isoCode": "PL",
         "flagEmoji": "🇵🇱",
         "geometryBounds": [
           14.074521,
@@ -33030,7 +34256,25 @@
           51.9394655
         ],
         "geometryPointCount": 45,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belarus",
+          "Czech Republic",
+          "Germany",
+          "Lithuania",
+          "Russia",
+          "Slovakia",
+          "Ukraine"
+        ],
+        "neighborIsoCodes": [
+          "BY",
+          "CZ",
+          "DE",
+          "LT",
+          "RU",
+          "SK",
+          "UA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -33233,7 +34477,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "AT",
+        "isoCode": "AT",
         "flagEmoji": "🇦🇹",
         "geometryBounds": [
           9.47997,
@@ -33246,7 +34490,25 @@
           47.7354455
         ],
         "geometryPointCount": 37,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Czech Republic",
+          "Germany",
+          "Hungary",
+          "Italy",
+          "Slovakia",
+          "Slovenia",
+          "Switzerland"
+        ],
+        "neighborIsoCodes": [
+          "CZ",
+          "DE",
+          "HU",
+          "IT",
+          "SK",
+          "SI",
+          "CH"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -33417,7 +34679,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "HU",
+        "isoCode": "HU",
         "flagEmoji": "🇭🇺",
         "geometryBounds": [
           16.202298,
@@ -33430,7 +34692,25 @@
           47.1916675
         ],
         "geometryPointCount": 32,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Austria",
+          "Croatia",
+          "Romania",
+          "Serbia",
+          "Slovakia",
+          "Slovenia",
+          "Ukraine"
+        ],
+        "neighborIsoCodes": [
+          "AT",
+          "HR",
+          "RO",
+          "RS",
+          "SK",
+          "SI",
+          "UA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -33581,7 +34861,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "MD",
+        "isoCode": "MD",
         "flagEmoji": "🇲🇩",
         "geometryBounds": [
           26.619337,
@@ -33594,7 +34874,15 @@
           46.977700999999996
         ],
         "geometryPointCount": 27,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Romania",
+          "Ukraine"
+        ],
+        "neighborIsoCodes": [
+          "RO",
+          "UA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -33725,7 +35013,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "RO",
+        "isoCode": "RO",
         "flagEmoji": "🇷🇴",
         "geometryBounds": [
           20.220192,
@@ -33738,7 +35026,21 @@
           45.954663
         ],
         "geometryPointCount": 44,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Bulgaria",
+          "Hungary",
+          "Moldova",
+          "Serbia",
+          "Ukraine"
+        ],
+        "neighborIsoCodes": [
+          "BG",
+          "HU",
+          "MD",
+          "RS",
+          "UA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -33937,7 +35239,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "LT",
+        "isoCode": "LT",
         "flagEmoji": "🇱🇹",
         "geometryBounds": [
           21.0558,
@@ -33950,7 +35252,19 @@
           55.139115000000004
         ],
         "geometryPointCount": 19,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belarus",
+          "Latvia",
+          "Poland",
+          "Russia"
+        ],
+        "neighborIsoCodes": [
+          "BY",
+          "LV",
+          "PL",
+          "RU"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -34049,7 +35363,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "LV",
+        "isoCode": "LV",
         "flagEmoji": "🇱🇻",
         "geometryBounds": [
           21.0558,
@@ -34062,7 +35376,19 @@
           56.792632
         ],
         "geometryPointCount": 22,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belarus",
+          "Estonia",
+          "Lithuania",
+          "Russia"
+        ],
+        "neighborIsoCodes": [
+          "BY",
+          "EE",
+          "LT",
+          "RU"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -34173,7 +35499,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "EE",
+        "isoCode": "EE",
         "flagEmoji": "🇪🇪",
         "geometryBounds": [
           23.339795,
@@ -34186,7 +35512,15 @@
           58.542809
         ],
         "geometryPointCount": 19,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Latvia",
+          "Russia"
+        ],
+        "neighborIsoCodes": [
+          "LV",
+          "RU"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -34285,7 +35619,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "DE",
+        "isoCode": "DE",
         "flagEmoji": "🇩🇪",
         "geometryBounds": [
           5.988658,
@@ -34298,7 +35632,29 @@
           51.142796
         ],
         "geometryPointCount": 58,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Austria",
+          "Belgium",
+          "Czech Republic",
+          "Denmark",
+          "France",
+          "Luxembourg",
+          "Netherlands",
+          "Poland",
+          "Switzerland"
+        ],
+        "neighborIsoCodes": [
+          "AT",
+          "BE",
+          "CZ",
+          "DK",
+          "FR",
+          "LU",
+          "NL",
+          "PL",
+          "CH"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -34553,7 +35909,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "BG",
+        "isoCode": "BG",
         "flagEmoji": "🇧🇬",
         "geometryBounds": [
           22.380526,
@@ -34566,7 +35922,21 @@
           42.7347045
         ],
         "geometryPointCount": 28,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Greece",
+          "North Macedonia",
+          "Romania",
+          "Serbia",
+          "Turkey"
+        ],
+        "neighborIsoCodes": [
+          "GR",
+          "MK",
+          "RO",
+          "RS",
+          "TR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -34701,7 +36071,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "GR",
+        "isoCode": "GR",
         "flagEmoji": "🇬🇷",
         "geometryBounds": [
           20.150016,
@@ -34714,7 +36084,19 @@
           38.3734465
         ],
         "geometryPointCount": 54,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Albania",
+          "Bulgaria",
+          "North Macedonia",
+          "Turkey"
+        ],
+        "neighborIsoCodes": [
+          "AL",
+          "BG",
+          "MK",
+          "TR"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -34959,7 +36341,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "TR",
+        "isoCode": "TR",
         "flagEmoji": "🇹🇷",
         "geometryBounds": [
           26.043351,
@@ -34972,7 +36354,27 @@
           38.98151
         ],
         "geometryPointCount": 68,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Armenia",
+          "Azerbaijan",
+          "Bulgaria",
+          "Georgia",
+          "Greece",
+          "Iran",
+          "Iraq",
+          "Syria"
+        ],
+        "neighborIsoCodes": [
+          "AM",
+          "AZ",
+          "BG",
+          "GE",
+          "GR",
+          "IR",
+          "IQ",
+          "SY"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -35273,7 +36675,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "AL",
+        "isoCode": "AL",
         "flagEmoji": "🇦🇱",
         "geometryBounds": [
           19.304486,
@@ -35286,7 +36688,19 @@
           41.1566225
         ],
         "geometryPointCount": 24,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Greece",
+          "Kosovo",
+          "Montenegro",
+          "North Macedonia"
+        ],
+        "neighborIsoCodes": [
+          "GR",
+          "XK",
+          "ME",
+          "MK"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -35405,7 +36819,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "HR",
+        "isoCode": "HR",
         "flagEmoji": "🇭🇷",
         "geometryBounds": [
           13.656976,
@@ -35418,7 +36832,21 @@
           44.491871
         ],
         "geometryPointCount": 43,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Bosnia and Herzegovina",
+          "Hungary",
+          "Montenegro",
+          "Serbia",
+          "Slovenia"
+        ],
+        "neighborIsoCodes": [
+          "BA",
+          "HU",
+          "ME",
+          "RS",
+          "SI"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -35613,7 +37041,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "CH",
+        "isoCode": "CH",
         "flagEmoji": "🇨🇭",
         "geometryBounds": [
           6.022609,
@@ -35626,7 +37054,19 @@
           46.803888
         ],
         "geometryPointCount": 24,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Austria",
+          "France",
+          "Germany",
+          "Italy"
+        ],
+        "neighborIsoCodes": [
+          "AT",
+          "FR",
+          "DE",
+          "IT"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -35745,7 +37185,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "LU",
+        "isoCode": "LU",
         "flagEmoji": "🇱🇺",
         "geometryBounds": [
           5.674052,
@@ -35758,7 +37198,17 @@
           49.7853595
         ],
         "geometryPointCount": 7,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belgium",
+          "France",
+          "Germany"
+        ],
+        "neighborIsoCodes": [
+          "BE",
+          "FR",
+          "DE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -35809,7 +37259,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "BE",
+        "isoCode": "BE",
         "flagEmoji": "🇧🇪",
         "geometryBounds": [
           2.513573,
@@ -35822,7 +37272,19 @@
           50.50225399999999
         ],
         "geometryPointCount": 17,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "France",
+          "Germany",
+          "Luxembourg",
+          "Netherlands"
+        ],
+        "neighborIsoCodes": [
+          "FR",
+          "DE",
+          "LU",
+          "NL"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -35913,7 +37375,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "NL",
+        "isoCode": "NL",
         "flagEmoji": "🇳🇱",
         "geometryBounds": [
           3.314971,
@@ -35926,7 +37388,15 @@
           52.157061999999996
         ],
         "geometryPointCount": 15,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Belgium",
+          "Germany"
+        ],
+        "neighborIsoCodes": [
+          "BE",
+          "DE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -36009,7 +37479,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "PT",
+        "isoCode": "PT",
         "flagEmoji": "🇵🇹",
         "geometryBounds": [
           -9.526571,
@@ -36022,7 +37492,13 @@
           39.559369
         ],
         "geometryPointCount": 33,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Spain"
+        ],
+        "neighborIsoCodes": [
+          "ES"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -36177,7 +37653,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "ES",
+        "isoCode": "ES",
         "flagEmoji": "🇪🇸",
         "geometryBounds": [
           -9.392884,
@@ -36190,7 +37666,15 @@
           39.847594
         ],
         "geometryPointCount": 51,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "France",
+          "Portugal"
+        ],
+        "neighborIsoCodes": [
+          "FR",
+          "PT"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -36417,7 +37901,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "IE",
+        "isoCode": "IE",
         "flagEmoji": "🇮🇪",
         "geometryBounds": [
           -9.977086,
@@ -36430,7 +37914,13 @@
           53.4004615
         ],
         "geometryPointCount": 13,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "United Kingdom"
+        ],
+        "neighborIsoCodes": [
+          "GB"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -36505,7 +37995,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "SB",
+        "isoCode": "SB",
         "flagEmoji": "🇸🇧",
         "geometryBounds": [
           156.491358,
@@ -36518,7 +38008,9 @@
           -8.7128525
         ],
         "geometryPointCount": 37,
-        "geometryRingCount": 5
+        "geometryRingCount": 5,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -36707,7 +38199,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "NZ",
+        "isoCode": "NZ",
         "flagEmoji": "🇳🇿",
         "geometryBounds": [
           166.509144,
@@ -36720,7 +38212,9 @@
           -40.5459485
         ],
         "geometryPointCount": 66,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -37013,7 +38507,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "AU",
+        "isoCode": "AU",
         "flagEmoji": "🇦🇺",
         "geometryBounds": [
           113.338953,
@@ -37026,7 +38520,9 @@
           -27.1513915
         ],
         "geometryPointCount": 241,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -38019,7 +39515,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "LK",
+        "isoCode": "LK",
         "flagEmoji": "🇱🇰",
         "geometryBounds": [
           79.695167,
@@ -38032,7 +39528,9 @@
           7.896224
         ],
         "geometryPointCount": 10,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -38095,7 +39593,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "CN",
+        "isoCode": "CN",
         "flagEmoji": "🇨🇳",
         "geometryBounds": [
           73.675379,
@@ -38108,7 +39606,39 @@
           35.828250499999996
         ],
         "geometryPointCount": 240,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Afghanistan",
+          "Bhutan",
+          "India",
+          "Kazakhstan",
+          "Kyrgyzstan",
+          "Laos",
+          "Mongolia",
+          "Myanmar",
+          "Nepal",
+          "North Korea",
+          "Pakistan",
+          "Russia",
+          "Tajikistan",
+          "Vietnam"
+        ],
+        "neighborIsoCodes": [
+          "AF",
+          "BT",
+          "IN",
+          "KZ",
+          "KG",
+          "LA",
+          "MN",
+          "MM",
+          "NP",
+          "KP",
+          "PK",
+          "RU",
+          "TJ",
+          "VN"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -39097,7 +40627,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "TW",
+        "isoCode": "TW",
         "flagEmoji": "🇹🇼",
         "geometryBounds": [
           120.106189,
@@ -39110,7 +40640,9 @@
           23.633015
         ],
         "geometryPointCount": 9,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -39169,7 +40701,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "IT",
+        "isoCode": "IT",
         "flagEmoji": "🇮🇹",
         "geometryBounds": [
           6.749955,
@@ -39182,7 +40714,19 @@
           41.867689999999996
         ],
         "geometryPointCount": 87,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [
+          "Austria",
+          "France",
+          "Slovenia",
+          "Switzerland"
+        ],
+        "neighborIsoCodes": [
+          "AT",
+          "FR",
+          "SI",
+          "CH"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -39563,7 +41107,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "DK",
+        "isoCode": "DK",
         "flagEmoji": "🇩🇰",
         "geometryBounds": [
           8.089977,
@@ -39576,7 +41120,13 @@
           56.265016
         ],
         "geometryPointCount": 24,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Germany"
+        ],
+        "neighborIsoCodes": [
+          "DE"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -39714,7 +41264,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "GB",
+        "isoCode": "GB",
         "flagEmoji": "🇬🇧",
         "geometryBounds": [
           -7.572168,
@@ -39727,7 +41277,13 @@
           54.2975
         ],
         "geometryPointCount": 56,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Ireland"
+        ],
+        "neighborIsoCodes": [
+          "IE"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -39980,7 +41536,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "IS",
+        "isoCode": "IS",
         "flagEmoji": "🇮🇸",
         "geometryBounds": [
           -24.326184,
@@ -39993,7 +41549,9 @@
           65.0115875
         ],
         "geometryPointCount": 20,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -40096,7 +41654,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "AZ",
+        "isoCode": "AZ",
         "flagEmoji": "🇦🇿",
         "geometryBounds": [
           44.79399,
@@ -40109,7 +41667,21 @@
           40.065526500000004
         ],
         "geometryPointCount": 44,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Armenia",
+          "Georgia",
+          "Iran",
+          "Russia",
+          "Turkey"
+        ],
+        "neighborIsoCodes": [
+          "AM",
+          "GE",
+          "IR",
+          "RU",
+          "TR"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -40314,7 +41886,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "GE",
+        "isoCode": "GE",
         "flagEmoji": "🇬🇪",
         "geometryBounds": [
           39.955009,
@@ -40327,7 +41899,19 @@
           42.3087745
         ],
         "geometryPointCount": 24,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Armenia",
+          "Azerbaijan",
+          "Russia",
+          "Turkey"
+        ],
+        "neighborIsoCodes": [
+          "AM",
+          "AZ",
+          "RU",
+          "TR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -40446,7 +42030,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "PH",
+        "isoCode": "PH",
         "flagEmoji": "🇵🇭",
         "geometryBounds": [
           117.174275,
@@ -40459,7 +42043,9 @@
           12.043115
         ],
         "geometryPointCount": 110,
-        "geometryRingCount": 7
+        "geometryRingCount": 7,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -40948,7 +42534,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "MY",
+        "isoCode": "MY",
         "flagEmoji": "🇲🇾",
         "geometryBounds": [
           100.085757,
@@ -40961,7 +42547,17 @@
           3.8505920000000002
         ],
         "geometryPointCount": 62,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [
+          "Brunei",
+          "Indonesia",
+          "Thailand"
+        ],
+        "neighborIsoCodes": [
+          "BN",
+          "ID",
+          "TH"
+        ]
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -41238,7 +42834,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "BN",
+        "isoCode": "BN",
         "flagEmoji": "🇧🇳",
         "geometryBounds": [
           114.204017,
@@ -41251,7 +42847,13 @@
           4.7276834999999995
         ],
         "geometryPointCount": 8,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Malaysia"
+        ],
+        "neighborIsoCodes": [
+          "MY"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -41306,7 +42908,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "SI",
+        "isoCode": "SI",
         "flagEmoji": "🇸🇮",
         "geometryBounds": [
           13.69811,
@@ -41319,7 +42921,19 @@
           46.152351
         ],
         "geometryPointCount": 18,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Austria",
+          "Croatia",
+          "Hungary",
+          "Italy"
+        ],
+        "neighborIsoCodes": [
+          "AT",
+          "HR",
+          "HU",
+          "IT"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -41414,7 +43028,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "FI",
+        "isoCode": "FI",
         "flagEmoji": "🇫🇮",
         "geometryBounds": [
           20.645593,
@@ -41427,7 +43041,17 @@
           65.00528299999999
         ],
         "geometryPointCount": 40,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Norway",
+          "Russia",
+          "Sweden"
+        ],
+        "neighborIsoCodes": [
+          "NO",
+          "RU",
+          "SE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -41610,7 +43234,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "SK",
+        "isoCode": "SK",
         "flagEmoji": "🇸🇰",
         "geometryBounds": [
           16.879983,
@@ -41623,7 +43247,21 @@
           48.6650015
         ],
         "geometryPointCount": 33,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Austria",
+          "Czech Republic",
+          "Hungary",
+          "Poland",
+          "Ukraine"
+        ],
+        "neighborIsoCodes": [
+          "AT",
+          "CZ",
+          "HU",
+          "PL",
+          "UA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -41785,7 +43423,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "CZ",
+        "isoCode": "CZ",
         "flagEmoji": "🇨🇿",
         "geometryBounds": [
           12.240111,
@@ -41798,7 +43436,19 @@
           49.8362865
         ],
         "geometryPointCount": 35,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Austria",
+          "Germany",
+          "Poland",
+          "Slovakia"
+        ],
+        "neighborIsoCodes": [
+          "AT",
+          "DE",
+          "PL",
+          "SK"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -41961,7 +43611,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "ER",
+        "isoCode": "ER",
         "flagEmoji": "🇪🇷",
         "geometryBounds": [
           36.32322,
@@ -41974,7 +43624,17 @@
           15.2268615
         ],
         "geometryPointCount": 28,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Djibouti",
+          "Ethiopia",
+          "Sudan"
+        ],
+        "neighborIsoCodes": [
+          "DJ",
+          "ET",
+          "SD"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -42109,7 +43769,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "JP",
+        "isoCode": "JP",
         "flagEmoji": "🇯🇵",
         "geometryBounds": [
           129.408463,
@@ -42122,7 +43782,9 @@
           38.290531
         ],
         "geometryPointCount": 65,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -42415,7 +44077,7 @@
         "continents": [
           "South America"
         ],
-        "flagCode": "PY",
+        "isoCode": "PY",
         "flagEmoji": "🇵🇾",
         "geometryBounds": [
           -62.685057,
@@ -42428,7 +44090,17 @@
           -23.445622999999998
         ],
         "geometryPointCount": 33,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Argentina",
+          "Bolivia",
+          "Brazil"
+        ],
+        "neighborIsoCodes": [
+          "AR",
+          "BO",
+          "BR"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -42583,7 +44255,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "YE",
+        "isoCode": "YE",
         "flagEmoji": "🇾🇪",
         "geometryBounds": [
           42.604873,
@@ -42596,7 +44268,15 @@
           15.7929765
         ],
         "geometryPointCount": 44,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Oman",
+          "Saudi Arabia"
+        ],
+        "neighborIsoCodes": [
+          "OM",
+          "SA"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -42795,7 +44475,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "SA",
+        "isoCode": "SA",
         "flagEmoji": "🇸🇦",
         "geometryBounds": [
           34.632336,
@@ -42808,7 +44488,25 @@
           24.25445
         ],
         "geometryPointCount": 76,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Iraq",
+          "Jordan",
+          "Kuwait",
+          "Oman",
+          "Qatar",
+          "United Arab Emirates",
+          "Yemen"
+        ],
+        "neighborIsoCodes": [
+          "IQ",
+          "JO",
+          "KW",
+          "OM",
+          "QA",
+          "AE",
+          "YE"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -43135,7 +44833,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "CY",
+        "isoCode": "CY",
         "flagEmoji": "🇨🇾",
         "geometryBounds": [
           32.256667,
@@ -43148,7 +44846,9 @@
           34.872496999999996
         ],
         "geometryPointCount": 15,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -43231,7 +44931,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "MA",
+        "isoCode": "MA",
         "flagEmoji": "🇲🇦",
         "geometryBounds": [
           -17.020428,
@@ -43244,7 +44944,13 @@
           28.590361
         ],
         "geometryPointCount": 63,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Algeria"
+        ],
+        "neighborIsoCodes": [
+          "DZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -43519,7 +45225,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "EG",
+        "isoCode": "EG",
         "flagEmoji": "🇪🇬",
         "geometryBounds": [
           24.70007,
@@ -43532,7 +45238,19 @@
           26.792839999999998
         ],
         "geometryPointCount": 44,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Israel",
+          "Jordan",
+          "Libya",
+          "Sudan"
+        ],
+        "neighborIsoCodes": [
+          "IL",
+          "JO",
+          "LY",
+          "SD"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -43731,7 +45449,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "LY",
+        "isoCode": "LY",
         "flagEmoji": "🇱🇾",
         "geometryBounds": [
           9.319411,
@@ -43744,7 +45462,23 @@
           26.358733
         ],
         "geometryPointCount": 56,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Algeria",
+          "Chad",
+          "Egypt",
+          "Niger",
+          "Sudan",
+          "Tunisia"
+        ],
+        "neighborIsoCodes": [
+          "DZ",
+          "TD",
+          "EG",
+          "NE",
+          "SD",
+          "TN"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -43991,7 +45725,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "ET",
+        "isoCode": "ET",
         "flagEmoji": "🇪🇹",
         "geometryBounds": [
           32.95418,
@@ -44004,7 +45738,23 @@
           9.190745
         ],
         "geometryPointCount": 59,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Djibouti",
+          "Eritrea",
+          "Kenya",
+          "Somalia",
+          "South Sudan",
+          "Sudan"
+        ],
+        "neighborIsoCodes": [
+          "DJ",
+          "ER",
+          "KE",
+          "SO",
+          "SS",
+          "SD"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -44263,7 +46013,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "DJ",
+        "isoCode": "DJ",
         "flagEmoji": "🇩🇯",
         "geometryBounds": [
           41.66176,
@@ -44276,7 +46026,15 @@
           11.813258999999999
         ],
         "geometryPointCount": 15,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Eritrea",
+          "Ethiopia"
+        ],
+        "neighborIsoCodes": [
+          "ER",
+          "ET"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -44359,7 +46117,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "UG",
+        "isoCode": "UG",
         "flagEmoji": "🇺🇬",
         "geometryBounds": [
           29.579466,
@@ -44372,7 +46130,21 @@
           1.4032814999999998
         ],
         "geometryPointCount": 28,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Democratic Republic of the Congo",
+          "Kenya",
+          "Rwanda",
+          "South Sudan",
+          "Tanzania"
+        ],
+        "neighborIsoCodes": [
+          "CD",
+          "KE",
+          "RW",
+          "SS",
+          "TZ"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -44507,7 +46279,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "RW",
+        "isoCode": "RW",
         "flagEmoji": "🇷🇼",
         "geometryBounds": [
           29.024926,
@@ -44520,7 +46292,19 @@
           -2.0262585
         ],
         "geometryPointCount": 14,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Burundi",
+          "Democratic Republic of the Congo",
+          "Tanzania",
+          "Uganda"
+        ],
+        "neighborIsoCodes": [
+          "BI",
+          "CD",
+          "TZ",
+          "UG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -44599,7 +46383,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "BA",
+        "isoCode": "BA",
         "flagEmoji": "🇧🇦",
         "geometryBounds": [
           15.750026,
@@ -44612,7 +46396,17 @@
           43.941888500000005
         ],
         "geometryPointCount": 23,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Croatia",
+          "Montenegro",
+          "Serbia"
+        ],
+        "neighborIsoCodes": [
+          "HR",
+          "ME",
+          "RS"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -44727,7 +46521,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "MK",
+        "isoCode": "MK",
         "flagEmoji": "🇲🇰",
         "geometryBounds": [
           20.463175,
@@ -44740,7 +46534,21 @@
           41.58149349999999
         ],
         "geometryPointCount": 18,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Albania",
+          "Bulgaria",
+          "Greece",
+          "Kosovo",
+          "Serbia"
+        ],
+        "neighborIsoCodes": [
+          "AL",
+          "BG",
+          "GR",
+          "XK",
+          "RS"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -44835,7 +46643,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "RS",
+        "isoCode": "RS",
         "flagEmoji": "🇷🇸",
         "geometryBounds": [
           18.829825,
@@ -44848,7 +46656,27 @@
           44.208477
         ],
         "geometryPointCount": 48,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Bosnia and Herzegovina",
+          "Bulgaria",
+          "Croatia",
+          "Hungary",
+          "Kosovo",
+          "Montenegro",
+          "North Macedonia",
+          "Romania"
+        ],
+        "neighborIsoCodes": [
+          "BA",
+          "BG",
+          "HR",
+          "HU",
+          "XK",
+          "ME",
+          "MK",
+          "RO"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -45063,7 +46891,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "ME",
+        "isoCode": "ME",
         "flagEmoji": "🇲🇪",
         "geometryBounds": [
           18.450017,
@@ -45076,7 +46904,21 @@
           42.700695499999995
         ],
         "geometryPointCount": 18,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Albania",
+          "Bosnia and Herzegovina",
+          "Croatia",
+          "Kosovo",
+          "Serbia"
+        ],
+        "neighborIsoCodes": [
+          "AL",
+          "BA",
+          "HR",
+          "XK",
+          "RS"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -45171,7 +47013,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "XK",
+        "isoCode": "XK",
         "flagEmoji": "🇽🇰",
         "geometryBounds": [
           20.0707,
@@ -45184,7 +47026,19 @@
           42.55958
         ],
         "geometryPointCount": 21,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Albania",
+          "Montenegro",
+          "North Macedonia",
+          "Serbia"
+        ],
+        "neighborIsoCodes": [
+          "AL",
+          "ME",
+          "MK",
+          "RS"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -45291,7 +47145,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "TT",
+        "isoCode": "TT",
         "flagEmoji": "🇹🇹",
         "geometryBounds": [
           -61.95,
@@ -45304,7 +47158,9 @@
           10.445
         ],
         "geometryPointCount": 8,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -45359,7 +47215,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "SS",
+        "isoCode": "SS",
         "flagEmoji": "🇸🇸",
         "geometryBounds": [
           23.88698,
@@ -45372,7 +47228,23 @@
           7.87859
         ],
         "geometryPointCount": 63,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [
+          "Central African Republic",
+          "Democratic Republic of the Congo",
+          "Ethiopia",
+          "Kenya",
+          "Sudan",
+          "Uganda"
+        ],
+        "neighborIsoCodes": [
+          "CF",
+          "CD",
+          "ET",
+          "KE",
+          "SD",
+          "UG"
+        ]
       },
       "geometry": {
         "type": "Polygon",
@@ -45647,7 +47519,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "AD",
+        "isoCode": "AD",
         "flagEmoji": "🇦🇩",
         "geometryBounds": [
           1.406456,
@@ -45660,7 +47532,9 @@
           42.5390195
         ],
         "geometryPointCount": 51,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -45887,7 +47761,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "AG",
+        "isoCode": "AG",
         "flagEmoji": "🇦🇬",
         "geometryBounds": [
           -62.34826,
@@ -45900,7 +47774,9 @@
           17.329829
         ],
         "geometryPointCount": 118,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -46405,7 +48281,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "BH",
+        "isoCode": "BH",
         "flagEmoji": "🇧🇭",
         "geometryBounds": [
           50.38053,
@@ -46418,7 +48294,9 @@
           25.933664999999998
         ],
         "geometryPointCount": 147,
-        "geometryRingCount": 7
+        "geometryRingCount": 7,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -47055,7 +48933,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "BB",
+        "isoCode": "BB",
         "flagEmoji": "🇧🇧",
         "geometryBounds": [
           -59.654205,
@@ -47068,7 +48946,9 @@
           13.197862
         ],
         "geometryPointCount": 35,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -47231,7 +49111,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "CV",
+        "isoCode": "CV",
         "flagEmoji": "🇨🇻",
         "geometryBounds": [
           -25.360422,
@@ -47244,7 +49124,9 @@
           16.000271
         ],
         "geometryPointCount": 433,
-        "geometryRingCount": 11
+        "geometryRingCount": 11,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -49041,7 +50923,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "KM",
+        "isoCode": "KM",
         "flagEmoji": "🇰🇲",
         "geometryBounds": [
           43.213227,
@@ -49054,7 +50936,9 @@
           -11.8707825
         ],
         "geometryPointCount": 127,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -49595,7 +51479,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "DM",
+        "isoCode": "DM",
         "flagEmoji": "🇩🇲",
         "geometryBounds": [
           -61.488922,
@@ -49608,7 +51492,9 @@
           15.417833000000002
         ],
         "geometryPointCount": 75,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -49931,7 +51817,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "GD",
+        "isoCode": "GD",
         "flagEmoji": "🇬🇩",
         "geometryBounds": [
           -61.790517,
@@ -49944,7 +51830,9 @@
           12.266282499999999
         ],
         "geometryPointCount": 64,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -50229,7 +52117,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "KI",
+        "isoCode": "KI",
         "flagEmoji": "🇰🇮",
         "geometryBounds": [
           -174.543406,
@@ -50242,7 +52130,9 @@
           -3.369012
         ],
         "geometryPointCount": 709,
-        "geometryRingCount": 35
+        "geometryRingCount": 35,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -53239,7 +55129,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "LI",
+        "isoCode": "LI",
         "flagEmoji": "🇱🇮",
         "geometryBounds": [
           9.475886,
@@ -53252,7 +55142,9 @@
           47.1576005
         ],
         "geometryPointCount": 29,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -53391,7 +55283,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "MV",
+        "isoCode": "MV",
         "flagEmoji": "🇲🇻",
         "geometryBounds": [
           72.684825,
@@ -53404,7 +55296,9 @@
           3.2093365
         ],
         "geometryPointCount": 1454,
-        "geometryRingCount": 176
+        "geometryRingCount": 176,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -59945,7 +61839,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "MT",
+        "isoCode": "MT",
         "flagEmoji": "🇲🇹",
         "geometryBounds": [
           14.183604,
@@ -59958,7 +61852,9 @@
           35.9384015
         ],
         "geometryPointCount": 55,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -60207,7 +62103,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "MH",
+        "isoCode": "MH",
         "flagEmoji": "🇲🇭",
         "geometryBounds": [
           165.282237,
@@ -60220,7 +62116,9 @@
           9.592149
         ],
         "geometryPointCount": 211,
-        "geometryRingCount": 22
+        "geometryRingCount": 22,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -61173,7 +63071,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "MU",
+        "isoCode": "MU",
         "flagEmoji": "🇲🇺",
         "geometryBounds": [
           56.524181,
@@ -61186,7 +63084,9 @@
           -15.420627499999998
         ],
         "geometryPointCount": 113,
-        "geometryRingCount": 3
+        "geometryRingCount": 3,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -61671,7 +63571,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "FM",
+        "isoCode": "FM",
         "flagEmoji": "🇫🇲",
         "geometryBounds": [
           138.063813,
@@ -61684,7 +63584,9 @@
           5.346869
         ],
         "geometryPointCount": 254,
-        "geometryRingCount": 20
+        "geometryRingCount": 20,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -62801,7 +64703,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "MC",
+        "isoCode": "MC",
         "flagEmoji": "🇲🇨",
         "geometryBounds": [
           7.36575,
@@ -62814,7 +64716,9 @@
           43.740737499999994
         ],
         "geometryPointCount": 12,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -62885,7 +64789,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "NR",
+        "isoCode": "NR",
         "flagEmoji": "🇳🇷",
         "geometryBounds": [
           166.906993,
@@ -62898,7 +64802,9 @@
           -0.521132
         ],
         "geometryPointCount": 9,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -62957,7 +64863,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "PW",
+        "isoCode": "PW",
         "flagEmoji": "🇵🇼",
         "geometryBounds": [
           131.131114,
@@ -62970,7 +64876,9 @@
           5.52283
         ],
         "geometryPointCount": 165,
-        "geometryRingCount": 9
+        "geometryRingCount": 9,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -63687,7 +65595,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "KN",
+        "isoCode": "KN",
         "flagEmoji": "🇰🇳",
         "geometryBounds": [
           -62.861073,
@@ -63700,7 +65608,9 @@
           17.258184999999997
         ],
         "geometryPointCount": 43,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -63901,7 +65811,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "LC",
+        "isoCode": "LC",
         "flagEmoji": "🇱🇨",
         "geometryBounds": [
           -61.078521,
@@ -63914,7 +65824,9 @@
           13.913275500000001
         ],
         "geometryPointCount": 50,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -64137,7 +66049,7 @@
         "continents": [
           "North America"
         ],
-        "flagCode": "VC",
+        "isoCode": "VC",
         "flagEmoji": "🇻🇨",
         "geometryBounds": [
           -61.459828,
@@ -64150,7 +66062,9 @@
           12.982956999999999
         ],
         "geometryPointCount": 83,
-        "geometryRingCount": 5
+        "geometryRingCount": 5,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -64523,7 +66437,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "WS",
+        "isoCode": "WS",
         "flagEmoji": "🇼🇸",
         "geometryBounds": [
           -172.782582,
@@ -64536,7 +66450,9 @@
           -13.7578265
         ],
         "geometryPointCount": 132,
-        "geometryRingCount": 2
+        "geometryRingCount": 2,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -65100,7 +67016,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "VA",
+        "isoCode": "VA",
         "flagEmoji": "🇻🇦",
         "geometryBounds": [
           12.445,
@@ -65113,7 +67029,9 @@
           41.9025
         ],
         "geometryPointCount": 5,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -65156,7 +67074,7 @@
         "continents": [
           "Europe"
         ],
-        "flagCode": "SM",
+        "isoCode": "SM",
         "flagEmoji": "🇸🇲",
         "geometryBounds": [
           12.385629,
@@ -65169,7 +67087,9 @@
           43.9373115
         ],
         "geometryPointCount": 19,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -65268,7 +67188,7 @@
         "continents": [
           "Africa"
         ],
-        "flagCode": "SC",
+        "isoCode": "SC",
         "flagEmoji": "🇸🇨",
         "geometryBounds": [
           46.207367,
@@ -65281,7 +67201,9 @@
           -6.773329499999999
         ],
         "geometryPointCount": 330,
-        "geometryRingCount": 26
+        "geometryRingCount": 26,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -66726,7 +68648,7 @@
         "continents": [
           "Asia"
         ],
-        "flagCode": "SG",
+        "isoCode": "SG",
         "flagEmoji": "🇸🇬",
         "geometryBounds": [
           103.640391,
@@ -66739,7 +68661,9 @@
           1.356472
         ],
         "geometryPointCount": 40,
-        "geometryRingCount": 1
+        "geometryRingCount": 1,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "Polygon",
@@ -66922,7 +68846,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "TO",
+        "isoCode": "TO",
         "flagEmoji": "🇹🇴",
         "geometryBounds": [
           -176.219309,
@@ -66935,7 +68859,9 @@
           -18.9491515
         ],
         "geometryPointCount": 212,
-        "geometryRingCount": 10
+        "geometryRingCount": 10,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",
@@ -67844,7 +69770,7 @@
         "continents": [
           "Oceania"
         ],
-        "flagCode": "TV",
+        "isoCode": "TV",
         "flagEmoji": "🇹🇻",
         "geometryBounds": [
           176.125255,
@@ -67857,7 +69783,9 @@
           -7.549085999999999
         ],
         "geometryPointCount": 69,
-        "geometryRingCount": 9
+        "geometryRingCount": 9,
+        "neighbors": [],
+        "neighborIsoCodes": []
       },
       "geometry": {
         "type": "MultiPolygon",

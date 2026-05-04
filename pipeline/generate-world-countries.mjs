@@ -3,11 +3,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(scriptDir, '..', '..');
-const sourcePath = path.join(workspaceRoot, 'data', 'world-countries.json');
-const outputPath = path.join(workspaceRoot, 'data', 'generated', 'world-countries.render.json');
+const sourcePath = path.join(scriptDir, 'data', 'world-countries.json');
+const outputPath = path.join(scriptDir, 'data', 'generated', 'world-countries.render.json');
 
-const countryFlagCodeOverrides = new Map([
+const isoCodeOverrides = new Map([
   ['czech republic', 'CZ'],
   ['democratic republic of the congo', 'CD'],
   ['east timor', 'TL'],
@@ -78,14 +77,14 @@ function buildRegionLookup() {
   return regionLookup;
 }
 
-function resolveFlagCode(countryName) {
+function resolveIsoCode(countryName) {
   const normalizedName = normalizeLookupName(countryName);
 
   if (!normalizedName) {
     return null;
   }
 
-  const override = countryFlagCodeOverrides.get(normalizedName);
+  const override = isoCodeOverrides.get(normalizedName);
   if (override) {
     return override;
   }
@@ -160,6 +159,9 @@ function getGeometryStats(geometry) {
   };
   let pointCount = 0;
   let ringCount = 0;
+  let sumLon = 0;
+  let sumLat = 0;
+  let coordCount = 0;
 
   if (!geometry || !Array.isArray(geometry.coordinates)) {
     return null;
@@ -170,6 +172,9 @@ function getGeometryStats(geometry) {
     bounds.minLat = Math.min(bounds.minLat, latitude);
     bounds.maxLon = Math.max(bounds.maxLon, longitude);
     bounds.maxLat = Math.max(bounds.maxLat, latitude);
+    sumLon += longitude;
+    sumLat += latitude;
+    coordCount += 1;
     pointCount += 1;
   };
 
@@ -192,12 +197,29 @@ function getGeometryStats(geometry) {
     return null;
   }
 
+  // Compute center, handling antimeridian crossing
+  // When a geometry crosses the antimeridian, bounds will show -180 to 180.
+  // In this case, compute the mean of actual coordinates, but normalize
+  // negative lons to 0-360 range first to get a meaningful average.
+  let centerLon;
+  let centerLat = (bounds.minLat + bounds.maxLat) / 2;
+  
+  const lonSpan = bounds.maxLon - bounds.minLon;
+  if (bounds.minLon < -179 && bounds.maxLon > 179 && lonSpan > 358) {
+    // Antimeridian crossing: compute mean of actual points
+    // Normalize all negative lons to 0-360, compute mean, then normalize back if needed
+    let normalizedMeanLon = sumLon / coordCount;
+    if (normalizedMeanLon < 0) {
+      normalizedMeanLon += 360;
+    }
+    centerLon = normalizedMeanLon > 180 ? normalizedMeanLon - 360 : normalizedMeanLon;
+  } else {
+    centerLon = (bounds.minLon + bounds.maxLon) / 2;
+  }
+
   return {
     bounds: [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat],
-    center: [
-      (bounds.minLon + bounds.maxLon) / 2,
-      (bounds.minLat + bounds.maxLat) / 2
-    ],
+    center: [centerLon, centerLat],
     pointCount,
     ringCount
   };
@@ -241,7 +263,7 @@ function normalizeFeature(feature) {
 
   const aliases = collectAliases(properties);
   const continents = collectContinents(properties);
-  const flagCode = resolveFlagCode(displayName);
+  const isoCode = resolveIsoCode(displayName);
   let geometryStats = getGeometryStats(feature.geometry);
 
   // Detect obviously out-of-range coordinates and attempt a sensible
@@ -322,14 +344,57 @@ function normalizeFeature(feature) {
       synonyms: aliases,
       continent: continents[0] || null,
       continents,
-      flagCode,
-      flagEmoji: flagEmojiFromCountryCode(flagCode),
+      isoCode,
+      flagEmoji: flagEmojiFromCountryCode(isoCode),
       geometryBounds: geometryStats?.bounds ?? null,
       geometryCenter: geometryStats?.center ?? null,
       geometryPointCount: geometryStats?.pointCount ?? 0,
       geometryRingCount: geometryStats?.ringCount ?? 0
     }
   };
+}
+
+/**
+ * Build a `neighbors` list for each feature.
+ *
+ * Strategy: snap every border vertex to a grid (2 decimal places ≈ 1 km),
+ * record which countries own each snapped vertex, then flag any pair that
+ * shares at least one vertex as neighbors.
+ *
+ * Two decimal places is coarse enough to paper over tiny float differences
+ * in Natural Earth data while being fine enough to avoid false positives
+ * across open water.
+ */
+function computeNeighbors(features) {
+  // Map from snapped vertex key -> Set of country names that touch it.
+  const vertexOwners = new Map();
+
+  for (const feature of features) {
+    const name = feature?.properties?.name;
+    if (!name || !feature.geometry) continue;
+
+    visitCoordinates(feature.geometry.coordinates, ([lon, lat]) => {
+      const key = `${lon.toFixed(2)},${lat.toFixed(2)}`;
+      if (!vertexOwners.has(key)) vertexOwners.set(key, new Set());
+      vertexOwners.get(key).add(name);
+    });
+  }
+
+  // Collect neighbor pairs from shared vertices.
+  const neighborSets = new Map(features.map((f) => [f.properties?.name, new Set()]));
+
+  for (const owners of vertexOwners.values()) {
+    if (owners.size < 2) continue;
+    const names = Array.from(owners);
+    for (let i = 0; i < names.length; i++) {
+      for (let j = i + 1; j < names.length; j++) {
+        neighborSets.get(names[i])?.add(names[j]);
+        neighborSets.get(names[j])?.add(names[i]);
+      }
+    }
+  }
+
+  return neighborSets;
 }
 
 async function main() {
@@ -342,18 +407,36 @@ async function main() {
     // Temporarily omit Antarctica to avoid oversized mesh rendering issues.
     .filter((feature) => String(feature.properties.name).toLowerCase() !== 'antarctica');
 
+  // Compute adjacency from shared border vertices.
+  const neighborSets = computeNeighbors(normalizedFeatures);
+
+  // Build a name → isoCode lookup so we can emit compact ISO-2 codes.
+  const isoCodeByName = new Map(
+    normalizedFeatures.map((f) => [f.properties.name, f.properties.isoCode])
+  );
+
+  for (const feature of normalizedFeatures) {
+    const name = feature.properties.name;
+    const neighborNames = Array.from(neighborSets.get(name) ?? []).sort();
+    feature.properties.neighbors = neighborNames;
+    // Emit ISO-2 codes for neighbors that have one; omit nulls.
+    feature.properties.neighborIsoCodes = neighborNames
+      .map((n) => isoCodeByName.get(n))
+      .filter(Boolean);
+  }
+
   await mkdir(path.dirname(outputPath), { recursive: true });
 
   const output = {
     type: 'FeatureCollection',
     generatedAt: new Date().toISOString(),
-    source: path.relative(workspaceRoot, sourcePath),
+    source: path.relative(scriptDir, sourcePath),
     schema: 'worldle-lite-country-render-v1',
     features: normalizedFeatures
   };
 
   await writeFile(outputPath, JSON.stringify(output, null, 2));
-  console.log(`Wrote ${normalizedFeatures.length} normalized country features to ${path.relative(workspaceRoot, outputPath)}`);
+  console.log(`Wrote ${normalizedFeatures.length} normalized country features to ${path.relative(scriptDir, outputPath)}`);
 }
 
 main().catch((error) => {

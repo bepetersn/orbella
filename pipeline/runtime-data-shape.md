@@ -32,12 +32,14 @@ The generator passes through the original Natural Earth fields from the source d
 - `synonyms`: same list as `aliases`, for compatibility with the existing input pipeline
 - `continent`: primary continent label
 - `continents`: unique list of continent memberships
-- `flagCode`: resolved ISO-3166 alpha-2 code, when available
-- `flagEmoji`: unicode flag emoji derived from `flagCode`, when possible
+- `isoCode`: ISO 3166-1 alpha-2 code for this country, when available
+- `flagEmoji`: unicode flag emoji derived from `isoCode`, when possible
 - `geometryBounds`: `[minLon, minLat, maxLon, maxLat]` derived from the geometry
 - `geometryCenter`: `[lon, lat]` midpoint of `geometryBounds`
 - `geometryPointCount`: total coordinate points found in the geometry
 - `geometryRingCount`: number of rings across polygons and multipolygons
+- `neighbors`: sorted list of country names that share at least one snapped border vertex with this country (used for the "Adjacent" proximity label)
+- `neighborIsoCodes`: ISO 3166-1 alpha-2 codes of `neighbors`, for fast adjacency lookups at runtime
 
 ## Consumer expectations
 

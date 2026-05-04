@@ -8,7 +8,7 @@
  * set of instances without importing them directly.
  */
 (() => {
-  const BUILD_ID = "2026-04-23-1";
+  const BUILD_ID = "2026-05-03-1";
   const IMPORTS = {
     gameStore: window.gameStore,
     targetSelector: window.targetSelector,
@@ -17,6 +17,45 @@
     worldMap: window.worldMap,
     d3: window.d3,
     gameConfig: window.gameConfig,
+    gameConstants: window.gameConstants,
+  };
+
+  function getNow() {
+    if (typeof window.performance?.now === "function") {
+      return window.performance.now();
+    }
+
+    return Date.now();
+  }
+
+  function roundElapsedTime(elapsedMs) {
+    return Math.round(elapsedMs * 10) / 10;
+  }
+
+  const startupStartedAt = getNow();
+
+  const startupLogger = {
+    step(label, details = {}) {
+      const elapsedMs = roundElapsedTime(getNow() - startupStartedAt);
+      console.info(`[startup] ${label}`, {
+        elapsedMs,
+        ...details
+      });
+    },
+    warn(label, details = {}) {
+      const elapsedMs = roundElapsedTime(getNow() - startupStartedAt);
+      console.warn(`[startup] ${label}`, {
+        elapsedMs,
+        ...details
+      });
+    },
+    error(label, details = {}) {
+      const elapsedMs = roundElapsedTime(getNow() - startupStartedAt);
+      console.error(`[startup] ${label}`, {
+        elapsedMs,
+        ...details
+      });
+    }
   };
 
   // Lightweight runtime logger that respects the UI debug toggle
@@ -38,6 +77,10 @@
   };
 
   window.worldleLiteLogger = worldleLiteLogger;
+  startupLogger.step("runtime module loaded", {
+    buildId: BUILD_ID,
+    readyState: document.readyState
+  });
 
   const {
     COPY,
@@ -57,12 +100,21 @@
     MAP_DEBUG_INTERACTIONS,
     MAP_MAX_LATITUDE
   } = IMPORTS.gameConfig;
+  const {
+    MAP_SELECTOR,
+    WRONG_MSG_CLASS,
+    FAILURE_MSG_CLASS,
+    CORRECT_MSG_CLASS,
+    IS_VALID_CLASS,
+    GUESS_PILL_CLASS
+  } = IMPORTS.gameConstants || {};
   const gameStore = IMPORTS.gameStore;
   const targetSelector = IMPORTS.targetSelector.createTargetSelector();
 
   window.worldleLiteRuntime = {
     BUILD_ID,
     IMPORTS,
+    startup: startupLogger,
     config: {
       COPY,
       W,
@@ -80,12 +132,12 @@
       MAP_PAN_SENSITIVITY_Y,
       MAP_DEBUG_INTERACTIONS,
       MAP_MAX_LATITUDE,
-      MAP_SELECTOR: "#globeViz",
-      WRONG_MSG_CLASS: "wrong-msg",
-      FAILURE_MSG_CLASS: "failure-msg",
-      CORRECT_MSG_CLASS: "correct-msg",
-      IS_VALID_CLASS: "is-valid",
-      GUESS_PILL_CLASS: "guess-pill"
+      MAP_SELECTOR,
+      WRONG_MSG_CLASS,
+      FAILURE_MSG_CLASS,
+      CORRECT_MSG_CLASS,
+      IS_VALID_CLASS,
+      GUESS_PILL_CLASS
     },
     dom: {
       input: document.getElementById("guessInput"),
@@ -125,7 +177,8 @@
       guessList: document.getElementById("guess-list"),
       scoreCorrect: document.getElementById("numCorrect"),
       scorePlayed: document.getElementById("numPlayed"),
-      scoreHints: document.getElementById("numHintsUsed")
+      hintsUsedInRound: document.getElementById("hints-round"),
+      totalHintsUsed: document.getElementById("hints-total")
     },
     state: {
       store: gameStore.state,
