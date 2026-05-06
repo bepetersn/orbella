@@ -3,35 +3,32 @@
  *
  * Exposes `normalizeGuess` and `toLooseGuessKey` on `window._gameStore`.
  */
-(() => {
-  const _store = window._gameStore;
+const combiningMarkPattern = /\p{M}/gu;
+const apostropheLikePattern = /[''`´]/gu;
+const ampersandPattern = /&/gu;
+const looseKeyNonAlphaNumericPattern = /[^\p{L}\p{N}]/gu;
 
-  const combiningMarkPattern = /\p{M}/gu;
-  const apostropheLikePattern = /[’'`´]/gu;
-  const ampersandPattern = /&/gu;
-  const looseKeyNonAlphaNumericPattern = /[^\p{L}\p{N}]/gu;
+export function normalizeGuess(guessName) {
+  return String(guessName ?? "")
+    .trim()
+    .normalize("NFKD")
+    .replace(combiningMarkPattern, "")
+    .replace(ampersandPattern, " and ")
+    .replace(apostropheLikePattern, " ")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+    .trim();
+}
 
-  function normalizeGuess(guessName) {
-    return String(guessName ?? "")
-      .trim()
-      .normalize("NFKD")
-      .replace(combiningMarkPattern, "")
-      .replace(ampersandPattern, " and ")
-      .replace(apostropheLikePattern, " ")
-      .replace(/[^\p{L}\p{N}]+/gu, " ")
-      .replace(/\s+/g, " ")
-      .toLowerCase()
-      .trim();
-  }
+export function toLooseGuessKey(guessName) {
+  const normalized = normalizeGuess(guessName);
+  return normalized
+    .split(/\s+/)
+    .filter(word => word.length > 1)
+    .join("");
+}
 
-  function toLooseGuessKey(guessName) {
-    const normalized = normalizeGuess(guessName);
-    return normalized
-      .split(/\s+/)
-      .filter(word => word.length > 1)
-      .join("");
-  }
-
-  _store.normalizeGuess = normalizeGuess;
-  _store.toLooseGuessKey = toLooseGuessKey;
-})();
+// Backward-compat shims — remove once all callers use import
+window._gameStore.normalizeGuess = normalizeGuess;
+window._gameStore.toLooseGuessKey = toLooseGuessKey;

@@ -7,28 +7,34 @@
  *
  * Attaches itself to `runtime.roundControl`.
  */
-(() => {
-  const runtime = window.worldleLiteRuntime;
-  const { dom, state, config, actions, IMPORTS } = runtime;
-  const ROUND_OUTCOME = IMPORTS.gameStore.ROUND_OUTCOME;
+import { ROUND_OUTCOME } from '../../store/constants.js';
+import { continentGeometry } from '../../map/geometry.js';
+import { getLastClickedCountry, clearLastClickedCountry } from '../debug.js';
+import { worldleLiteLogger as log } from '../logger.js';
+
+const getRuntime = () => window.worldleLiteRuntime ?? {};
+const getDom     = () => getRuntime().dom    ?? {};
+const getState   = () => getRuntime().state  ?? {};
+const getConfig  = () => getRuntime().config ?? {};
+const getActions = () => getRuntime().actions ?? {};
   const solvedCountriesByRegion = new Map();
   const celebratedRegions = new Set();
 
   function getRegionKey() {
-    return state.store.selectedContinent || "all";
+    return getState().store.selectedContinent || "all";
   }
 
   function getRegionLabel() {
-    return state.store.selectedContinent || "the world";
+    return getState().store.selectedContinent || "the world";
   }
 
   function getEligibleCountriesForRegion() {
-    if (!state.store.selectedContinent) {
-      return state.store.countriesData;
+    if (!getState().store.selectedContinent) {
+      return getState().store.countriesData;
     }
 
-    return state.store.countriesData.filter((country) => (
-      runtime.input.isCountryInSelectedContinent(country, state.store.selectedContinent)
+    return getState().store.countriesData.filter((country) => (
+      getRuntime().input.isCountryInSelectedContinent(country, getState().store.selectedContinent)
     ));
   }
 
@@ -40,7 +46,7 @@
 
     const regionKey = getRegionKey();
     const solvedSet = solvedCountriesByRegion.get(regionKey) || new Set();
-    solvedSet.add(actions.normalizeGuess(countryName));
+    solvedSet.add(getActions().normalizeGuess(countryName));
     solvedCountriesByRegion.set(regionKey, solvedSet);
 
     const eligibleCountryCount = getEligibleCountriesForRegion().length;
@@ -49,7 +55,7 @@
     }
 
     celebratedRegions.add(regionKey);
-    runtime.roundUi.showCelebration(`You solved every country in ${getRegionLabel()}.`);
+    getRuntime().roundUi.showCelebration(`You solved every country in ${getRegionLabel()}.`);
     return true;
   }
 
@@ -67,19 +73,21 @@
    * @param {boolean} [options.autoAdvance]    If `false`, skip the transition timer.
    */
   function finishRound({ outcome, message, feedbackClass, advanceAfterMs, transitionLabel, autoAdvance = true }) {
-    try { window.worldleLiteLogger?.info('[round] finishRound', { outcome, message, autoAdvance }); } catch (e) {}
-    try { window.worldleLiteLogger?.debug('[round] finishRound - autoAdvance state', { runtimeAutoAdvanceEnabled: runtime.autoAdvanceEnabled, autoAdvanceIsEnabledFn: runtime.autoAdvance?.isEnabled?.() }); } catch (e) {}
-    const { setFeedback, updateStats } = runtime.roundUi;
-    const { beginRoundTransition, scrollStatusIntoView } = runtime.roundTransitions;
-    const autoAdvanceEnabled = runtime.autoAdvance?.isEnabled?.() ?? true;
+    log.info('[round] finishRound', { outcome, message, autoAdvance });
+    log.debug('[round] finishRound - autoAdvance state', 
+      { 
+        runtimeAutoAdvanceEnabled: getRuntime().autoAdvanceEnabled,
+        autoAdvanceIsEnabledFn: getRuntime().autoAdvance?.isEnabled?.() 
+      });
+    const { setFeedback } = getRuntime().roundUi;
+    const { beginRoundTransition, scrollStatusIntoView } = getRuntime().roundTransitions;
+    const autoAdvanceEnabled = getRuntime().autoAdvance?.isEnabled?.() ?? true;
 
     if (outcome !== ROUND_OUTCOME.won) {
-      runtime.IMPORTS.audioFeedback.loss();
+      getRuntime().audioFeedback.loss();
     } else {
-      runtime.IMPORTS.audioFeedback.correct();
+      getRuntime().audioFeedback.correct();
     }
-
-    updateStats();
 
     setFeedback(message, feedbackClass);
     renderRoundState();
@@ -90,12 +98,6 @@
     }
   }
 
-  function advanceToNextRound() {
-    try { window.worldleLiteLogger?.debug('[round] advanceToNextRound'); } catch (e) {}
-    runtime.roundTransitions.clearRoundTransition();
-    startRound();
-  }
-
   /**
    * Mark the matched country as solved on the map, credit a correct answer,
    * and finish the round with a win outcome.
@@ -103,22 +105,22 @@
    * @param {object|null} match  GeoJSON feature for the matched country.
    */
   function handleWin(match) {
-    try { window.worldleLiteLogger?.info('[round] handleWin', match && (match.properties?.name || match)); } catch (e) {}
+    log.info('[round] handleWin', match && (match.properties?.name || match));
     if (!match) {
       return;
     }
 
-    runtime.roundUi.fillNextGuessPill(match, "correct");
-    runtime.worldMapInst.markSolved(match);
-    actions.incrementCorrect();
+    getRuntime().roundUi.fillNextGuessPill(match, "correct");
+    getRuntime().worldMapInst.markSolved(match);
+    getActions().incrementCorrect();
     registerSolvedCountry(match);
 
     finishRound({
       outcome: ROUND_OUTCOME.won,
-      message: config.COPY.feedback.correct,
-      feedbackClass: config.CORRECT_MSG_CLASS,
-      advanceAfterMs: config.ROUND_ADVANCE_MS.correct,
-      transitionLabel: config.COPY.transitions.loadingNextCountry,
+      message: getConfig().COPY.feedback.correct,
+      feedbackClass: getConfig().CORRECT_MSG_CLASS,
+      advanceAfterMs: getConfig().ROUND_ADVANCE_MS.correct,
+      transitionLabel: getConfig().COPY.transitions.loadingNextCountry,
       autoAdvance: true
     });
   }
@@ -136,7 +138,7 @@
    */
   function computeProximityInfo(guessFeature, targetFeature) {
     try {
-      const geo = window.continentGeometry;
+      const geo = continentGeometry;
       const guessCenter = guessFeature.properties.geometryCenter;
       const targetCenter = targetFeature.properties.geometryCenter;
 
@@ -155,7 +157,7 @@
       if (centersAvailable) {
         return { adjacent: false, distanceKm: geo.haversineDistanceKm(guessCenter, targetCenter), arrow };
       }
-    } catch (e) { try { window.worldleLiteLogger?.warn('[round] computeProximityInfo failed', e); } catch (_) {} }
+    } catch (e) { log.warn('[round] computeProximityInfo failed', e); }
 
     return null;
   }
@@ -170,29 +172,29 @@
    * @param {boolean}     shouldEndRound  `true` if this was the last allowed miss.
    */
   function handleGuess(match, remaining, shouldEndRound) {
-    try { window.worldleLiteLogger?.debug('[round] handleGuess', { match: match && (match.properties?.name || match), remaining, shouldEndRound }); } catch (e) {}
+    log.debug('[round] handleGuess', { match: match && (match.properties?.name || match), remaining, shouldEndRound });
     if (!match) {
       return;
     }
 
-    const { fillNextGuessPill, setFeedback, shakeInput } = runtime.roundUi;
-    const proximityInfo = computeProximityInfo(match, state.store.targetCountry);
+    const { fillNextGuessPill, setFeedback, shakeInput } = getRuntime().roundUi;
+    const proximityInfo = computeProximityInfo(match, getState().store.targetCountry);
 
     fillNextGuessPill(match, "guess", proximityInfo);
-    runtime.worldMapInst.markWrong(match);
+    getRuntime().worldMapInst.markWrong(match);
 
     if (shouldEndRound) {
       finishRound({
         outcome: ROUND_OUTCOME.missed,
-        message: config.COPY.feedback.outOfGuesses,
-        feedbackClass: config.FAILURE_MSG_CLASS,
-        advanceAfterMs: config.ROUND_ADVANCE_MS.miss,
-        transitionLabel: config.COPY.transitions.loadingNextCountry,
+        message: getConfig().COPY.feedback.outOfGuesses,
+        feedbackClass: getConfig().FAILURE_MSG_CLASS,
+        advanceAfterMs: getConfig().ROUND_ADVANCE_MS.miss,
+        transitionLabel: getConfig().COPY.transitions.loadingNextCountry,
         autoAdvance: false
       });
     } else {
-      runtime.IMPORTS.audioFeedback.wrong();
-      setFeedback(`${config.COPY.feedback.wrongPrefix}${remaining}${config.COPY.feedback.wrongSuffix}`, config.WRONG_MSG_CLASS);
+      getRuntime().audioFeedback.wrong();
+      setFeedback(`${getConfig().COPY.feedback.wrongPrefix}${remaining}${getConfig().COPY.feedback.wrongSuffix}`, getConfig().WRONG_MSG_CLASS);
       shakeInput();
     }
   }
@@ -202,42 +204,48 @@
    * active and hints remain.
    */
   function syncHintState() {
-    if (!dom.hintBtn) {
+    if (!getDom().hintBtn) {
       return;
     }
 
-    const roundState = actions.getRoundState(config.MAX_MISSES_PER_ROUND);
-    dom.hintBtn.disabled = roundState.outcome !== ROUND_OUTCOME.active || roundState.hintsRemaining <= 0;
+    const roundState = getActions().getRoundState(getConfig().MAX_MISSES_PER_ROUND);
+    getDom().hintBtn.disabled = roundState.outcome !== ROUND_OUTCOME.active || roundState.hintsRemaining <= 0;
+  }
+
+  export function advanceToNextRound() {
+    log.debug('[round] advanceToNextRound');
+    getRuntime().roundTransitions.clearRoundTransition();
+    startRound();
   }
 
   /**
    * Read the current input value, submit it via round store actions, and
    * dispatch the appropriate win/wrong handler.  Primes audio on every call.
    */
-  function submitGuess() {
-    try { window.worldleLiteLogger?.debug('[round] submitGuess - invoked'); } catch (e) {}
-    runtime.IMPORTS.audioFeedback.primeAudio();
+  export function submitGuess() {
+    log.debug('[round] submitGuess - invoked');
+    getRuntime().audioFeedback.primeAudio();
 
-    const roundState = actions.getRoundState(config.MAX_MISSES_PER_ROUND);
+    const roundState = getActions().getRoundState(getConfig().MAX_MISSES_PER_ROUND);
 
-    if (roundState.outcome !== ROUND_OUTCOME.active || !runtime.input.validateInput()) {
+    if (roundState.outcome !== ROUND_OUTCOME.active || !getRuntime().input.validateInput()) {
       return;
     }
 
-    const userGuess = dom.input.value.trim();
-    try { window.worldleLiteLogger?.debug('[round] submitGuess - userGuess', userGuess); } catch (e) {}
-    const result = actions.submitRoundGuess(userGuess, config.MAX_MISSES_PER_ROUND);
-    const match = actions.resolveCountryGuess(userGuess);
+    const userGuess = getDom().input.value.trim();
+    log.debug('[round] submitGuess - userGuess', userGuess);
+    const result = getActions().submitRoundGuess(userGuess, getConfig().MAX_MISSES_PER_ROUND);
+    const match = getActions().resolveCountryGuess(userGuess);
 
-    runtime.input.clearForm();
+    getRuntime().input.clearForm();
 
     if (result.status === "locked" || result.status === "invalid") {
       return;
     }
 
     if (result.status === "duplicate") {
-      try { window.worldleLiteLogger?.debug('[round] submitGuess - duplicate'); } catch (e) {}
-      runtime.roundUi.shakeInput();
+      log.debug('[round] submitGuess - duplicate');
+      getRuntime().roundUi.shakeInput();
       return;
     }
 
@@ -252,183 +260,171 @@
    * Sync all round-state-dependent UI: the reveal panel visibility and text,
    * the input placeholder, the reveal button, and the hint button.
    */
-  function renderRoundState() {
+  export function renderRoundState() {
     // 1. Guard: required nodes must exist.
-    if (!dom.revealTarget || !state || !state.store || !actions || !config) {
+    if (!getDom().revealTarget || !getState().store || !getActions().getRoundState || !getConfig().MAX_MISSES_PER_ROUND) {
       console.warn('[round] renderRoundState early return - missing dom, state, actions, or config', { 
-        domRevealTarget: !!dom.revealTarget,
-        state: !!state,
-        store: !!state?.store,
-        actions: !!actions,
-        config: !!config
+        domRevealTarget: !!getDom().revealTarget,
+        store: !!getState().store,
+        actions: !!getActions().getRoundState,
+        config: !!getConfig().MAX_MISSES_PER_ROUND
       });
       return;
     }
 
     // 2. Derive current round flags.
-    const roundState = actions.getRoundState(config.MAX_MISSES_PER_ROUND);
-    const showRevealPanel = Boolean(state.store.targetCountry && roundState.outcome !== ROUND_OUTCOME.active && roundState.outcome !== ROUND_OUTCOME.won);
+    const roundState = getActions().getRoundState(getConfig().MAX_MISSES_PER_ROUND);
+    const showRevealPanel = Boolean(getState().store.targetCountry && roundState.outcome !== ROUND_OUTCOME.active && roundState.outcome !== ROUND_OUTCOME.won);
 
     // 3. Render reveal panel visibility and answer text.
-    if (dom.revealPanel) {
-      dom.revealPanel.hidden = !showRevealPanel;
+    if (getDom().revealPanel) {
+      getDom().revealPanel.hidden = !showRevealPanel;
     }
 
     if (showRevealPanel) {
-      const displayName = state.store.targetCountry.properties.displayName ?? state.store.targetCountry.properties.name ?? "";
+      const displayName = getState().store.targetCountry.properties.displayName ?? getState().store.targetCountry.properties.name ?? "";
       const link = document.createElement("a");
       link.className = "reveal-country-link";
-      link.href = runtime.roundUi.buildWikipediaUrl(displayName);
+      link.href = getRuntime().roundUi.buildWikipediaUrl(displayName);
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.textContent = displayName;
 
-      dom.revealTarget.textContent = `${config.COPY.reveal.answerPrefix}`;
-      dom.revealTarget.appendChild(link);
+      getDom().revealTarget.textContent = `${getConfig().COPY.reveal.answerPrefix}`;
+      getDom().revealTarget.appendChild(link);
     } else {
-      dom.revealTarget.textContent = "";
+      getDom().revealTarget.textContent = "";
     }
 
     // 4. Render input/reveal control states.
-    if (dom.input) {
-      dom.input.placeholder = roundState.outcome === ROUND_OUTCOME.active ? config.COPY.input.idlePlaceholder : config.COPY.input.lockedPlaceholder;
+    if (getDom().input) {
+      getDom().input.placeholder = roundState.outcome === ROUND_OUTCOME.active ? getConfig().COPY.input.idlePlaceholder : getConfig().COPY.input.lockedPlaceholder;
     }
 
-    if (dom.revealBtn) {
-      dom.revealBtn.disabled = roundState.outcome !== ROUND_OUTCOME.active;
+    if (getDom().revealBtn) {
+      getDom().revealBtn.disabled = roundState.outcome !== ROUND_OUTCOME.active;
     }
 
-    if (dom.replayHaloBtn) {
-      dom.replayHaloBtn.disabled = !state.store.targetCountry;
+    if (getDom().replayHaloBtn) {
+      getDom().replayHaloBtn.disabled = !getState().store.targetCountry;
     }
 
-    if (dom.nextRoundBtn) {
+    if (getDom().nextRoundBtn) {
       const roundFinished = roundState.outcome !== ROUND_OUTCOME.active;
-      const autoAdvanceEnabled = runtime.autoAdvance?.isEnabled?.() ?? true;
-      const transitionRunning = Boolean(runtime.roundTransitionTimer);
+      const autoAdvanceEnabled = getRuntime().autoAdvance?.isEnabled?.() ?? true;
+      const transitionRunning = getRuntime().timers.isActive('roundTransition');
 
-      dom.nextRoundBtn.hidden = !(roundFinished && (!autoAdvanceEnabled || !transitionRunning));
-      dom.nextRoundBtn.disabled = !roundFinished;
+      getDom().nextRoundBtn.hidden = !(roundFinished && (!autoAdvanceEnabled || !transitionRunning));
+      getDom().nextRoundBtn.disabled = !roundFinished;
     }
 
-    // 5. Keep hint button state in sync.
+    // 5. Keep hint button state in sync, and sync the score display.
     syncHintState();
-    runtime.roundUi.updateHintUsage();
+    getRuntime().roundUi.updateHintUsage();
+    getRuntime().roundUi.updateStats();
   }
 
   /**
    * Re-show the target halo without changing round state.
    * Uses a custom startTime option to make it initiate immediately.
    */
-  function replayHalo() {
-    try { window.worldleLiteLogger?.debug('[round] replayHalo'); } catch (e) {}
+  export function replayHalo() {
+    log.debug('[round] replayHalo');
     const replayCountry = window.__WORLDLE_DEBUG__
-      ? window.worldleLiteDebug?.getLastClickedCountry?.() || state.store.targetCountry
-      : state.store.targetCountry;
+      ? getLastClickedCountry() || getState().store.targetCountry
+      : getState().store.targetCountry;
 
     if (!replayCountry) {
       return;
     }
 
     // Pass startTime option to make halo initiate immediately without delay
-    runtime.worldMapInst.showLocationHalo(replayCountry, { startTime: Date.now() });
+    getRuntime().worldMapInst.showLocationHalo(replayCountry, { startTime: Date.now() });
   }
 
   /**
    * Request the next hint from the store and update the hint display.
    * Syncs hint button state regardless of whether a new hint was revealed.
    */
-  function showNextHint() {
-    console.log('[round] showNextHint called');
-    try { window.worldleLiteLogger?.debug('[round] showNextHint'); } catch (e) {}
-    const result = actions.requestRoundHint();
-    console.log('[round] requestRoundHint returned:', result);
+  export function showNextHint() {
+    log.debug('[round] showNextHint called');
+    const result = getActions().requestRoundHint();
+    log.debug('[round] requestRoundHint returned:', result);
 
     if (!result.changed) {
-      console.log('[round] no change, result.changed is false');
-      runtime.roundUi.updateHintUsage();
-      syncHintState();
+      log.debug('[round] no change, result.changed is false');
+      renderRoundState();
       return;
     }
 
-    console.log('[round] changed=true, calling setHints with:', result.revealedHints);
-    runtime.roundUi.setHints(result.revealedHints);
-    runtime.roundUi.updateHintUsage();
-    runtime.roundUi.updateStats();
-    syncHintState();
+    log.debug('[round] changed=true, calling setHints with:', result.revealedHints);
+    getRuntime().roundUi.setHints(result.revealedHints);
+    renderRoundState();
   }
 
   /**
    * Pick the next target country from the eligible pool, reset all round
    * state, mark the target on the map, and animate the map zoom to the target.
    */
-  function startRound() {
-    try { window.worldleLiteLogger?.info('[round] startRound - selecting next target', { selectedContinent: state.store.selectedContinent, countriesAvailable: (state.store.countriesData || []).length }); } catch (e) {}
+  export function startRound() {
+    log.info('[round] startRound - selecting next target', { selectedContinent: getState().store.selectedContinent, countriesAvailable: (getState().store.countriesData || []).length });
     
     // Guard: ensure runtime is fully initialized
-    if (!runtime.roundUi || !runtime.input || !runtime.worldMapInst || !actions) {
-      try { window.worldleLiteLogger?.error('[round] startRound - runtime not fully initialized yet'); } catch (e) {}
+    if (!getRuntime().roundUi || !getRuntime().input || !getRuntime().worldMapInst || !getActions().getRoundState) {
+      log.error('[round] startRound - runtime not fully initialized yet');
       console.error('[round] startRound early exit - runtime not initialized:', {
-        roundUi: !!runtime.roundUi,
-        input: !!runtime.input,
-        worldMapInst: !!runtime.worldMapInst,
-        actions: !!actions
+        roundUi: !!getRuntime().roundUi,
+        input: !!getRuntime().input,
+        worldMapInst: !!getRuntime().worldMapInst,
+        actions: !!getActions().getRoundState
       });
       return;
     }
     
     // Normal startRound flow — bootstrap is responsible for initial sequencing.
-    const { clearRoundTransition } = runtime.roundTransitions;
-    const { clearFeedback, clearHints, renderGuessPlaceholders } = runtime.roundUi;
+    const { clearRoundTransition } = getRuntime().roundTransitions;
+    const { clearFeedback, clearHints, renderGuessPlaceholders } = getRuntime().roundUi;
 
-    window.worldleLiteDebug?.clearLastClickedCountry?.();
+    clearLastClickedCountry();
 
     // 1. Reset prior round
     clearRoundTransition();
-    if (runtime.roundRevealTimer) {
-      clearTimeout(runtime.roundRevealTimer);
-      runtime.roundRevealTimer = null;
-    }
-    runtime.roundUi.clearCelebration();
-    runtime.input.clearForm();
-    runtime.input.syncGuessButtonState(false);
+    getRuntime().timers.cancel('roundReveal');
+    getRuntime().roundUi.clearCelebration();
+    getRuntime().input.clearForm();
+    getRuntime().input.syncGuessButtonState(false);
     renderGuessPlaceholders();
-    runtime.worldMapInst.resetRoundState();
+    getRuntime().worldMapInst.resetRoundState();
     clearFeedback();
     clearHints();
 
     // 2. Pick next target
-    const pool = state.store.selectedContinent
-      ? state.store.countriesData.filter((country) => (
-          runtime.input.isCountryInSelectedContinent(country, state.store.selectedContinent)
-        ))
-      : state.store.countriesData;
-    const candidatePool = pool.length > 0 ? pool : state.store.countriesData;
-    const poolKey = state.store.selectedContinent || "all";
-    const nextTargetCountry = state.targetSelector.getNextTarget(candidatePool, poolKey);
+    const pool = getEligibleCountriesForRegion();
+    const candidatePool = pool.length > 0 ? pool : getState().store.countriesData;
+    const poolKey = getState().store.selectedContinent || "all";
+    const nextTargetCountry = getState().targetSelector.getNextTarget(candidatePool, poolKey);
 
     if (!nextTargetCountry) {
-      try { window.worldleLiteLogger?.warn('[round] startRound - no target selected'); } catch (e) {}
+      log.warn('[round] startRound - no target selected');
       return;
     }
 
     // 3. Initialize store & UI
-    try { window.worldleLiteLogger?.info('[round] startRound - nextTarget', nextTargetCountry && (nextTargetCountry.properties?.name || nextTargetCountry)); } catch (e) {}
-    actions.setTargetCountry(nextTargetCountry);
-    actions.setSelectedIndex(-1);
-    runtime.worldMapInst.markTarget(nextTargetCountry);
-    actions.startRound(nextTargetCountry.properties.name);
-    actions.incrementPlayed();
-    runtime.roundUi.updateStats();
+    log.info('[round] startRound - nextTarget', nextTargetCountry && (nextTargetCountry.properties?.name || nextTargetCountry));
+    getActions().setTargetCountry(nextTargetCountry);
+    getActions().setSelectedIndex(-1);
+    getRuntime().worldMapInst.markTarget(nextTargetCountry);
+    getActions().startRound(nextTargetCountry.properties.name);
+    getActions().incrementPlayed();
     renderRoundState();
-    runtime.input.syncGuessButtonState(false);
+    getRuntime().input.syncGuessButtonState(false);
 
     // 4. Zoom to target
-    const runZoom = () => runtime.worldMapInst.zoomToCountry(nextTargetCountry);
+    const runZoom = () => getRuntime().worldMapInst.zoomToCountry(nextTargetCountry);
 
-    if (!state.store.hasShownFirstRound) {
+    if (!getState().store.hasShownFirstRound) {
       // Defer zoom by two frames so the first-round reveal animation settles first.
-      actions.showFirstRound();
+      getActions().showFirstRound();
       requestAnimationFrame(() => {
         requestAnimationFrame(runZoom);
       });
@@ -437,10 +433,9 @@
     }
 
     // 5. Schedule location halo
-    runtime.roundRevealTimer = setTimeout(() => {
-      runtime.roundRevealTimer = null;
-      runtime.worldMapInst.showLocationHalo(nextTargetCountry);
-      dom.input.focus({ preventScroll: true });
+    getRuntime().timers.schedule('roundReveal', () => {
+      getRuntime().worldMapInst.showLocationHalo(nextTargetCountry);
+      getDom().input.focus({ preventScroll: true });
     }, 1100);
   }
 
@@ -449,13 +444,13 @@
    * with the reveal outcome.  Does nothing if the round is already over or no
    * target has been set.
    */
-  function revealAnswer() {
-    if (!state.store.targetCountry) {
+  export function revealAnswer() {
+    if (!getState().store.targetCountry) {
       return;
     }
 
-    try { window.worldleLiteLogger?.debug('[round] revealAnswer'); } catch (e) {}
-    const result = actions.revealRoundAnswer();
+    log.debug('[round] revealAnswer');
+    const result = getActions().revealRoundAnswer();
 
     if (!result.changed) {
       return;
@@ -463,31 +458,31 @@
 
     finishRound({
       outcome: result.outcome,
-      message: config.COPY.feedback.answerShown,
-      feedbackClass: config.FAILURE_MSG_CLASS,
-      advanceAfterMs: config.ROUND_ADVANCE_MS.reveal,
-      transitionLabel: config.COPY.transitions.loadingNextCountry,
+      message: getConfig().COPY.feedback.answerShown,
+      feedbackClass: getConfig().FAILURE_MSG_CLASS,
+      advanceAfterMs: getConfig().ROUND_ADVANCE_MS.reveal,
+      transitionLabel: getConfig().COPY.transitions.loadingNextCountry,
       autoAdvance: false
     });
   }
 
   /** Reset scores to zero and start a fresh round ("New game" button handler). */
-  function resetAll() {
-    runtime.roundTransitions.clearRoundTransition();
-    runtime.roundUi.clearCelebration();
-    actions.resetScores();
-    runtime.roundUi.updateStats();
+  export function resetAll() {
+    getRuntime().roundTransitions.clearRoundTransition();
+    getRuntime().roundUi.clearCelebration();
+    getActions().resetScores();
     startRound();
   }
 
-  runtime.roundControl = {
-    startRound,
-    advanceToNextRound,
-    renderRoundState,
-    showNextHint,
-    revealAnswer,
-    replayHalo,
-    submitGuess,
-    resetAll
-  };
-})();
+
+// Backward-compat shim — remove when runtime.js uses import
+getRuntime().roundControl = {
+  startRound,
+  advanceToNextRound,
+  renderRoundState,
+  showNextHint,
+  revealAnswer,
+  replayHalo,
+  submitGuess,
+  resetAll
+};

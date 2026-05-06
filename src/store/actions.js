@@ -3,98 +3,96 @@
  *
  * Exposes thin `dispatch` wrappers on `window._gameStore`.
  */
-(() => {
-  const _store = window._gameStore;
-  const { dispatch, createCountryGuessLookup, STATE_ACTIONS } = _store;
+import { worldleLiteLogger as log } from '../app/logger.js';
+const _store = window._gameStore;
+const { dispatch, createCountryGuessLookup, STATE_ACTIONS } = _store;
 
-  /**
-   * Populate the store with the normalised country data loaded from GeoJSON.
-   * @param {{ countriesData: object[], countryNames: string[], countryByName: Map<string, object> }} loadedCountries
-   */
-  function loadCountriesIntoState(loadedCountries) {
-    try { window.worldleLiteLogger?.info('[actions] loadCountriesIntoState', { countries: loadedCountries?.countriesData?.length || 0 }); } catch (e) {}
-    // Populate the store with the provided country data.
-    // (Any previous sentinel-based deduplication removed — bootstrap owns loading.)
-    const guessLookup = createCountryGuessLookup(loadedCountries.countriesData, loadedCountries.countryByName);
+/**
+ * Populate the store with the normalised country data loaded from GeoJSON.
+ * @param {{ countriesData: object[], countryNames: string[], countryByName: Map<string, object> }} loadedCountries
+ */
+export function loadCountriesIntoState(loadedCountries) {
+  log.info('[actions] loadCountriesIntoState', { countries: loadedCountries?.countriesData?.length || 0 });
+  // Populate the store with the provided country data.
+  // (Any previous sentinel-based deduplication removed — bootstrap owns loading.)
+  const guessLookup = createCountryGuessLookup(loadedCountries.countriesData, loadedCountries.countryByName);
 
-    dispatch({
-      type: STATE_ACTIONS.loadCountries,
-      countriesData: loadedCountries.countriesData,
-      countryNames: loadedCountries.countryNames,
-      countryByName: loadedCountries.countryByName,
-      countryByGuess: guessLookup.countryByGuess,
-      countryByLooseGuess: guessLookup.countryByLooseGuess,
-      countryLookupEntries: guessLookup.countryLookupEntries
-    });
+  dispatch({
+    type: STATE_ACTIONS.loadCountries,
+    countriesData: loadedCountries.countriesData,
+    countryNames: loadedCountries.countryNames,
+    countryByName: loadedCountries.countryByName,
+    countryByGuess: guessLookup.countryByGuess,
+    countryByLooseGuess: guessLookup.countryByLooseGuess,
+    countryLookupEntries: guessLookup.countryLookupEntries
+  });
+}
+
+/**
+ * Update the highlighted row index in the autocomplete suggestion list.
+ * Pass `-1` to deselect all rows.
+ * @param {number} selectedIndex
+ */
+export function setSelectedIndex(selectedIndex) {
+  log.debug('[actions] setSelectedIndex', selectedIndex);
+  if (_store.state && _store.state.selectedIndex === selectedIndex) {
+    // no-op: same index already set
+    return;
   }
+  dispatch({ type: STATE_ACTIONS.setSelectedIndex, selectedIndex });
+}
 
-  /**
-   * Update the highlighted row index in the autocomplete suggestion list.
-   * Pass `-1` to deselect all rows.
-   * @param {number} selectedIndex
-   */
-  function setSelectedIndex(selectedIndex) {
-    try { window.worldleLiteLogger?.debug('[actions] setSelectedIndex', selectedIndex); } catch (e) {}
-    try {
-      if (_store.state && typeof _store.state.selectedIndex !== 'undefined' && _store.state.selectedIndex === selectedIndex) {
-        // no-op: same index already set
-        return;
-      }
-    } catch (e) { /* ignore */ }
-    dispatch({ type: STATE_ACTIONS.setSelectedIndex, selectedIndex });
-  }
+/**
+ * Set the GeoJSON feature that is the current round's answer.
+ * @param {object | null} targetCountry
+ */
+export function setTargetCountry(targetCountry) {
+  log.info('[actions] setTargetCountry', targetCountry && (targetCountry.properties?.name || targetCountry));
+  dispatch({ type: STATE_ACTIONS.setTargetCountry, targetCountry });
+}
 
-  /**
-   * Set the GeoJSON feature that is the current round's answer.
-   * @param {object | null} targetCountry
-   */
-  function setTargetCountry(targetCountry) {
-    try { window.worldleLiteLogger?.info('[actions] setTargetCountry', targetCountry && (targetCountry.properties?.name || targetCountry)); } catch (e) {}
-    dispatch({ type: STATE_ACTIONS.setTargetCountry, targetCountry });
-  }
+export function showFirstRound() {
+  log.debug('[actions] showFirstRound');
+  dispatch({ type: STATE_ACTIONS.showFirstRound });
+}
 
-  function showFirstRound() {
-    try { window.worldleLiteLogger?.debug('[actions] showFirstRound'); } catch (e) {}
-    dispatch({ type: STATE_ACTIONS.showFirstRound });
-  }
+export function incrementCorrect() {
+  log.debug('[actions] incrementCorrect');
+  dispatch({ type: STATE_ACTIONS.incrementCorrect });
+}
 
-  function incrementCorrect() {
-    try { window.worldleLiteLogger?.debug('[actions] incrementCorrect'); } catch (e) {}
-    dispatch({ type: STATE_ACTIONS.incrementCorrect });
-  }
+export function incrementPlayed() {
+  log.debug('[actions] incrementPlayed');
+  dispatch({ type: STATE_ACTIONS.incrementPlayed });
+}
 
-  function incrementPlayed() {
-    try { window.worldleLiteLogger?.debug('[actions] incrementPlayed'); } catch (e) {}
-    dispatch({ type: STATE_ACTIONS.incrementPlayed });
-  }
+export function incrementHintsUsed() {
+  log.debug('[actions] incrementHintsUsed');
+  dispatch({ type: STATE_ACTIONS.incrementHintsUsed });
+}
 
-  function incrementHintsUsed() {
-    try { window.worldleLiteLogger?.debug('[actions] incrementHintsUsed'); } catch (e) {}
-    dispatch({ type: STATE_ACTIONS.incrementHintsUsed });
-  }
+/** Reset `numCorrect` and `numPlayed` to 0. */
+export function resetScores() {
+  log.info('[actions] resetScores');
+  dispatch({ type: STATE_ACTIONS.resetScores });
+}
 
-  /** Reset `numCorrect` and `numPlayed` to 0. */
-  function resetScores() {
-    try { window.worldleLiteLogger?.info('[actions] resetScores'); } catch (e) {}
-    dispatch({ type: STATE_ACTIONS.resetScores });
-  }
+/**
+ * Store the active continent filter name, or `null` to show all countries.
+ * @param {string | null} selectedContinent
+ */
+export function setSelectedContinent(selectedContinent) {
+  log.debug('[actions] setSelectedContinent', selectedContinent);
+  dispatch({ type: STATE_ACTIONS.setSelectedContinent, selectedContinent });
+}
 
-  /**
-   * Store the active continent filter name, or `null` to show all countries.
-   * @param {string | null} selectedContinent
-   */
-  function setSelectedContinent(selectedContinent) {
-    try { window.worldleLiteLogger?.debug('[actions] setSelectedContinent', selectedContinent); } catch (e) {}
-    dispatch({ type: STATE_ACTIONS.setSelectedContinent, selectedContinent });
-  }
-
-  _store.loadCountriesIntoState = loadCountriesIntoState;
-  _store.setSelectedIndex = setSelectedIndex;
-  _store.setTargetCountry = setTargetCountry;
-  _store.showFirstRound = showFirstRound;
-  _store.incrementCorrect = incrementCorrect;
-  _store.incrementPlayed = incrementPlayed;
-  _store.incrementHintsUsed = incrementHintsUsed;
-  _store.resetScores = resetScores;
-  _store.setSelectedContinent = setSelectedContinent;
-})();
+// Backward-compat shims — remove once all callers use import
+window._gameStore.loadCountriesIntoState = loadCountriesIntoState;
+window._gameStore.setSelectedIndex = setSelectedIndex;
+window._gameStore.setTargetCountry = setTargetCountry;
+window._gameStore.showFirstRound = showFirstRound;
+window._gameStore.incrementCorrect = incrementCorrect;
+window._gameStore.incrementPlayed = incrementPlayed;
+window._gameStore.incrementHintsUsed = incrementHintsUsed;
+window._gameStore.resetScores = resetScores;
+window._gameStore.setSelectedContinent = setSelectedContinent;

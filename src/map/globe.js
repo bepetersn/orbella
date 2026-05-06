@@ -2,6 +2,9 @@
 // Responsibility: render a globe into #globeViz using provided GeoJSON.
 // Bootstrap loads the GeoJSON and calls `createWorldleGlobe(geojson)`.
 
+import { createHaloManager } from './globe-halo.js';
+import { installDebugHelpers } from '../app/debug.js';
+import { worldleLiteLogger } from '../app/logger.js';
 // Top-level helpers pulled out of the `createWorldleGlobe` closure so they
 // can be inspected and tested independently. They accept explicit
 // parameters (including logger functions) instead of relying on closure
@@ -19,28 +22,32 @@ const HALO_CONFIG = {
 };
 const noop = () => {};
 
+// Fallback colors used when window.gameConstants is not yet available.
+// These values mirror gameConstants.COUNTRY_COLORS in src/constants.js.
+// If the palette changes there, update here too.
+const FALLBACK_COUNTRY_COLORS = {
+  light: {
+    fill: "#e8eef5",
+    stroke: "rgba(71, 85, 105, 0.85)",
+    correct: "#58b48a",
+    wrong: "#ffd4a3",
+    wrongStroke: "#ff8c42",
+    target: "#dc2626"
+  },
+  dark: {
+    fill: "#3a557d",
+    stroke: "rgba(236, 242, 248, 0.96)",
+    correct: "#2f8f6b",
+    wrong: "#ffb366",
+    wrongStroke: "#ff9500",
+    target: "#ef4444"
+  }
+};
+
 // Top-level: get country colors based on current theme from constants
 // Returns the appropriate color set for light or dark theme
 const getCountryColorsTop = ({ theme = 'light' } = {}) => {
-  const constants = window.gameConstants?.COUNTRY_COLORS;
-  if (!constants) {
-    // Fallback colors if constants not available
-    return theme === 'dark' ? {
-      fill: "#3a557d",
-      stroke: "rgba(236, 242, 248, 0.96)",
-      correct: "#2f8f6b",
-      wrong: "#ffb366",
-      wrongStroke: "#ff9500",
-      target: "#ef4444"
-    } : {
-      fill: "#e8eef5",
-      stroke: "rgba(71, 85, 105, 0.85)",
-      correct: "#58b48a",
-      wrong: "#ffd4a3",
-      wrongStroke: "#ff8c42",
-      target: "#dc2626"
-    };
-  }
+  const constants = window.gameConstants?.COUNTRY_COLORS ?? FALLBACK_COUNTRY_COLORS;
   return constants[theme] || constants.light;
 };
 
@@ -446,9 +453,9 @@ const configureControlsTop = (globe, { info = () => {} } = {}) => {
   } catch (e) { /* non-fatal */ }
 };
 
-window.createWorldleGlobe = function createWorldleGlobe(geojson) {
+export function createWorldleGlobe(geojson) {
   if (typeof Globe === 'undefined') {
-    (window.worldleLiteLogger?.warn || console.warn)('Globe.gl not available; skipping globe initialization');
+    worldleLiteLogger.warn('Globe.gl not available; skipping globe initialization');
     return null;
   }
 
@@ -616,68 +623,61 @@ window.createWorldleGlobe = function createWorldleGlobe(geojson) {
     // debug panel created but not exposed globally in production builds
   } catch (e) { /* non-fatal */ }
 
-  // Minimal runtime bridge expected by rest of app
+  // Create the worldMapInst stub and wire halo manager
+  let worldMapInst = null;
   try {
-    const runtime = window.worldleLiteRuntime || {};
     const { stub, toggleAntarcticaDisplay } = createRuntimeStubTop(renderFeatures, globe, { log, info, warn });
     stub.globe = globe;  // store globe reference for theme system
-    runtime.worldMapInst = stub;
-    // expose globe instance so other modules (and dev UI) can control POV
-    runtime.globe = globe;
-    window.worldleLiteRuntime = runtime;
+
+    // Wire halo manager for target country halos
+    try {
+      if (typeof createHaloManager === 'function') {
+        const haloMgr = createHaloManager(globe, HALO_CONFIG);
+        info('halo manager created', HALO_CONFIG);
+
+        stub.showLocationHalo = (country, opts = {}) => {
+          info('showLocationHalo called for', country?.properties?.name);
+          try {
+            haloMgr.showHaloForCountry(country, opts);
+          } catch (e) {
+            warn('showLocationHalo failed', e);
+          }
+        };
+
+        const origResetRoundState = stub.resetRoundState;
+        stub.resetRoundState = function () {
+          try { origResetRoundState(); } catch (e) { /* ignore */ }
+          try { haloMgr.reset(); } catch (e) { /* ignore */ }
+        };
+      } else {
+        warn('halo manager not available');
+      }
+    } catch (e) {
+      warn('halo manager setup failed', e);
+    }
+
     // expose a toggle helper for runtime testing
     window.toggleAntarcticaDisplay = toggleAntarcticaDisplay;
+    worldMapInst = stub;
   } catch (e) { /* ignore */ }
-
-  // Wire halo manager for target country halos
-  try {
-    if (typeof window.globeHaloManager?.createHaloManager === 'function') {
-      const haloMgr = window.globeHaloManager.createHaloManager(globe, HALO_CONFIG);
-      info('halo manager created', HALO_CONFIG);
-      
-      // Hook showLocationHalo to trigger halo animation
-      window.worldleLiteRuntime.worldMapInst.showLocationHalo = (country, opts = {}) => {
-        info('showLocationHalo called for', country?.properties?.name);
-        try {
-          haloMgr.showHaloForCountry(country, opts);
-        } catch (e) { 
-          warn('showLocationHalo failed', e); 
-        }
-      };
-
-      // Hook reset to clear halos
-      const origResetRoundState = window.worldleLiteRuntime.worldMapInst.resetRoundState;
-      window.worldleLiteRuntime.worldMapInst.resetRoundState = function () {
-        try { origResetRoundState(); } catch (e) { /* ignore */ }
-        try { haloMgr.reset(); } catch (e) { /* ignore */ }
-      };
-    } else {
-      warn('halo manager not available', { globeHaloManager: window.globeHaloManager });
-    } 
-  } catch (e) { 
-    warn('halo manager setup failed', e); 
-  }
 
   // Install debug helpers (hover inspection, click inspection, etc.)
   try {
-    if (typeof window.worldleLiteDebug?.installDebugHelpers === 'function') {
-      window.worldleLiteDebug.installDebugHelpers();
-    }
-  } catch (e) { 
+    installDebugHelpers();
+  } catch (e) {
     warn('installDebugHelpers failed', e);
   }
 
-  // Wire polygon click to runtime markTarget for convenient debugging
+  // Wire polygon click to worldMapInst.markTarget for convenient debugging
   // Only enabled when debug mode is on
   try {
     globe.onPolygonClick((d) => {
       if (!d) return;
       if (!window.__WORLDLE_DEBUG__) return;
-      try { window.worldleLiteRuntime.worldMapInst.markTarget(d); } catch (e) { /* ignore */ }
+      try { worldMapInst?.markTarget(d); } catch (e) { /* ignore */ }
     });
   } catch (e) { /* ignore */ }
 
+  return worldMapInst;
+}
 
-
-  return globe;
-};

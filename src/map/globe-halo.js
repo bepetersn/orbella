@@ -11,6 +11,8 @@
  *   haloMgr.destroy();
  */
 
+import { worldleLiteLogger as log } from '../app/logger.js';
+
 // Helper: resolve country centroid from feature properties or geometry
 const resolveCentroid = (country) => {
   if (!country) return null;
@@ -114,7 +116,7 @@ const createHaloManager = (globe, config = {}) => {
   canvas.width = globeCanvas.offsetWidth;
   canvas.height = globeCanvas.offsetHeight;
   
-  console.log('[halo] canvas setup', { 
+  log.debug('[halo] canvas setup', { 
     containerId: container.id, 
     containerPosition: container.style.position,
     canvasWidth: canvas.width, 
@@ -222,7 +224,7 @@ const createHaloManager = (globe, config = {}) => {
       if (typeof globe.getScreenCoords === 'function') {
         const screenCoords = globe.getScreenCoords(lat, lon);
         if (screenCoords && Number.isFinite(screenCoords.x) && Number.isFinite(screenCoords.y)) {
-          console.log('[halo] projection via globe.getScreenCoords', { lat, lon, screenCoords });
+          log.debug('[halo] projection via globe.getScreenCoords', { lat, lon, screenCoords });
           return screenCoords;
         }
       }
@@ -256,7 +258,7 @@ const createHaloManager = (globe, config = {}) => {
     }
 
     // Log with more detail about coordinates
-    console.log('[halo] showHalo', { 
+    log.debug('[halo] showHalo', { 
       lon, 
       lat, 
       screenPos, 
@@ -337,7 +339,8 @@ const createHaloManager = (globe, config = {}) => {
         ctx.stroke();
         
         if (progress < 0.05) {
-          console.log('[halo] frame', { 
+          // Per-frame trace — only active when DEBUG is enabled (via worldleLiteLogger.debug)
+          log.debug('[halo] frame', { 
             progress: progress.toFixed(3), 
             radius: radius.toFixed(1), 
             pos: [halo.screenX.toFixed(0), halo.screenY.toFixed(0)],
@@ -395,7 +398,7 @@ const createHaloManager = (globe, config = {}) => {
 
   window.addEventListener('resize', handleResize);
 
-  console.log('[halo] canvas overlay initialized', cfg);
+  log.debug('[halo] canvas overlay initialized', cfg);
 
   return {
     showHalo,
@@ -405,6 +408,5 @@ const createHaloManager = (globe, config = {}) => {
   };
 };
 
-// Export for use in globe.js
-window.globeHaloManager = { createHaloManager };
+export { createHaloManager };
 

@@ -1,29 +1,31 @@
 /**
- * @fileoverview Assembles the public `runtime.round` API from the three round
+ * @fileoverview Assembles the public `round` API from the three round
  * sub-modules (control, ui, transitions) and the input module.
  *
- * After this module runs, other code can call `runtime.round.startRound()`,
- * `runtime.round.submitGuess()`, etc. without knowing which sub-module owns
- * each method.
+ * Other code can call `round.startRound()`, `round.submitGuess()`, etc.
+ * without knowing which sub-module owns each method.
  */
-(() => {
-  const runtime = window.worldleLiteRuntime;
-  const control = runtime.roundControl;
-  const ui = runtime.roundUi;
-  const transitions = runtime.roundTransitions;
+import * as control     from './control.js';
+import * as ui          from './ui.js';
+import * as transitions from './transitions.js';
+import { clearForm }    from '../input.js';
 
-  runtime.round = {
-    ...control,
-    setFeedback: ui.setFeedback,
-    clearFeedback: ui.clearFeedback,
-    showCelebration: ui.showCelebration,
-    clearCelebration: ui.clearCelebration,
-    updateStats: ui.updateStats,
-    shakeInput: ui.shakeInput,
-    clearRoundTransition: transitions.clearRoundTransition,
-    beginRoundTransition: transitions.beginRoundTransition,
-    clearForm(...args) {
-      return runtime.input?.clearForm?.(...args);
-    }
-  };
-})();
+export const round = {
+  submitGuess:         (...args) => control.submitGuess?.(...args),
+  startRound:          (...args) => control.startRound?.(...args),
+  revealAnswer:        (...args) => control.revealAnswer?.(...args),
+  showNextHint:        (...args) => control.showNextHint?.(...args),
+  advanceToNextRound:  (...args) => control.advanceToNextRound?.(...args),
+  replayHalo:          (...args) => control.replayHalo?.(...args),
+  renderRoundState:    (...args) => control.renderRoundState?.(...args),
+  resetAll:            (...args) => control.resetAll?.(...args),
+  setFeedback:         (...args) => ui.setFeedback?.(...args),
+  clearFeedback:       (...args) => ui.clearFeedback?.(...args),
+  showCelebration:     (...args) => ui.showCelebration?.(...args),
+  clearCelebration:    (...args) => ui.clearCelebration?.(...args),
+  updateStats:         (...args) => ui.updateStats?.(...args),
+  shakeInput:          (...args) => ui.shakeInput?.(...args),
+  clearRoundTransition:(...args) => transitions.clearRoundTransition?.(...args),
+  beginRoundTransition:(...args) => transitions.beginRoundTransition?.(...args),
+  clearForm:           (...args) => clearForm?.(...args),
+};

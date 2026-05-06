@@ -6,17 +6,17 @@
  *
  * Exposed globally as {@link window.gameConfig}.
  */
-window.gameConfig = {
+export const gameConfig = {
   // Viewport and rendering
   W: 960,
   H: 500,
   MAP_PROJECTION_MODE: "rounded",
-  DEBUG: true,
+  DEBUG: false,
 
   // Map interaction
   MAP_PAN_SENSITIVITY_X: 1.0,
   MAP_PAN_SENSITIVITY_Y: 1.0,
-  MAP_DEBUG_INTERACTIONS: true,
+  MAP_DEBUG_INTERACTIONS: false,
   MAP_MAX_LATITUDE: 89.0,
 
   // Storage keys
@@ -40,43 +40,6 @@ window.gameConfig = {
     ["france", [[-56, 1, -50, 7]]]  // French Guiana
   ]),
 
-  // UI copy strings
-  COPY: {
-    pageTitle: "Worldle Lite",
-    hero: {
-      title: "Worldle Lite",
-      subtitle: "Guess the country highlighted on the map. Each round gives you three distinct misses, and revealing the answer leaves the round revealed until you start a new game."
-    },
-    buttons: {
-      showAnswer: "Show Answer",
-      nextRound: "Next Country",
-      hint: "Hint"
-    },
-    feedback: {
-      correct: "Correct! 🎉",
-      outOfGuesses: "Out of guesses.",
-      answerShown: "Better luck next time!",
-      wrongPrefix: "Not quite — ",
-      wrongSuffix: " guess(es) left."
-    },
-    input: {
-      idlePlaceholder: "Type a country name…",
-      lockedPlaceholder: "Round over"
-    },
-    reveal: {
-      answerPrefix: "The answer was: "
-    },
-    transitions: {
-      loadingNextCountry: "Loading next country…"
-    },
-    hints: {
-      flag: "Flag: {flag}",
-      firstLetter: "Starts with: {letter}",
-      letterCount: "Letters: {count}",
-      separator: " · "
-    }
-  },
-
   // Gameplay rules
   MAX_MISSES_PER_ROUND: 3,
   MAX_HINTS_PER_ROUND: 3,
@@ -89,3 +52,6 @@ window.gameConfig = {
     miss: 2600
   }
 };
+
+// Backward-compat shim — remove once all callers use import
+window.gameConfig = gameConfig;

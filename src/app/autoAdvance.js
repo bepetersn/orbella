@@ -4,9 +4,11 @@
  * Stores the user's preference in localStorage, syncs the checkbox UI, and
  * exposes the current enabled state on `window.worldleLiteRuntime.autoAdvance`.
  */
-(() => {
-  const runtime = window.worldleLiteRuntime;
-  const { dom, config } = runtime;
+import { gameConfig as config } from '../config.js';
+import { worldleLiteLogger as log } from './logger.js';
+
+const getRuntime = () => window.worldleLiteRuntime ?? {};
+const getDom     = () => getRuntime().dom ?? {};
 
   function getAutoAdvanceStorageKey() {
     return config.AUTO_ADVANCE_STORAGE_KEY || "worldle-lite-auto-advance";
@@ -30,7 +32,7 @@
     return null;
   }
 
-  function resolveAutoAdvanceEnabled() {
+export function resolveAutoAdvanceEnabled() {
     const storedPreference = getStoredAutoAdvancePreference();
 
     if (typeof storedPreference === "boolean") {
@@ -40,15 +42,15 @@
     return true;
   }
 
-  function syncAutoAdvanceUi(enabled) {
-    if (!dom.autoAdvanceToggle) {
+export function syncAutoAdvanceUi(enabled) {
+    if (!getDom().autoAdvanceToggle) {
       return;
     }
 
-    dom.autoAdvanceToggle.checked = Boolean(enabled);
+    getDom().autoAdvanceToggle.checked = Boolean(enabled);
   }
 
-  function setAutoAdvanceEnabled(enabled) {
+export function setAutoAdvanceEnabled(enabled) {
     const nextEnabled = Boolean(enabled);
 
     try {
@@ -57,35 +59,37 @@
       // Ignore storage failures; the preference still applies for this session.
     }
 
-    runtime.autoAdvanceEnabled = nextEnabled;
-    try { window.worldleLiteLogger?.info('[autoAdvance] setAutoAdvanceEnabled', { nextEnabled, storageKey: getAutoAdvanceStorageKey() }); } catch (e) {}
+    getRuntime().autoAdvanceEnabled = nextEnabled;
+    log.info('[autoAdvance] setAutoAdvanceEnabled', { nextEnabled, storageKey: getAutoAdvanceStorageKey() });
     syncAutoAdvanceUi(nextEnabled);
   }
 
   function handleAutoAdvanceChange() {
-    setAutoAdvanceEnabled(dom.autoAdvanceToggle.checked);
+    setAutoAdvanceEnabled(getDom().autoAdvanceToggle.checked);
   }
 
-  function initializeAutoAdvance(autoAdvanceToggleElement) {
-    runtime.autoAdvanceEnabled = resolveAutoAdvanceEnabled();
+export function initializeAutoAdvance(autoAdvanceToggleElement) {
+    getRuntime().autoAdvanceEnabled = resolveAutoAdvanceEnabled();
 
     if (autoAdvanceToggleElement) {
-      dom.autoAdvanceToggle = autoAdvanceToggleElement;
-      dom.autoAdvanceToggle.addEventListener("change", handleAutoAdvanceChange);
+      getDom().autoAdvanceToggle = autoAdvanceToggleElement;
+      getDom().autoAdvanceToggle.addEventListener("change", handleAutoAdvanceChange);
     }
 
-    syncAutoAdvanceUi(runtime.autoAdvanceEnabled);
+    syncAutoAdvanceUi(getRuntime().autoAdvanceEnabled);
   }
 
-  runtime.autoAdvance = {
-    initializeAutoAdvance,
-    setAutoAdvanceEnabled,
-    syncAutoAdvanceUi,
-    resolveAutoAdvanceEnabled,
-    isEnabled() {
-      return Boolean(runtime.autoAdvanceEnabled);
-    }
-  };
+export function isEnabled() {
+  return Boolean(getRuntime().autoAdvanceEnabled);
+}
 
-  initializeAutoAdvance(dom.autoAdvanceToggle);
-})();
+// Backward-compat shim — remove once bootstrap.js uses import
+getRuntime().autoAdvance = {
+  initializeAutoAdvance,
+  setAutoAdvanceEnabled,
+  syncAutoAdvanceUi,
+  resolveAutoAdvanceEnabled,
+  isEnabled
+};
+
+initializeAutoAdvance(getDom().autoAdvanceToggle);

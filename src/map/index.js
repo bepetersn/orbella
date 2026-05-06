@@ -85,6 +85,9 @@ function createWorldMap({
   };
 }
 
+export { createWorldMap };
+
+// window shim — removed in Phase 5
 window.worldMap = {
   createWorldMap
 };

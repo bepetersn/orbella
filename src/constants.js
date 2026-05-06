@@ -5,7 +5,7 @@
  *
  * Exposed globally as {@link window.gameConstants}.
  */
-window.gameConstants = {
+export const gameConstants = {
   // DOM selectors and CSS classes
   MAP_SELECTOR: "#globeViz",
   WRONG_MSG_CLASS: "wrong-msg",
@@ -92,3 +92,6 @@ window.gameConstants = {
     }
   }
 };
+
+// Backward-compat shim — remove once all callers use import
+window.gameConstants = gameConstants;

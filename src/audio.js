@@ -7,8 +7,7 @@
  *
  * Exported as {@link window.audioFeedback}.
  */
-(() => {
-  let audioCtx = null;
+let audioCtx = null;
 
   function initAudio() {
     if (!audioCtx) {
@@ -51,7 +50,7 @@
    * tone calls are not blocked by the browser's auto-play policy.
    * Safe to call multiple times.
    */
-  function primeAudio() {
+export function primeAudio() {
     initAudio();
   }
 
@@ -59,7 +58,7 @@
    * Play a cheerful ascending major-chord arpeggio (C5 → E5 → G5 → C6) with
    * a short shimmer on the final note, then fire a triple-pulse vibration.
    */
-  function correct() {
+export function correct() {
     initAudio();
     if (!audioCtx) return;
 
@@ -91,7 +90,7 @@
    * Play a low-frequency triangle-wave buzz and trigger a single 100 ms
    * vibration on devices that support the Vibration API.
    */
-  function wrong() {
+export function wrong() {
     playTone(150, "triangle", 0.3, 0.2);
 
     if (navigator.vibrate) {
@@ -103,7 +102,7 @@
    * Play a descending four-note loss cue and fire a double-pulse vibration on
    * devices that support the Vibration API.
    */
-  function loss() {
+export function loss() {
     const frequencies = [392.0, 349.23, 311.13, 261.63];
     frequencies.forEach((frequency, index) => {
       setTimeout(() => {
@@ -116,10 +115,10 @@
     }
   }
 
-  window.audioFeedback = {
-    primeAudio,
-    correct,
-    wrong,
-    loss
-  };
-})();
+// Backward-compat shim — remove once all callers use import
+window.audioFeedback = {
+  primeAudio,
+  correct,
+  wrong,
+  loss
+};

@@ -26,6 +26,16 @@
     })();
   </script>
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    // Global error boundary — surfaces uncaught errors and unhandled promise
+    // rejections that would otherwise be invisible in production.
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('[worldle-lite] Uncaught error:', { message, source, lineno, colno, error });
+    };
+    window.addEventListener('unhandledrejection', function(event) {
+      console.error('[worldle-lite] Unhandled promise rejection:', event.reason);
+    });
+  </script>
 </head>
 <body>
 
@@ -65,9 +75,9 @@
 </div>
 
 <header id="hero" aria-labelledby="app-title">
-  <p class="eyebrow" id="hero-eyebrow">Geography guessing game</p>
-  <h1 id="app-title">Worldle Lite</h1>
-  <p id="app-subtitle">Guess the country highlighted on the map. Each round gives you three distinct misses, and revealing the answer leaves the round revealed until you start a new game.</p>
+  <p class="eyebrow" id="hero-eyebrow"></p>
+  <h1 id="app-title"></h1>
+  <p id="app-subtitle"></p>
   <div id="hero-rules" aria-label="How each round works">
     <span class="rule-chip" id="rule-misses">3 guesses per round</span>
     <span class="rule-chip" id="rule-autocomplete">Autocomplete suggestions</span>
@@ -139,35 +149,6 @@
   <div id="confetti-layer" aria-hidden="true"></div>
 </div>
 
-<script type="module" src="src/vendor/d3.v7.min.js"></script>
-<script type="module" src="src/config.js"></script>
-<script type="module" src="src/constants.js"></script>
-<script type="module" src="src/theme.js"></script>
-<script type="module" src="src/audio.js"></script>
-<script type="module" src="src/app/settings.js"></script>
-<script type="module" src="src/map/geometry.js"></script>
-<!-- Prefer a local vendored copy if present (drop src/vendor/globe.gl.min.js to pin a version),
-     then fall back to the CDN. -->
-<script type="module" src="src/vendor/globe.gl.min.js"></script>
-<script type="module" src="src/map/globe-halo.js"></script>
-<script type="module" src="src/map/globe.js"></script>
-<script type="module" src="src/targetSelector.js"></script>
-<script type="module" src="src/store/constants.js"></script>
-<script type="module" src="src/store/normalize.js"></script>
-<script type="module" src="src/store/lookup.js"></script>
-<script type="module" src="src/store/reducer.js"></script>
-<script type="module" src="src/store/query.js"></script>
-<script type="module" src="src/store/round.js"></script>
-<script type="module" src="src/store/actions.js"></script>
-<script type="module" src="src/store/index.js"></script>
-<script type="module" src="src/app/runtime.js"></script>
-<script type="module" src="src/app/debug.js"></script>
-<script type="module" src="src/app/autoAdvance.js"></script>
-<script type="module" src="src/app/input.js"></script>
-<script type="module" src="src/app/round/ui.js"></script>
-<script type="module" src="src/app/round/transitions.js"></script>
-<script type="module" src="src/app/round/control.js"></script>
-<script type="module" src="src/app/round/index.js"></script>
-<script type="module" src="src/app/bootstrap.js"></script>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>

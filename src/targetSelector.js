@@ -7,8 +7,7 @@
  *
  * Exported as {@link window.targetSelector}.
  */
-(() => {
-  // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
   // Setup / defaults / utils
   // ---------------------------------------------------------------------------
 
@@ -203,7 +202,7 @@
   // Public API
   // ---------------------------------------------------------------------------
 
-  function createTargetSelector(options = {}) {
+export function createTargetSelector(options = {}) {
     const config = {
       ...DEFAULT_OPTIONS,
       ...options
@@ -218,7 +217,7 @@
     };
   }
 
-  window.targetSelector = {
-    createTargetSelector
-  };
-})();
+// Backward-compat shim — remove once all callers use import
+window.targetSelector = {
+  createTargetSelector
+};

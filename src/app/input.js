@@ -8,29 +8,32 @@
  *
  * Attaches itself to `runtime.input`.
  */
-(() => {
-  const runtime = window.worldleLiteRuntime;
-  const { dom, state, config, actions } = runtime;
-  const ROUND_OUTCOME = runtime.IMPORTS.gameStore.ROUND_OUTCOME;
-  let lastAppliedContinent = null;
+import { ROUND_OUTCOME } from '../store/constants.js';
 
-  function clearSuggestions() {
-    dom.suggestionsBox.innerHTML = "";
-    dom.suggestionsBox.style.display = "none";
+const getRuntime = () => window.worldleLiteRuntime ?? {};
+const getDom     = () => getRuntime().dom     ?? {};
+const getState   = () => getRuntime().state   ?? {};
+const getConfig  = () => getRuntime().config  ?? {};
+const getActions = () => getRuntime().actions ?? {};
+let lastAppliedContinent = null;
+
+export function clearSuggestions() {
+    getDom().suggestionsBox.innerHTML = "";
+    getDom().suggestionsBox.style.display = "none";
   }
 
-  function syncGuessButtonState(isValidInput = false) {
-    if (!dom.input) {
+export function syncGuessButtonState(isValidInput = false) {
+    if (!getDom().input) {
       return;
     }
 
-    const roundState = actions.getRoundState(config.MAX_MISSES_PER_ROUND);
+    const roundState = getActions().getRoundState(getConfig().MAX_MISSES_PER_ROUND);
     const canSubmit = roundState.outcome === ROUND_OUTCOME.active;
-    dom.input.disabled = !canSubmit;
-    dom.input.classList.toggle(config.IS_VALID_CLASS, canSubmit && isValidInput);
+    getDom().input.disabled = !canSubmit;
+    getDom().input.classList.toggle(getConfig().IS_VALID_CLASS, canSubmit && isValidInput);
   }
 
-  function isCountryInSelectedContinent(country, selectedContinent) {
+export function isCountryInSelectedContinent(country, selectedContinent) {
     if (!selectedContinent) {
       return true;
     }
@@ -44,7 +47,7 @@
   }
 
   function getSuggestionVisuals(countryName) {
-    const matchedCountry = actions.resolveCountryGuess(countryName);
+    const matchedCountry = getActions().resolveCountryGuess(countryName);
     const properties = matchedCountry?.properties ?? {};
 
     return {
@@ -58,35 +61,34 @@
    * name, update the input's visual validity state, and return the result.
    * @returns {boolean}
    */
-  function validateInput() {
-    const value = dom.input.value.trim();
-    const isValid = Boolean(actions.resolveCountryGuess(value));
+export function validateInput() {
+    const value = getDom().input.value.trim();
+    const isValid = Boolean(getActions().resolveCountryGuess(value));
 
     syncGuessButtonState(isValid);
 
     return isValid;
   }
 
-  function updateSelection(items) {
-    const currentSelectedIndex = state.store.selectedIndex;
+export function updateSelection(items) {
+    const currentSelectedIndex = getState().store.selectedIndex;
     Array.from(items).forEach((element, index) => {
       element.classList.toggle("selected", index === currentSelectedIndex);
     });
   }
 
   /**
-    * Render up to `config.MAX_SUGGESTIONS` matching country name suggestions below the input.
+    * Render up to `getConfig().MAX_SUGGESTIONS` matching country name suggestions below the input.
    * @param {string} value  Lower-cased, trimmed input text.
    */
-  function renderSuggestions(value) {
+export function renderSuggestions(value) {
     clearSuggestions();
 
-    const normalizedValue = actions.normalizeGuess(value);
+    const normalizedValue = getActions().normalizeGuess(value);
     const matches = normalizedValue
       ? actions
         .getSuggestedCountryNames(normalizedValue, 24)
-        .filter((countryName) => Boolean(actions.resolveCountryGuess(countryName)))
-        .slice(0, config.MAX_SUGGESTIONS)
+        .slice(0, getConfig().MAX_SUGGESTIONS)
       : [];
 
     matches.forEach((name) => {
@@ -111,20 +113,20 @@
       suggestion.appendChild(label);
 
       suggestion.onclick = () => {
-        dom.input.value = suggestion.dataset.countryName || displayName;
+        getDom().input.value = suggestion.dataset.countryName || displayName;
         clearSuggestions();
         validateInput();
-        runtime.round.submitGuess();
+        getRuntime().round?.submitGuess();
       };
-      dom.suggestionsBox.appendChild(suggestion);
+      getDom().suggestionsBox.appendChild(suggestion);
     });
 
-    dom.suggestionsBox.style.display = matches.length > 0 ? "block" : "none";
+    getDom().suggestionsBox.style.display = matches.length > 0 ? "block" : "none";
   }
 
-  function handleInputChange() {
-    const value = dom.input.value.trim();
-    actions.setSelectedIndex(-1);
+export function handleInputChange() {
+    const value = getDom().input.value.trim();
+    getActions().setSelectedIndex(-1);
     validateInput();
 
     if (!value) {
@@ -135,65 +137,67 @@
     renderSuggestions(value);
   }
 
-  function handleInputKeydown(event) {
-    const items = dom.suggestionsBox.children;
-    const currentSelectedIndex = state.store.selectedIndex;
+export function handleInputKeydown(event) {
+    const items = getDom().suggestionsBox.children;
+    const currentSelectedIndex = getState().store.selectedIndex;
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      actions.setSelectedIndex(Math.min(currentSelectedIndex + 1, items.length - 1));
+      getActions().setSelectedIndex(Math.min(currentSelectedIndex + 1, items.length - 1));
       updateSelection(items);
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      actions.setSelectedIndex(Math.max(currentSelectedIndex - 1, 0));
+      getActions().setSelectedIndex(Math.max(currentSelectedIndex - 1, 0));
       updateSelection(items);
     } else if (event.key === "Enter") {
       event.preventDefault();
-      if (state.store.selectedIndex >= 0 && items[state.store.selectedIndex]) {
-        dom.input.value = items[state.store.selectedIndex].dataset.countryName || items[state.store.selectedIndex].textContent;
+      if (getState().store.selectedIndex >= 0 && items[getState().store.selectedIndex]) {
+        getDom().input.value = items[getState().store.selectedIndex].dataset.countryName || items[getState().store.selectedIndex].textContent;
       } else if (items.length > 0) {
-        dom.input.value = items[0].dataset.countryName || items[0].textContent;
+        getDom().input.value = items[0].dataset.countryName || items[0].textContent;
       }
-      dom.suggestionsBox.style.display = "none";
+      getDom().suggestionsBox.style.display = "none";
       validateInput();
-      runtime.round.submitGuess();
+      getRuntime().round?.submitGuess();
     } else if (event.key === "Escape") {
-      if (dom.suggestionsBox.style.display !== "none") {
+      if (getDom().suggestionsBox.style.display !== "none") {
         event.preventDefault();
         clearSuggestions();
-        actions.setSelectedIndex(-1);
+        getActions().setSelectedIndex(-1);
         updateSelection(items);
       }
     }
   }
 
-  function clearForm() {
-    dom.input.value = "";
+export function clearForm() {
+    getDom().input.value = "";
     clearSuggestions();
-    actions.setSelectedIndex(-1);
+    getActions().setSelectedIndex(-1);
     validateInput();
   }
 
-  function bindInputHandlers() {
-    dom.input.addEventListener("input", handleInputChange);
-    dom.input.addEventListener("keydown", handleInputKeydown);
+export function bindInputHandlers() {
+    const input = getDom().input;
+    if (!input) return;
+    input.addEventListener("input", handleInputChange);
+    input.addEventListener("keydown", handleInputKeydown);
   }
 
   function applyContinentSelection() {
-    const nextContinent = dom.continentFilter?.value || null;
+    const nextContinent = getDom().continentFilter?.value || null;
 
     if (nextContinent === lastAppliedContinent) {
-      dom.continentFilter?.blur();
+      getDom().continentFilter?.blur();
       return;
     }
 
     lastAppliedContinent = nextContinent;
-    actions.setSelectedContinent(nextContinent);
-    runtime.worldMapInst.setRegionFilter(nextContinent);
-    dom.continentFilter?.blur();
+    getActions().setSelectedContinent(nextContinent);
+    getRuntime().worldMapInst?.setRegionFilter(nextContinent);
+    getDom().continentFilter?.blur();
 
     requestAnimationFrame(() => {
-      runtime.round.resetAll();
+      getRuntime().round?.resetAll();
     });
   }
 
@@ -211,8 +215,8 @@
    * whenever the active continent changes.
    * @param {object[]} countriesData  Normalised GeoJSON feature array.
    */
-  function populateContinentFilter(countriesData) {
-    if (!dom.continentFilter) {
+export function populateContinentFilter(countriesData) {
+    if (!getDom().continentFilter) {
       return;
     }
 
@@ -225,7 +229,7 @@
       continents.map((continent) => [continent, getContinentCountryCount(countriesData, continent)])
     );
 
-    const allContinentsOption = dom.continentFilter.querySelector('option[value=""]');
+    const allContinentsOption = getDom().continentFilter.querySelector('option[value=""]');
     if (allContinentsOption) {
       allContinentsOption.textContent = `All countries (${countriesData.length})`;
     }
@@ -234,25 +238,25 @@
       const option = document.createElement("option");
       option.value = continent;
       option.textContent = `${continent} (${continentCounts.get(continent)})`;
-      dom.continentFilter.appendChild(option);
+      getDom().continentFilter.appendChild(option);
     });
 
-    lastAppliedContinent = dom.continentFilter.value || null;
+    lastAppliedContinent = getDom().continentFilter.value || null;
 
-    dom.continentFilter.addEventListener("change", applyContinentSelection);
+    getDom().continentFilter.addEventListener("change", applyContinentSelection);
   }
 
-  runtime.input = {
-    bindInputHandlers,
-    populateContinentFilter,
-    isCountryInSelectedContinent,
-    handleInputChange,
-    handleInputKeydown,
-    validateInput,
-    syncGuessButtonState,
-    clearSuggestions,
-    clearForm,
-    renderSuggestions,
-    updateSelection
-  };
-})();
+// Backward-compat shim — remove once bootstrap.js uses import
+getRuntime().input = {
+  bindInputHandlers,
+  populateContinentFilter,
+  isCountryInSelectedContinent,
+  handleInputChange,
+  handleInputKeydown,
+  validateInput,
+  syncGuessButtonState,
+  clearSuggestions,
+  clearForm,
+  renderSuggestions,
+  updateSelection
+};

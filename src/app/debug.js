@@ -4,17 +4,17 @@
  * Centralises debug state resolution, UI toggle wiring, and helper commands
  * exposed on `window` for map inspection/testing.
  */
-(() => {
-  console.log('[debug] debug.js loaded');
-  let debugTooltipEl = null;
-  let debugHelpersInstalled = false;
+import { worldleLiteLogger as log } from './logger.js';
+log.debug('[debug] debug.js loaded');
+let debugTooltipEl = null;
+let debugHelpersInstalled = false;
 
   function getRuntime() {
     return window.worldleLiteRuntime;
   }
 
   function getD3() {
-    return getRuntime()?.IMPORTS?.d3 || null;
+    return getRuntime()?.d3 || null;
   }
 
   function getCountrySelection() {
@@ -182,7 +182,7 @@
         const countryName = country?.properties?.name ?? "";
         window.__WORLDLE_DEBUG_LAST_COUNTRY__ = country || null;
         window.__WORLDLE_DEBUG_LAST_COUNTRY_NAME__ = countryName;
-        window.worldleLiteLogger?.debug("[worldle-lite] clicked country:", countryName);
+        log.debug("[worldle-lite] clicked country:", countryName);
 
         applyDebugTarget(country, { reset, mark, zoom, halo });
       });
@@ -246,7 +246,7 @@
 
   function toggleDebugMode() {
     const nextDebugMode = !Boolean(window.__WORLDLE_DEBUG__);
-    console.log('[debug] toggleDebugMode', { nextDebugMode });
+    log.debug('[debug] toggleDebugMode', { nextDebugMode });
 
     try {
       window.localStorage.setItem(getDebugStorageKey(), nextDebugMode ? "on" : "off");
@@ -257,10 +257,10 @@
     window.__WORLDLE_DEBUG__ = nextDebugMode;
 
     if (nextDebugMode) {
-      console.log('[debug] debug mode ON, installing helpers');
+      log.debug('[debug] debug mode ON, installing helpers');
       installDebugHelpers();
     } else {
-      console.log('[debug] debug mode OFF, disabling helpers');
+      log.debug('[debug] debug mode OFF, disabling helpers');
       // Only disable if helpers were actually installed (i.e., after map loads)
       if (debugHelpersInstalled) {
         disableDebugClickInspect();
@@ -283,16 +283,16 @@
 
   function installDebugHelpers() {
     const runtime = getRuntime();
-    console.log('[debug-hover] installDebugHelpers called', { debugEnabled: window.__WORLDLE_DEBUG__, hasRuntime: !!runtime });
+    log.debug('[debug-hover] installDebugHelpers called', { debugEnabled: window.__WORLDLE_DEBUG__, hasRuntime: !!runtime });
     
     if (!window.__WORLDLE_DEBUG__ || !runtime) {
-      console.log('[debug-hover] installDebugHelpers: debug not enabled or no runtime');
+      log.debug('[debug-hover] installDebugHelpers: debug not enabled or no runtime');
       return;
     }
 
     // Prevent installing helpers multiple times, which would attach duplicate event listeners
     if (debugHelpersInstalled) {
-      console.log('[debug-hover] installDebugHelpers: already installed');
+      log.debug('[debug-hover] installDebugHelpers: already installed');
       return;
     }
 
@@ -303,11 +303,11 @@
     
     if (!hasGlobeOrMap) {
       // Map/globe not loaded yet; will be called again by bootstrap.js after map loads
-      console.log('[debug-hover] installDebugHelpers: globe/map not loaded yet', { hasGlobe: !!globe, hasCountries: !!countries });
+      log.debug('[debug-hover] installDebugHelpers: globe/map not loaded yet', { hasGlobe: !!globe, hasCountries: !!countries });
       return;
     }
 
-    console.log('[debug-hover] installing debug helpers...');
+    log.debug('[debug-hover] installing debug helpers...');
 
     window.debugGetLastClickedCountryName = () => window.__WORLDLE_DEBUG_LAST_COUNTRY_NAME__ || null;
     window.debugGetLastClickedCountry = () => window.__WORLDLE_DEBUG_LAST_COUNTRY__ || null;
@@ -321,7 +321,7 @@
       const country = runtime.actions.resolveCountryGuess(String(countryName ?? "").trim());
 
       if (!country) {
-        window.worldleLiteLogger?.warn("[worldle-lite] Country not found:", countryName);
+        log.warn("[worldle-lite] Country not found:", countryName);
         return false;
       }
 
@@ -354,19 +354,18 @@
     window.debugEnableClickZoom();
     
     debugHelpersInstalled = true;
-    console.log('[debug-hover] debug helpers installed successfully');
+    log.debug('[debug-hover] debug helpers installed successfully');
   }
 
-  window.worldleLiteDebug = {
-    resolveDebugMode,
-    syncDebugToggleUi,
-    bindDebugToggle,
-    installDebugHelpers,
-    toggleDebugMode,
-    getLastClickedCountry: () => window.__WORLDLE_DEBUG_LAST_COUNTRY__ || null,
-    clearLastClickedCountry: () => {
-      window.__WORLDLE_DEBUG_LAST_COUNTRY__ = null;
-      window.__WORLDLE_DEBUG_LAST_COUNTRY_NAME__ = null;
-    }
-  };
-})();
+export { resolveDebugMode, syncDebugToggleUi, bindDebugToggle, installDebugHelpers, toggleDebugMode,
+  getLastClickedCountry, clearLastClickedCountry };
+
+function getLastClickedCountry() {
+  return window.__WORLDLE_DEBUG_LAST_COUNTRY__ || null;
+}
+
+function clearLastClickedCountry() {
+  window.__WORLDLE_DEBUG_LAST_COUNTRY__ = null;
+  window.__WORLDLE_DEBUG_LAST_COUNTRY_NAME__ = null;
+}
+

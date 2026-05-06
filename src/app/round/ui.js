@@ -7,28 +7,29 @@
  *
  * Attaches itself to `runtime.roundUi`.
  */
-(() => {
-  const runtime = window.worldleLiteRuntime;
-  const { dom, state, config } = runtime;
-  const confettiColors = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#a855f7", "#14b8a6", "#f97316"];
+import { worldleLiteLogger as log } from '../logger.js';
 
-  function clearCelebration() {
-    if (runtime.celebrationTimer) {
-      clearTimeout(runtime.celebrationTimer);
-      runtime.celebrationTimer = null;
+const getRuntime = () => window.worldleLiteRuntime ?? {};
+const getDom     = () => getRuntime().dom    ?? {};
+const getState   = () => getRuntime().state  ?? {};
+const getConfig  = () => getRuntime().config ?? {};
+const getTimers  = () => getRuntime().timers;
+const confettiColors = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#a855f7", "#14b8a6", "#f97316"];
+
+export function clearCelebration() {
+    getTimers()?.cancel('celebration');
+
+    if (getDom().celebration) {
+      getDom().celebration.classList.remove("active");
+      getDom().celebration.setAttribute("aria-hidden", "true");
     }
 
-    if (dom.celebration) {
-      dom.celebration.classList.remove("active");
-      dom.celebration.setAttribute("aria-hidden", "true");
+    if (getDom().celebrationText) {
+      getDom().celebrationText.textContent = "";
     }
 
-    if (dom.celebrationText) {
-      dom.celebrationText.textContent = "";
-    }
-
-    if (dom.confettiLayer) {
-      dom.confettiLayer.innerHTML = "";
+    if (getDom().confettiLayer) {
+      getDom().confettiLayer.innerHTML = "";
     }
   }
 
@@ -55,37 +56,37 @@
   }
 
   function burstConfetti(count = 36) {
-    if (!dom.confettiLayer) {
+    if (!getDom().confettiLayer) {
       return;
     }
 
-    dom.confettiLayer.innerHTML = "";
+    getDom().confettiLayer.innerHTML = "";
     const fragment = document.createDocumentFragment();
 
     for (let index = 0; index < count; index += 1) {
       fragment.appendChild(createConfettiPiece(index));
     }
 
-    dom.confettiLayer.appendChild(fragment);
+    getDom().confettiLayer.appendChild(fragment);
   }
 
-  function showCelebration(message) {
-    try { window.worldleLiteLogger?.info('[round UI] showCelebration', message); } catch (e) {}
-    if (!dom.celebration) {
+export function showCelebration(message) {
+    log.info('[round UI] showCelebration', message);
+    if (!getDom().celebration) {
       return;
     }
 
     clearCelebration();
 
-    if (dom.celebrationText) {
-      dom.celebrationText.textContent = message;
+    if (getDom().celebrationText) {
+      getDom().celebrationText.textContent = message;
     }
 
     burstConfetti();
-    dom.celebration.classList.add("active");
-    dom.celebration.setAttribute("aria-hidden", "false");
+    getDom().celebration.classList.add("active");
+    getDom().celebration.setAttribute("aria-hidden", "false");
 
-    runtime.celebrationTimer = setTimeout(() => {
+    getTimers()?.schedule('celebration', () => {
       clearCelebration();
     }, 2400);
   }
@@ -93,28 +94,28 @@
   /**
    * Show `message` in the feedback element, applying `className` for styling.
    * @param {string} message
-   * @param {string} className  e.g. `config.CORRECT_MSG_CLASS`
+   * @param {string} className  e.g. `getConfig().CORRECT_MSG_CLASS`
    */
-  function setFeedback(message, className) {
-    try { window.worldleLiteLogger?.debug('[round UI] setFeedback', { message, className }); } catch (e) {}
-    if (!dom.feedback) {
+export function setFeedback(message, className) {
+    log.debug('[round UI] setFeedback', { message, className });
+    if (!getDom().feedback) {
       return;
     }
 
-    dom.feedback.hidden = false;
-    dom.feedback.textContent = message;
-    dom.feedback.className = className;
+    getDom().feedback.hidden = false;
+    getDom().feedback.textContent = message;
+    getDom().feedback.className = className;
   }
 
   /** Hide and clear the feedback element. */
-  function clearFeedback() {
-    if (!dom.feedback) {
+export function clearFeedback() {
+    if (!getDom().feedback) {
       return;
     }
 
-    dom.feedback.textContent = "";
-    dom.feedback.className = "";
-    dom.feedback.hidden = true;
+    getDom().feedback.textContent = "";
+    getDom().feedback.className = "";
+    getDom().feedback.hidden = true;
   }
 
   function formatHintText(hint) {
@@ -123,48 +124,48 @@
     }
 
     if (hint.type === "flag") {
-      return config.COPY.hints.flag.replace("{flag}", hint.value || "");
+      return getConfig().COPY.hints.flag.replace("{flag}", hint.value || "");
     }
 
     if (hint.type === "first-letter") {
-      return config.COPY.hints.firstLetter.replace("{letter}", hint.value || "");
+      return getConfig().COPY.hints.firstLetter.replace("{letter}", hint.value || "");
     }
 
     if (hint.type === "letter-count") {
-      return config.COPY.hints.letterCount.replace("{count}", String(hint.value ?? 0));
+      return getConfig().COPY.hints.letterCount.replace("{count}", String(hint.value ?? 0));
     }
 
     return "";
   }
 
-  function setHints(hints = []) {
-    try { window.worldleLiteLogger?.debug('[round UI] setHints', hints); } catch (e) {}
-    if (!dom.hintText) {
+export function setHints(hints = []) {
+    log.debug('[round UI] setHints', hints);
+    if (!getDom().hintText) {
       return;
     }
 
     const hintText = hints
       .map(formatHintText)
       .filter(Boolean)
-      .join(config.COPY.hints.separator);
+      .join(getConfig().COPY.hints.separator);
 
-    dom.hintText.textContent = hintText;
+    getDom().hintText.textContent = hintText;
   }
 
-  function clearHints() {
-    if (!dom.hintText) {
+export function clearHints() {
+    if (!getDom().hintText) {
       return;
     }
 
-    dom.hintText.textContent = "";
+    getDom().hintText.textContent = "";
   }
 
-  function buildWikipediaUrl(countryName) {
+export function buildWikipediaUrl(countryName) {
     const normalizedTitle = String(countryName ?? "").trim().replace(/\s+/g, "_");
     return normalizedTitle ? `https://en.wikipedia.org/wiki/${encodeURIComponent(normalizedTitle)}` : "";
   }
 
-  function renderLinkedCountryName(container, countryName, className) {
+export function renderLinkedCountryName(container, countryName, className) {
     if (!container) {
       return;
     }
@@ -180,48 +181,48 @@
     container.appendChild(link);
   }
 
-  function updateHintUsage() {
-    if (!dom.hintUsage) {
+export function updateHintUsage() {
+    if (!getDom().hintUsage) {
       return;
     }
 
-    const roundState = state.store.round;
-    const maxHintsPerRound = config.MAX_HINTS_PER_ROUND;
-    dom.hintUsage.textContent = `Hints this round: ${roundState.hintLevel}/${maxHintsPerRound}`;
+    const roundState = getState().store.round;
+    const maxHintsPerRound = getConfig().MAX_HINTS_PER_ROUND;
+    getDom().hintUsage.textContent = `Hints this round: ${roundState.hintLevel}/${maxHintsPerRound}`;
   }
 
   /** Sync the score display with the current `store.numCorrect` and `store.numPlayed` values. */
-  function updateStats() {
-    try { window.worldleLiteLogger?.debug('[round UI] updateStats', { numCorrect: state.store.numCorrect, numPlayed: state.store.numPlayed, numHintsUsed: state.store.numHintsUsed }); } catch (e) {}
-    if (dom.scoreCorrect) {
-      dom.scoreCorrect.textContent = state.store.numCorrect;
+export function updateStats() {
+    log.debug('[round UI] updateStats', { numCorrect: getState().store?.numCorrect, numPlayed: getState().store?.numPlayed, numHintsUsed: getState().store?.numHintsUsed });
+    if (getDom().scoreCorrect) {
+      getDom().scoreCorrect.textContent = getState().store.numCorrect;
     }
 
-    if (dom.scorePlayed) {
-      dom.scorePlayed.textContent = state.store.numPlayed;
+    if (getDom().scorePlayed) {
+      getDom().scorePlayed.textContent = getState().store.numPlayed;
     }
 
-    if (dom.hintsUsedInRound) {
-      dom.hintsUsedInRound.textContent = state.store.numHintsUsed ?? 0;
+    if (getDom().hintsUsedInRound) {
+      getDom().hintsUsedInRound.textContent = getState().store.numHintsUsed ?? 0;
     }
 
-    if (dom.totalHintsUsed) {
-      dom.totalHintsUsed.textContent = state.store.numHintsUsed ?? 0;
+    if (getDom().totalHintsUsed) {
+      getDom().totalHintsUsed.textContent = getState().store.numHintsUsed ?? 0;
     }
   }
 
   /** Briefly apply the shake animation to the input field and return focus to it. */
-  function shakeInput() {
-    dom.input.classList.add("shake");
+export function shakeInput() {
+    getDom().input.classList.add("shake");
     setTimeout(() => {
-      dom.input.classList.remove("shake");
+      getDom().input.classList.remove("shake");
     }, 400);
-    dom.input.focus();
+    getDom().input.focus();
   }
 
   function createGuessPill() {
     const pill = document.createElement("span");
-    pill.className = `${config.GUESS_PILL_CLASS} empty visible`;
+    pill.className = `${getConfig().GUESS_PILL_CLASS} empty visible`;
     pill.textContent = "";
     pill.setAttribute("aria-hidden", "true");
     return pill;
@@ -244,17 +245,17 @@
 
   /**
    * Clear the guess list and render one empty pill placeholder per
-   * allowed miss (`config.MAX_MISSES_PER_ROUND`).
+   * allowed miss (`getConfig().MAX_MISSES_PER_ROUND`).
    */
-  function renderGuessPlaceholders() {
-    if (!dom.guessList) {
+export function renderGuessPlaceholders() {
+    if (!getDom().guessList) {
       return;
     }
 
-    dom.guessList.innerHTML = "";
+    getDom().guessList.innerHTML = "";
 
-    for (let index = 0; index < config.MAX_MISSES_PER_ROUND; index += 1) {
-      dom.guessList.appendChild(createGuessPill());
+    for (let index = 0; index < getConfig().MAX_MISSES_PER_ROUND; index += 1) {
+      getDom().guessList.appendChild(createGuessPill());
     }
   }
 
@@ -265,11 +266,11 @@
    * @param {{ distanceKm: number, arrow: string } | null} [proximityInfo]
    */
   function fillNextGuessPill(countryOrName, resultType = "guess", proximityInfo = null) {
-    if (!dom.guessList) {
+    if (!getDom().guessList) {
       return;
     }
 
-    const nextPill = Array.from(dom.guessList.children).find((pill) => pill.classList.contains("empty"));
+    const nextPill = Array.from(getDom().guessList.children).find((pill) => pill.classList.contains("empty"));
 
     if (!nextPill) {
       return;
@@ -335,19 +336,19 @@
     }
   }
 
-  runtime.roundUi = {
-    buildWikipediaUrl,
-    renderLinkedCountryName,
-    setFeedback,
-    clearFeedback,
-    showCelebration,
-    clearCelebration,
-    setHints,
-    clearHints,
-    updateHintUsage,
-    updateStats,
-    shakeInput,
-    renderGuessPlaceholders,
-    fillNextGuessPill
-  };
-})();
+// Backward-compat shim — remove once bootstrap.js uses import
+getRuntime().roundUi = {
+  buildWikipediaUrl,
+  renderLinkedCountryName,
+  setFeedback,
+  clearFeedback,
+  showCelebration,
+  clearCelebration,
+  setHints,
+  clearHints,
+  updateHintUsage,
+  updateStats,
+  shakeInput,
+  renderGuessPlaceholders,
+  fillNextGuessPill
+};

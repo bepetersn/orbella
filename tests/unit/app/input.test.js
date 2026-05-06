@@ -1,110 +1,92 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { buildRuntime } from '../../fixtures/runtime-builder.js';
 
-/**
- * Unit Tests for src/app/input.js
- * Tests input validation and autocomplete
- */
-describe('App / Input', () => {
-  
-  const validateInput = (value, countryLookup) => {
-    if (!value || value.trim().length === 0) {
-      return { valid: false, reason: 'empty' };
-    }
-    
-    const normalized = String(value)
-      .trim()
-      .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')
-      .replace(/\s+/g, ' ');
-    
-    return countryLookup.has(normalized)
-      ? { valid: true, country: countryLookup.get(normalized) }
-      : { valid: false, reason: 'not_found' };
-  };
+describe('input', () => {
+  let mod;
+  let runtime;
 
-  const mockCountryLookup = new Map([
-    ['france', 'France'],
-    ['united kingdom', 'United Kingdom'],
-    ['united states', 'United States'],
-    ['germany', 'Germany']
-  ]);
+  beforeEach(async () => {
+    vi.resetModules();
+    runtime = buildRuntime();
 
-  describe('test_inputValidation_emptyString', () => {
-    it('should show no suggestions for empty input', () => {
-      const validation = validateInput('', mockCountryLookup);
-      expect(validation.valid).toBe(false);
-      expect(validation.reason).toBe('empty');
+    // DOM stubs
+    runtime.dom.input = document.createElement('input');
+    runtime.dom.suggestionsBox = document.createElement('div');
+
+    // actions stubs
+    runtime.actions.getRoundState.mockReturnValue({ outcome: 'active', missCount: 0 });
+    runtime.actions.resolveCountryGuess.mockImplementation((name) =>
+      name === 'france' ? { properties: { name: 'France' } } : null
+    );
+    runtime.actions.normalizeGuess.mockImplementation((v) => v.toLowerCase().trim());
+    runtime.actions.getSuggestedCountryNames.mockReturnValue([]);
+    runtime.actions.setSelectedIndex = vi.fn();
+
+    runtime.config.MAX_MISSES_PER_ROUND = 5;
+    runtime.config.IS_VALID_CLASS = 'is-valid';
+    runtime.config.MAX_SUGGESTIONS = 8;
+    runtime.state.store = { selectedIndex: -1 };
+
+    mod = await import('../../../src/app/input.js');
+  });
+
+  describe('validateInput', () => {
+    it('returns true for a known country name', () => {
+      runtime.dom.input.value = 'france';
+      expect(mod.validateInput()).toBe(true);
     });
 
-    it('should handle whitespace-only input', () => {
-      const validation = validateInput('   ', mockCountryLookup);
-      expect(validation.valid).toBe(false);
+    it('returns false for an unknown country name', () => {
+      runtime.dom.input.value = 'atlantis';
+      expect(mod.validateInput()).toBe(false);
     });
   });
 
-  describe('test_inputValidation_validCountry', () => {
-    it('should enable guess button with valid country', () => {
-      const validation = validateInput('France', mockCountryLookup);
-      expect(validation.valid).toBe(true);
-      expect(validation.country).toBe('France');
+  describe('isCountryInSelectedContinent', () => {
+    it('returns true when no continent filter is active', () => {
+      const country = { properties: { continent: 'Europe' } };
+      expect(mod.isCountryInSelectedContinent(country, null)).toBe(true);
     });
 
-    it('should handle case-insensitive validation', () => {
-      const validation1 = validateInput('FRANCE', mockCountryLookup);
-      const validation2 = validateInput('france', mockCountryLookup);
-      const validation3 = validateInput('France', mockCountryLookup);
-      
-      expect(validation1.valid).toBe(true);
-      expect(validation2.valid).toBe(true);
-      expect(validation3.valid).toBe(true);
-    });
-  });
-
-  describe('test_inputValidation_invalidCountry', () => {
-    it('should disable guess button for invalid country', () => {
-      const validation = validateInput('InvalidCountry', mockCountryLookup);
-      expect(validation.valid).toBe(false);
-      expect(validation.reason).toBe('not_found');
+    it('returns true when country matches the selected continent', () => {
+      const country = { properties: { continent: 'Europe', continents: ['Europe'] } };
+      expect(mod.isCountryInSelectedContinent(country, 'Europe')).toBe(true);
     });
 
-    it('should handle partial matches appropriately', () => {
-      const validation = validateInput('Fra', mockCountryLookup);
-      expect(validation.valid).toBe(false); // Partial doesn't count as valid
+    it('returns false when country does not match the selected continent', () => {
+      const country = { properties: { continent: 'Asia', continents: ['Asia'] } };
+      expect(mod.isCountryInSelectedContinent(country, 'Europe')).toBe(false);
     });
   });
 
-  describe('test_continentFilter_restricts_suggestions', () => {
-    it('should apply continent filter to suggestions', () => {
-      const europeanCountries = new Map([
-        ['france', 'France'],
-        ['united kingdom', 'United Kingdom'],
-        ['germany', 'Germany']
-      ]);
+  describe('syncGuessButtonState', () => {
+    it('enables input when round is active', () => {
+      runtime.actions.getRoundState.mockReturnValue({ outcome: 'active' });
+      mod.syncGuessButtonState(false);
+      expect(runtime.dom.input.disabled).toBe(false);
+    });
 
-      const validation = validateInput('United', europeanCountries);
-      // If continent filter is applied, should not find USA
-      const usaValidation = validateInput('United States', europeanCountries);
-      expect(usaValidation.valid).toBe(false);
+    it('disables input when round is not active', () => {
+      runtime.actions.getRoundState.mockReturnValue({ outcome: 'won' });
+      mod.syncGuessButtonState(false);
+      expect(runtime.dom.input.disabled).toBe(true);
     });
   });
 
-  describe('test_inputButton_enabledDisabled', () => {
-    it('should reflect button state based on validation', () => {
-      const getButtonState = (input, lookup) => {
-        const validation = validateInput(input, lookup);
-        return {
-          disabled: !validation.valid,
-          styling: validation.valid ? 'enabled' : 'disabled'
-        };
-      };
-
-      const stateValid = getButtonState('France', mockCountryLookup);
-      expect(stateValid.disabled).toBe(false);
-      expect(stateValid.styling).toBe('enabled');
-
-      const stateInvalid = getButtonState('XYZ', mockCountryLookup);
-      expect(stateInvalid.disabled).toBe(true);
-      expect(stateInvalid.styling).toBe('disabled');
+  describe('clearForm', () => {
+    it('resets input value and hides suggestions', () => {
+      runtime.dom.input.value = 'france';
+      runtime.dom.suggestionsBox.style.display = 'block';
+      mod.clearForm();
+      expect(runtime.dom.input.value).toBe('');
+      expect(runtime.dom.suggestionsBox.style.display).toBe('none');
     });
+  });
+
+  it('runtime.input shim is written', () => {
+    expect(typeof runtime.input.validateInput).toBe('function');
+    expect(typeof runtime.input.clearForm).toBe('function');
+    expect(typeof runtime.input.isCountryInSelectedContinent).toBe('function');
+    expect(typeof runtime.input.syncGuessButtonState).toBe('function');
   });
 });

@@ -317,11 +317,12 @@ function compassBearing(centerA, centerB) {
   return arrows[index];
 }
 
-// Export for window global access (maintains backward compatibility)
-if (typeof window !== 'undefined') {
-  window.continentGeometry = {
-    createContinentGeometryFilter,
-    haversineDistanceKm,
-    compassBearing
-  };
-}
+export { getGeometryPolygonParts, createPolygonFeature, buildRenderableMapForContinent, createContinentGeometryFilter, haversineDistanceKm, compassBearing };
+
+export const continentGeometry = {
+  createContinentGeometryFilter,
+  haversineDistanceKm,
+  compassBearing
+};
+
+

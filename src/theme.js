@@ -8,16 +8,18 @@
  *
  * Exported as {@link window.themeSystem}.
  */
-(() => {
-  const { COPY, THEME_STORAGE_KEY } = window.gameConfig;
+import { gameConfig } from './config.js';
+
+const { COPY, THEME_STORAGE_KEY } = gameConfig;
   let themeToggleElement = null;
+  let _getGlobe = () => null;
 
   /**
    * Return `"dark"` or `"light"` by reading `localStorage`, falling back to
    * the OS `prefers-color-scheme` media query when no stored preference exists.
    * @returns {"dark" | "light"}
    */
-  function getInitialTheme() {
+export function getInitialTheme() {
     try {
       const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
       if (storedTheme === "light" || storedTheme === "dark") {
@@ -49,7 +51,7 @@
    * toggle checkbox's state via {@link syncThemeToggle}.
    * @param {"dark" | "light"} theme
    */
-  function applyTheme(theme) {
+export function applyTheme(theme) {
     document.documentElement.dataset.theme = theme;
     syncThemeToggle(theme);
   }
@@ -60,7 +62,7 @@
    */
   function updateGlobeTexture(theme) {
     try {
-      const globe = window.worldleLiteRuntime?.worldMapInst?.globe;
+      const globe = _getGlobe();
       if (globe && typeof globe.globeImageUrl === 'function') {
         const globeImg = theme === 'dark' ? 'img/earth-dark.jpg' : 'img/earth-light.jpg';
         globe.globeImageUrl(globeImg);
@@ -85,7 +87,7 @@
    * Flip the active theme between `"dark"` and `"light"`, persist the new
    * value to `localStorage`, and apply it to the document and toggle checkbox.
    */
-  function toggleTheme() {
+export function toggleTheme() {
     const currentTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
     const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
@@ -105,8 +107,9 @@
    * Safe to call with `null` when no toggle checkbox is present.
    * @param {HTMLElement | null} themeToggleElementArg
    */
-  function initializeTheme(themeToggleElementArg) {
+export function initializeTheme(themeToggleElementArg, { getGlobe = () => null } = {}) {
     themeToggleElement = themeToggleElementArg || null;
+    _getGlobe = getGlobe;
     applyTheme(getInitialTheme());
 
     if (themeToggleElement) {
@@ -114,10 +117,10 @@
     }
   }
 
-  window.themeSystem = {
-    getInitialTheme,
-    applyTheme,
-    toggleTheme,
-    initializeTheme
-  };
-})();
+// Backward-compat shim — remove once all callers use import
+window.themeSystem = {
+  getInitialTheme,
+  applyTheme,
+  toggleTheme,
+  initializeTheme
+};

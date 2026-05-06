@@ -4,8 +4,13 @@
   "description": "A geography guessing game",
   "type": "module",
   "scripts": {
+    "stamp": "node scripts/stamp-build-id.mjs",
+    "vendor:verify": "node scripts/verify-vendor.mjs",
+    "vendor:update": "node scripts/update-vendor.mjs",
     "dev": "vite",
+    "predev": "npm run vendor:verify",
     "build": "vite build",
+    "prebuild": "npm run vendor:verify && npm run stamp",
     "preview": "vite preview",
     "test": "vitest --run",
     "test:ui": "vitest --ui",
@@ -17,6 +22,9 @@
     "@playwright/test": "^1.40.0",
     "@vitest/coverage-v8": "^0.34.0",
     "@vitest/ui": "^0.34.0",
+    "d3": "7.9.0",
+    "globe.gl": "2.45.3",
+    "jsdom": "^29.1.1",
     "vite": "^8.0.10",
     "vitest": "^0.34.0"
   }
