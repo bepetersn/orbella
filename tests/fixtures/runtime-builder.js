@@ -118,6 +118,12 @@ export function buildRuntime(overrides = {}) {
 
     worldMapInst: null,
 
+    autoAdvanceEnabled: true,
+    autoAdvance: {
+      isEnabled: vi.fn().mockReturnValue(true),
+      setAutoAdvanceEnabled: vi.fn(),
+    },
+
     timers: {
       schedule: vi.fn(),
       cancel: vi.fn(),

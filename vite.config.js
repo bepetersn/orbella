@@ -1,5 +1,14 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { execSync } from 'child_process';
+
+let buildId;
+try {
+  buildId = execSync('git describe --tags --always --dirty 2>/dev/null').toString().trim();
+  if (!buildId) throw new Error('empty output');
+} catch {
+  buildId = new Date().toISOString().slice(0, 10);
+}
 
 export default defineConfig({
   root: '.',
@@ -20,5 +29,8 @@ export default defineConfig({
   server: {
     // Development server config
     open: 'worldle-lite.html',
+  },
+  define: {
+    __BUILD_ID__: JSON.stringify(buildId),
   },
 });

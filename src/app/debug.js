@@ -23,7 +23,8 @@ let debugHelpersInstalled = false;
   }
 
   function getGlobe() {
-    return getRuntime()?.globe || null;
+    const runtime = getRuntime();
+    return runtime?.globe || runtime?.worldMapInst?.globe || null;
   }
 
   function ensureTooltip() {

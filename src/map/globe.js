@@ -13,7 +13,6 @@ import { worldleLiteLogger } from '../app/logger.js';
 const DEFAULT_DESIRED_CAMERA_DISTANCE = 1.3;
 const HIDE_ANTARCTICA_DEFAULT = true;
 const DEBUG_PANEL_MIN_WIDTH = '220px';
-const LARGE_COORD_EXTREME = 1000; // used to flag extreme vertex coordinates
 const HALO_CONFIG = {
   color: '#dc2626',
   duration: 1800,

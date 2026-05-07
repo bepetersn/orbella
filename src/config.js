@@ -12,6 +12,9 @@ export const gameConfig = {
   H: 500,
   MAP_PROJECTION_MODE: "rounded",
   DEBUG: false,
+  // Injected at build/dev time by Vite (vite.config.js define.__BUILD_ID__).
+  // Falls back to empty string in test environments where Vite is not involved.
+  BUILD_ID: (typeof __BUILD_ID__ !== 'undefined') ? __BUILD_ID__ : '',  // eslint-disable-line no-undef
 
   // Map interaction
   MAP_PAN_SENSITIVITY_X: 1.0,
@@ -55,3 +58,7 @@ export const gameConfig = {
 
 // Backward-compat shim — remove once all callers use import
 window.gameConfig = gameConfig;
+
+// COPY is the single source of truth in constants.js; re-exported here so
+// callers that reach for `gameConfig.COPY` (e.g. bootstrap) work without change.
+export { COPY } from './constants.js';

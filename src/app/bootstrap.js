@@ -9,16 +9,36 @@ import * as inputModule from './input.js';
 import * as roundTransitionsModule from './round/transitions.js';
 import { queryDomElements } from './dom.js';
 import { createTimerManager } from './timerManager.js';
-import { gameConfig }     from '../config.js';
+import { gameConfig, COPY as _COPY } from '../config.js';
 import { gameConstants }  from '../constants.js';
-import { gameStore }      from '../store/index.js';
+import { gameStore }      from '../store/index.js';                                     
 import { createTargetSelector } from '../targetSelector.js';
 import * as audioFeedback from '../audio.js';
 import * as themeSystem   from '../theme.js';
-import { createWorldMap } from '../map/index.js';
-import { createWorldleGlobe } from '../map/globe.js';
 import { syncDebugToggleUi, bindDebugToggle, resolveDebugMode } from './debug.js';
+import { loadAndInitCountries } from './loadCountries.js';
 import { worldleLiteLogger as log } from './logger.js';
+import { initializeAutoAdvance } from './autoAdvance.js';
+import { COPY_BINDINGS, CLICK_BINDINGS } from './bindings.js';
+
+// 
+/**
+ * Extracts the internal store state and known constants from `gameStore` while
+ * collecting the remaining public action methods into `storeActions`.
+ *
+ * This separation lets the bootstrap code access the store's current data and
+ * exported enums/config values directly, without exposing or relying on the
+ * full store object shape at each call site. It also keeps the remaining
+ * action-oriented API grouped together for clearer use in the app setup.
+ */
+const { 
+  state: _gameStoreState, 
+  dispatch: _dispatch, 
+  ROUND_OUTCOME: _ROUND_OUTCOME, 
+  ACTIONS: _ACTIONS, 
+  ...storeActions 
+} = gameStore;
+
 
 /**
  * Initialise every subsystem and start the game.
@@ -39,9 +59,9 @@ export async function bootstrap(runtimeOverride) {
   const dom     = _rt.dom     || queryDomElements();
   const config  = _rt.config
     ? _rt.config
-    : { ...gameConfig, COPY: gameConfig.COPY ?? gameConstants?.COPY ?? {} };
+    : { ...gameConfig, COPY: _COPY };
   const startup = _rt.startup || null;
-  const COPY    = config.COPY || gameConstants?.COPY || {};
+  const COPY    = config.COPY ?? _COPY;
 
   // Build a runtime-compatible object so existing round/* modules can keep
   // reading runtime.actions / runtime.state etc. via window.worldleLiteRuntime.
@@ -58,25 +78,7 @@ export async function bootstrap(runtimeOverride) {
       startup,
       timers,
       state:   { store: gameStore.state, targetSelector },
-      actions: {
-        loadCountriesIntoState: gameStore.loadCountriesIntoState,
-        setSelectedIndex:       gameStore.setSelectedIndex,
-        setTargetCountry:       gameStore.setTargetCountry,
-        showFirstRound:         gameStore.showFirstRound,
-        incrementCorrect:       gameStore.incrementCorrect,
-        incrementPlayed:        gameStore.incrementPlayed,
-        incrementHintsUsed:     gameStore.incrementHintsUsed,
-        resetScores:            gameStore.resetScores,
-        setSelectedContinent:   gameStore.setSelectedContinent,
-        getRoundState:          gameStore.getRoundState,
-        startRound:             gameStore.startRound,
-        revealRoundAnswer:      gameStore.revealRoundAnswer,
-        requestRoundHint:       gameStore.requestRoundHint,
-        submitRoundGuess:       gameStore.submitRoundGuess,
-        normalizeGuess:         gameStore.normalizeGuess,
-        resolveCountryGuess:    gameStore.resolveCountryGuess,
-        getSuggestedCountryNames: gameStore.getSuggestedCountryNames,
-      },
+      actions: storeActions,
     };
   })();
 
@@ -85,120 +87,26 @@ export async function bootstrap(runtimeOverride) {
   function initializeCopy() {
     document.title = COPY.pageTitle || document.title;
     if (dom.buildMarker) dom.buildMarker.textContent = `Build: ${runtime.BUILD_ID || ''}`;
-    if (dom.heroEyebrow && COPY.hero?.eyebrow) dom.heroEyebrow.textContent = COPY.hero.eyebrow;
-    if (dom.heroTitle && COPY.hero?.title) dom.heroTitle.textContent = COPY.hero.title;
-    if (dom.heroSubtitle && COPY.hero?.subtitle) dom.heroSubtitle.textContent = COPY.hero.subtitle;
-    if (dom.ruleMisses && COPY.hero?.misses) dom.ruleMisses.textContent = COPY.hero.misses;
-    if (dom.ruleAutocomplete && COPY.hero?.autocomplete) dom.ruleAutocomplete.textContent = COPY.hero.autocomplete;
-    if (dom.ruleReveal && COPY.hero?.reveal) dom.ruleReveal.textContent = COPY.hero.reveal;
-    if (dom.revealBtn && COPY.buttons?.showAnswer) dom.revealBtn.textContent = COPY.buttons.showAnswer;
-    if (dom.nextRoundBtn && COPY.buttons?.nextRound) dom.nextRoundBtn.textContent = COPY.buttons.nextRound;
-    if (dom.hintBtn && COPY.buttons?.hint) dom.hintBtn.textContent = COPY.buttons.hint;
-    if (dom.replayHaloBtn && COPY.buttons?.replayHalo) dom.replayHaloBtn.textContent = COPY.buttons.replayHalo;
-    if (dom.resetBtn && COPY.buttons?.reset) dom.resetBtn.textContent = COPY.buttons.reset;
+    for (const [domKey, section, prop] of COPY_BINDINGS) {
+      const el = dom[domKey];
+      const text = COPY[section]?.[prop];
+      if (el && text) el.textContent = text;
+    }
     window.worldleLiteDebug?.syncDebugToggleUi?.();
     syncDebugToggleUi();
   }
 
   function bindEventListeners() {
     log.debug('[bootstrap] bindEventListeners - btn refs:', { hint: !!dom.hintBtn, reveal: !!dom.revealBtn });
-    if (dom.revealBtn) dom.revealBtn.addEventListener('click', () => round.revealAnswer?.());
-    if (dom.hintBtn) dom.hintBtn.addEventListener('click', () => round.showNextHint?.());
-    if (dom.nextRoundBtn) dom.nextRoundBtn.addEventListener('click', () => round.advanceToNextRound?.());
-    if (dom.replayHaloBtn) dom.replayHaloBtn.addEventListener('click', () => replayHalo());
-    if (dom.resetBtn) dom.resetBtn.addEventListener('click', () => round.startRound?.());
+    for (const [domKey, method] of CLICK_BINDINGS) {
+      dom[domKey]?.addEventListener('click', () => round[method]?.());
+    }
+    dom.replayHaloBtn?.addEventListener('click', () => replayHalo());
     window.worldleLiteDebug?.bindDebugToggle?.();
     bindDebugToggle();
     runtime.input?.bindInputHandlers?.();
   }
 
-  // Bootstrap is the authoritative loader for country GeoJSON. It loads the
-  // data, populates the store, initializes the globe renderer, and starts
-  // the first round. This function centralizes that flow.
-  async function loadAndInitCountries() {
-    const baseUrl = config.COUNTRIES_GEOJSON_URL || window.gameConfig?.COUNTRIES_GEOJSON_URL || 'pipeline/data/generated/world-countries.render.json';
-    // Append BUILD_ID so the browser re-fetches only when data is regenerated.
-    // BUILD_ID is injected at build time; falls back to empty string (no cache-bust)
-    // in local dev where the data file is served directly.
-    const cacheBust = runtime.BUILD_ID ? `v=${encodeURIComponent(runtime.BUILD_ID)}` : null;
-    const url = cacheBust
-      ? baseUrl + (baseUrl.includes('?') ? '&' : '?') + cacheBust
-      : baseUrl;
-    startup?.step('loading countries dataset', { url, cacheBust: cacheBust ?? 'none' });
-    try {
-      const data = runtime.d3?.json ? await runtime.d3.json(url) : await fetch(url).then((r) => r.json());
-      const features = Array.isArray(data?.features) ? data.features : [];
-      startup?.step('countries dataset loaded', {
-        url,
-        features: features.length
-      });
-      const countryNames = features.map((f) => f.properties?.name).filter(Boolean).sort();
-      const countryByName = new Map(features.map((f) => [String(f.properties?.name || '').toLowerCase(), f]));
-
-      const loader = runtime.actions?.loadCountriesIntoState || window._gameStore?.loadCountriesIntoState;
-      if (typeof loader === 'function') {
-        loader({ countriesData: features, countryNames, countryByName });
-        startup?.step('country store hydrated', {
-          countryNames: countryNames.length
-        });
-      } else {
-        startup?.warn('country store loader unavailable');
-      }
-
-      // Populate continent filter UI if the input module is available.
-      // Non-critical enhancement path: failures are logged but do not abort startup.
-      try {
-        runtime.input?.populateContinentFilter?.(features);
-        startup?.step('continent filter populated');
-      } catch (e) {
-        startup?.warn('[bootstrap] populateContinentFilter failed — continuing', { message: e?.message || String(e) });
-        log.warn('[bootstrap] populateContinentFilter failed', e);
-      }
-
-      const globeInit = _rt.createWorldleGlobe ?? createWorldleGlobe;
-      if (typeof globeInit === 'function') {
-        try {
-          startup?.step('initializing globe renderer');
-          const worldMapInst = globeInit(data);
-          if (worldMapInst) {
-            runtime.worldMapInst = worldMapInst;
-          }
-          startup?.step('globe renderer initialized');
-        } catch (e) {
-          startup?.error('globe renderer initialization failed', { message: e?.message || String(e) });
-          log.error('[bootstrap] createWorldleGlobe threw', e);
-        }
-      } else {
-        startup?.warn('globe renderer unavailable');
-        log.warn('[bootstrap] createWorldleGlobe not defined');
-      }
-
-      // Ensure a minimal worldMapInst stub exists so `startRound` can
-      // safely call `runtime.worldMapInst.resetRoundState()` even if the
-      // globe failed to initialize.
-      if (!runtime.worldMapInst) {
-        runtime.worldMapInst = {
-          resetRoundState: () => {},
-          markTarget: () => {},
-          zoomToCountry: () => {},
-          showLocationHalo: () => {},
-          setRegionFilter: () => {},
-          loadCountries: () => Promise.resolve({ countriesData: features, countryNames, countryByName })
-        };
-        startup?.warn('world map fallback stub installed');
-      }
-
-      round.startRound?.();
-      startup?.step('first round started');
-    } catch (err) {
-      startup?.error('countries dataset failed to load', {
-        url,
-        message: err?.message || String(err)
-      });
-      console.error('[bootstrap] failed to load countries GeoJSON:', err);
-      throw err;
-    }
-  }
 
   // Wire subsystem namespaces onto runtime so round/* modules can find them
   // via getRuntime().roundUi and getRuntime().input.
@@ -226,5 +134,7 @@ export async function bootstrap(runtimeOverride) {
   startup?.step('theme initialized');
   bindEventListeners();
   startup?.step('event listeners bound');
-  await loadAndInitCountries();
+  initializeAutoAdvance(dom.autoAdvanceToggle);
+  startup?.step('auto-advance initialized');
+  await loadAndInitCountries({ config, runtime, _rt, startup });
 }

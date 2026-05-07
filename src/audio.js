@@ -64,10 +64,10 @@ export function correct() {
 
     // Each note: [frequency Hz, start offset ms, duration s, volume]
     const notes = [
-      [392.00, 0,   0.18, 0.12],   // G4
-      [493.88, 130, 0.18, 0.13],   // B4
-      [587.33, 250, 0.18, 0.13],   // D5
-      [783.99, 370, 0.45, 0.11],   // G5  — held longer
+      [196.00, 0,   0.18, 0.12],   // G3
+      [246.94, 130, 0.18, 0.13],   // B3
+      [293.66, 250, 0.18, 0.13],   // D4
+      [392.00, 370, 0.45, 0.11],   // G4  — held longer
     ];
 
     notes.forEach(([freq, offsetMs, dur, vol]) => {

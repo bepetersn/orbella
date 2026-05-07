@@ -9,6 +9,7 @@
  * Attaches itself to `runtime.input`.
  */
 import { ROUND_OUTCOME } from '../store/constants.js';
+import { round } from './round/index.js';
 
 const getRuntime = () => window.worldleLiteRuntime ?? {};
 const getDom     = () => getRuntime().dom     ?? {};
@@ -86,7 +87,7 @@ export function renderSuggestions(value) {
 
     const normalizedValue = getActions().normalizeGuess(value);
     const matches = normalizedValue
-      ? actions
+      ? getActions()
         .getSuggestedCountryNames(normalizedValue, 24)
         .slice(0, getConfig().MAX_SUGGESTIONS)
       : [];
@@ -116,7 +117,7 @@ export function renderSuggestions(value) {
         getDom().input.value = suggestion.dataset.countryName || displayName;
         clearSuggestions();
         validateInput();
-        getRuntime().round?.submitGuess();
+        round.submitGuess();
       };
       getDom().suggestionsBox.appendChild(suggestion);
     });
@@ -158,7 +159,7 @@ export function handleInputKeydown(event) {
       }
       getDom().suggestionsBox.style.display = "none";
       validateInput();
-      getRuntime().round?.submitGuess();
+      round.submitGuess();
     } else if (event.key === "Escape") {
       if (getDom().suggestionsBox.style.display !== "none") {
         event.preventDefault();
@@ -197,7 +198,7 @@ export function bindInputHandlers() {
     getDom().continentFilter?.blur();
 
     requestAnimationFrame(() => {
-      getRuntime().round?.resetAll();
+      round.resetAll();
     });
   }
 

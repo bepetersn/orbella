@@ -42,6 +42,10 @@ export function resolveAutoAdvanceEnabled() {
     return true;
   }
 
+export function isEnabled() {
+    return getRuntime().autoAdvanceEnabled ?? resolveAutoAdvanceEnabled();
+  }
+
 export function syncAutoAdvanceUi(enabled) {
     if (!getDom().autoAdvanceToggle) {
       return;
@@ -70,6 +74,7 @@ export function setAutoAdvanceEnabled(enabled) {
 
 export function initializeAutoAdvance(autoAdvanceToggleElement) {
     getRuntime().autoAdvanceEnabled = resolveAutoAdvanceEnabled();
+    getRuntime().autoAdvance = { isEnabled, setAutoAdvanceEnabled };
 
     if (autoAdvanceToggleElement) {
       getDom().autoAdvanceToggle = autoAdvanceToggleElement;
@@ -79,17 +84,7 @@ export function initializeAutoAdvance(autoAdvanceToggleElement) {
     syncAutoAdvanceUi(getRuntime().autoAdvanceEnabled);
   }
 
-export function isEnabled() {
-  return Boolean(getRuntime().autoAdvanceEnabled);
-}
-
-// Backward-compat shim — remove once bootstrap.js uses import
-getRuntime().autoAdvance = {
-  initializeAutoAdvance,
-  setAutoAdvanceEnabled,
-  syncAutoAdvanceUi,
-  resolveAutoAdvanceEnabled,
-  isEnabled
-};
-
-initializeAutoAdvance(getDom().autoAdvanceToggle);
+// Initialize runtime shim immediately so callers don't need to wait for
+// initializeAutoAdvance (e.g. during testing or early bootstrap).
+getRuntime().autoAdvanceEnabled = resolveAutoAdvanceEnabled();
+getRuntime().autoAdvance = { isEnabled, setAutoAdvanceEnabled };

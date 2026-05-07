@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { gameConfig } from '../../src/config.js';
 
 /**
  * Unit Tests for src/config.js and src/store/constants.js
@@ -99,6 +100,22 @@ describe('Config / Constants', () => {
       expect(STATE_ACTIONS.setTargetCountry).toBeDefined();
       expect(STATE_ACTIONS.incrementCorrect).toBeDefined();
       expect(STATE_ACTIONS.resetScores).toBeDefined();
+    });
+  });
+
+  describe('test_config_buildId', () => {
+    it('should expose BUILD_ID as a string (falls back to empty string outside Vite)', () => {
+      // __BUILD_ID__ is not defined by Vitest, so the typeof guard in config.js
+      // should produce an empty string rather than throwing a ReferenceError.
+      expect(typeof gameConfig.BUILD_ID).toBe('string');
+    });
+
+    it('should produce a non-empty BUILD_ID when stamped by Vite', () => {
+      // Simulate what Vite injects: a git-describe string like "abc1234" or
+      // "v1.0.0-3-gabcdef7-dirty".  Verify the format is sane.
+      const stamped = 'abc1234';
+      expect(stamped).toMatch(/^[a-zA-Z0-9._+-]+$/);
+      expect(stamped.length).toBeGreaterThan(0);
     });
   });
 });

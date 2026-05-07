@@ -1,8 +1,6 @@
 /**
- * @fileoverview Assembles the public `window.gameStore` API from the
+ * @fileoverview Assembles the public {@link gameStore} API from the
  * sub-modules in store/.
- *
- * Exported as {@link window.gameStore}.
  */
 const _store = window._gameStore;
 
@@ -29,6 +27,3 @@ export const gameStore = {
   ROUND_OUTCOME: _store.ROUND_OUTCOME,
   ACTIONS: _store.STATE_ACTIONS
 };
-
-// Backward-compat shim — remove once all callers use import
-window.gameStore = gameStore;

@@ -265,7 +265,7 @@ export function renderGuessPlaceholders() {
    * @param {"correct"|"guess"} resultType
    * @param {{ distanceKm: number, arrow: string } | null} [proximityInfo]
    */
-  function fillNextGuessPill(countryOrName, resultType = "guess", proximityInfo = null) {
+export function fillNextGuessPill(countryOrName, resultType = "guess", proximityInfo = null) {
     if (!getDom().guessList) {
       return;
     }
