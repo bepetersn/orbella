@@ -1,6 +1,6 @@
 # Project Status — Worldle Lite
 
-*Last updated: May 12, 2026*
+*Last updated: May 12, 2026 (review 2)*
 
 ---
 
@@ -39,6 +39,7 @@ Coverage is **75.38% overall** — above the >70% target. `src/store/` sits at *
 
 ### Recent Work (last 3 commits)
 
+- **Second code review written:** Produced `docs/reviews/code-review-2026-05-12.md`; identified new issues including module-level unresettable state in `control.js`, `debug.js` bypassing `getRuntime()`, double `syncDebugToggleUi` call in `bindings.js`, color-palette duplication between `globe.js` and `constants.js`, import-time self-registration shims in `ui.js`/`input.js`, and parameter mutation in `loadCountries.js`.
 - **README.md module map updated:** Expanded the "What Lives Where" section to list all current source modules (`globe-halo.js`, `animations.js`, `rendering.js`, `loader.js`, `state.js`, `utils.js`, `map/constants.js`, `loadCountries.js`, `bindings.js`, `dom.js`, `logger.js`, `constants.js`, `targetSelector.js`); removed the collapsed multi-module line for `src/app/`.
 - **Coverage milestone:** Overall coverage crossed the >70% target at **75.38%**; `src/store/` reached 93.22%, `src/map/geometry.js` reached 91.56%, and `src/store/actions.js` reached 96.84%; test count grew to 337 across 26 files.
 - **Cyclomatic complexity audit:** Measured CC for all `src/` modules using acorn; identified `createWorldleGlobe` (CC=77) and `createHaloManager` (CC=60) as critical; documented targeted per-function refactor recommendations in STATUS.md.
