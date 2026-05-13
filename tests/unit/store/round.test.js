@@ -7,12 +7,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 let dispatch, startRound, submitRoundGuess, revealRoundAnswer, getRoundState, canSubmitRound;
 
-function makeCountry(name, aliases = []) {
+function makeCountry(name, aliases = [], extraProperties = {}) {
   return {
     properties: {
       name,
       displayName: name,
       aliases,
+      ...extraProperties,
     },
   };
 }
@@ -147,6 +148,18 @@ describe('Store / Round (real)', () => {
       await seedStore(france);
       startRound('France');
       const result = submitRoundGuess('ZZZNoSuchCountry');
+      expect(result.status).toBe('invalid');
+    });
+
+    it('should reject off-continent guesses when a continent filter is active', async () => {
+      const france = makeCountry('France', [], { continent: 'Europe' });
+      const georgia = makeCountry('Georgia', [], { continent: 'Asia' });
+      await seedStore(france, [georgia]);
+      dispatch({ type: 'setSelectedContinent', selectedContinent: 'Europe' });
+      startRound('France');
+
+      const result = submitRoundGuess('Georgia');
+
       expect(result.status).toBe('invalid');
     });
 

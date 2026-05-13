@@ -132,6 +132,7 @@ describe('round/control', () => {
 
     runtime.state.targetSelector = {
       getNextTarget: vi.fn().mockReturnValue(makeCountry('Germany', 'DE')),
+      reset: vi.fn(),
     };
 
     // Default mock for getRoundState — active round, hints remaining
@@ -390,6 +391,20 @@ describe('round/control', () => {
       mod.advanceToNextRound();
       expect(runtime.roundTransitions.clearRoundTransition).toHaveBeenCalled();
       expect(runtime.actions.startRound).toHaveBeenCalled();
+    });
+  });
+
+  // --- resetAll ---
+
+  describe('resetAll', () => {
+    it('resets the selector history before starting the next round', () => {
+      mod.resetAll();
+
+      expect(runtime.state.targetSelector.reset).toHaveBeenCalled();
+      expect(runtime.state.targetSelector.reset.mock.invocationCallOrder[0]).toBeLessThan(
+        runtime.state.targetSelector.getNextTarget.mock.invocationCallOrder[0]
+      );
+      expect(runtime.actions.resetScores).toHaveBeenCalled();
     });
   });
 });

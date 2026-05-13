@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A geography guessing game",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "vendor:verify": "node scripts/verify-vendor.mjs",
     "vendor:update": "node scripts/update-vendor.mjs",
@@ -26,9 +29,9 @@
     "d3": "7.9.0",
     "globe.gl": "2.45.3",
     "husky": "^9.1.7",
-    "jsdom": "^29.1.1",
+    "jsdom": "22.0.0",
     "prettier": "^3.8.3",
-    "vite": "^8.0.10",
+    "vite": "5.0.9",
     "vitest": "^0.34.0"
   }
 }

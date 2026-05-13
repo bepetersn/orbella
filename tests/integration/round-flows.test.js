@@ -6,8 +6,10 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-function makeCountry(name, aliases = [], flagEmoji = '🏳️') {
-  return { properties: { name, displayName: name, aliases, flagEmoji } };
+function makeCountry(name, aliases = [], flagEmoji = '🏳️', extraProperties = {}) {
+  return {
+    properties: { name, displayName: name, aliases, flagEmoji, ...extraProperties },
+  };
 }
 
 async function seedStore(target, extras = []) {
@@ -154,17 +156,17 @@ describe('Integration / Round Flows (real)', () => {
     expect(state.numCorrect).toBe(1);
   });
 
-  it('continent filter reduces the suggestion pool', async () => {
+  it('continent filter excludes same-prefix suggestions from other continents', async () => {
     const { getSuggestedCountryNames } = await import('../../src/store/query.js');
     const { dispatch } = await import('../../src/store/reducer.js');
     const { createCountryGuessLookup } = await import('../../src/store/lookup.js');
 
-    const france = makeCountry('France');
-    france.properties.continent = 'Europe';
-    const japan = makeCountry('Japan');
-    japan.properties.continent = 'Asia';
+    const france = makeCountry('France', [], '🏳️', { continent: 'Europe' });
+    const frenchGuiana = makeCountry('French Guiana', [], '🏳️', {
+      continent: 'South America',
+    });
 
-    const countries = [france, japan];
+    const countries = [france, frenchGuiana];
     const lookup = createCountryGuessLookup(countries, new Map());
     dispatch({
       type: 'loadCountries',
@@ -177,10 +179,8 @@ describe('Integration / Round Flows (real)', () => {
     });
     dispatch({ type: 'setSelectedContinent', selectedContinent: 'Europe' });
 
-    // Query 'fr' should match France but not Japan
     const suggestions = getSuggestedCountryNames('fr', 10);
-    expect(suggestions).toContain('France');
-    expect(suggestions).not.toContain('Japan');
+    expect(suggestions).toEqual(['France']);
   });
 
   it('new game resets scores to zero', async () => {

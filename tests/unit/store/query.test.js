@@ -7,12 +7,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 let resolveCountryGuess, getSuggestedCountryNames;
 
-function makeCountry(name, aliases = []) {
+function makeCountry(name, aliases = [], extraProperties = {}) {
   return {
     properties: {
       name,
       displayName: name,
       aliases,
+      ...extraProperties,
     },
   };
 }
@@ -91,6 +92,19 @@ describe('Store / Query (real)', () => {
       const result = resolveCountryGuess('Germny');
       expect(result).toBeDefined();
     });
+
+    it('should reject exact matches outside the selected continent', async () => {
+      vi.resetModules();
+      const france = makeCountry('France', [], { continent: 'Europe' });
+      const georgia = makeCountry('Georgia', [], { continent: 'Asia' });
+      await seedStoreWithCountries([france, georgia]);
+      const { dispatch } = await import('../../../src/store/reducer.js');
+      dispatch({ type: 'setSelectedContinent', selectedContinent: 'Europe' });
+      const queryMod = await import('../../../src/store/query.js');
+
+      expect(queryMod.resolveCountryGuess('Georgia')).toBeNull();
+      expect(queryMod.resolveCountryGuess('France')?.properties.name).toBe('France');
+    });
   });
 
   describe('getSuggestedCountryNames', () => {
@@ -130,6 +144,18 @@ describe('Store / Query (real)', () => {
     it('should do fuzzy matching for longer typo queries', () => {
       const suggestions = getSuggestedCountryNames('Germnay'); // transposition
       expect(suggestions.some((s) => s.toLowerCase().includes('german'))).toBe(true);
+    });
+
+    it('should exclude off-continent countries that share the same prefix', async () => {
+      vi.resetModules();
+      const france = makeCountry('France', [], { continent: 'Europe' });
+      const frenchGuiana = makeCountry('French Guiana', [], { continent: 'South America' });
+      await seedStoreWithCountries([france, frenchGuiana]);
+      const { dispatch } = await import('../../../src/store/reducer.js');
+      dispatch({ type: 'setSelectedContinent', selectedContinent: 'Europe' });
+      const queryMod = await import('../../../src/store/query.js');
+
+      expect(queryMod.getSuggestedCountryNames('fr', 10)).toEqual(['France']);
     });
   });
 });

@@ -93,6 +93,7 @@ export async function buildRuntime(overrides = {}) {
       targetSelector: {
         pickTarget: vi.fn(),
         getCurrentTarget: vi.fn(),
+        reset: vi.fn(),
       },
     },
 

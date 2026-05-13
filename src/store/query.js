@@ -16,6 +16,19 @@ const minFuzzyQueryLength = 3;
 let _cachedGroupsState = null;
 let _cachedGroups = null;
 
+function isCountryInSelectedContinent(country, selectedContinent) {
+  if (!selectedContinent) {
+    return true;
+  }
+
+  const memberships = country?.properties?.continents;
+  if (Array.isArray(memberships) && memberships.length > 0) {
+    return memberships.includes(selectedContinent);
+  }
+
+  return country?.properties?.continent === selectedContinent;
+}
+
 function getCountrySuggestionGroups(state) {
   if (state === _cachedGroupsState && _cachedGroups !== null) {
     return _cachedGroups;
@@ -139,10 +152,14 @@ function scoreFuzzyCountryMatch(queryKey, candidateKey) {
   return null;
 }
 
-function getBestFuzzyCountryMatch(state, queryKey) {
+function getBestFuzzyCountryMatch(state, queryKey, selectedContinent = null) {
   const matches = [];
 
   for (const group of getCountrySuggestionGroups(state)) {
+    if (!isCountryInSelectedContinent(group.country, selectedContinent)) {
+      continue;
+    }
+
     let bestMatch = null;
 
     for (const { key } of group.entries) {
@@ -201,12 +218,21 @@ export function resolveCountryGuess(guessName) {
   }
 
   const state = getCurrentState();
+  const selectedContinent = state.selectedContinent;
   const strictMatch = state.countryByGuess.get(normalizedGuess);
   const looseGuess = toLooseGuessKey(normalizedGuess);
   const looseMatch = looseGuess ? state.countryByLooseGuess.get(looseGuess) : null;
+  const eligibleStrictMatch = isCountryInSelectedContinent(strictMatch, selectedContinent)
+    ? strictMatch
+    : null;
+  const eligibleLooseMatch = isCountryInSelectedContinent(looseMatch, selectedContinent)
+    ? looseMatch
+    : null;
   const fuzzyMatch =
-    strictMatch || looseMatch ? null : getBestFuzzyCountryMatch(state, normalizedGuess);
-  const match = strictMatch || looseMatch || fuzzyMatch || null;
+    eligibleStrictMatch || eligibleLooseMatch
+      ? null
+      : getBestFuzzyCountryMatch(state, normalizedGuess, selectedContinent);
+  const match = eligibleStrictMatch || eligibleLooseMatch || fuzzyMatch || null;
 
   if (!match) {
     return null;
@@ -222,7 +248,9 @@ export function getSuggestedCountryNames(query, limit = 8) {
   }
 
   const state = getCurrentState();
-  const groups = getCountrySuggestionGroups(state);
+  const groups = getCountrySuggestionGroups(state).filter((group) =>
+    isCountryInSelectedContinent(group.country, state.selectedContinent)
+  );
   const prefixMatches = [];
 
   for (const group of groups) {

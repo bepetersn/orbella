@@ -529,6 +529,7 @@ export function revealAnswer() {
 export function resetAll() {
   getRuntime().roundTransitions.clearRoundTransition();
   getRuntime().roundUi.clearCelebration();
+  getState().targetSelector?.reset?.();
   getActions().resetScores();
   solvedCountriesByRegion.clear();
   celebratedRegions.clear();
