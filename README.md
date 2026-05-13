@@ -6,13 +6,33 @@ Worldle Lite is a lightweight, single-page geography guessing game. Each round z
 
 - `worldle-lite.html` is the browser entrypoint and wires the page together.
 - `src/config.js` holds shared copy, dimensions, timings, excluded country names, the GeoJSON source configuration, and the normalized metadata field mapping.
+- `src/constants.js` defines shared constants used across modules.
 - `src/store/` keeps the shared game state engine and action/query API in small focused files, with `src/store/index.js` exposing `window.gameStore`.
 - `src/theme.js` owns theme persistence and the light/dark toggle behavior.
 - `src/audio.js` owns tone generation, win/loss cues, and vibration feedback.
+- `src/targetSelector.js` owns country selection logic for choosing the next target each round.
 - `src/map/globe.js` owns the 3D globe setup, GeoJSON loading, and country map rendering.
+- `src/map/globe-halo.js` owns the animated halo effect rendered around the target country.
 - `src/map/geometry.js` owns continent-aware multipolygon trimming for regional map views.
+- `src/map/animations.js` owns globe camera zoom and transition animations.
+- `src/map/rendering.js` owns per-country polygon colour and state rendering helpers.
+- `src/map/loader.js` owns GeoJSON fetch and parse logic.
+- `src/map/state.js` owns globe-level render state (current target, wrong guesses, etc.).
+- `src/map/utils.js` owns shared geo-math utilities (e.g. `lonLatTo3D`).
+- `src/map/constants.js` defines continent bounding boxes and other map constants.
 - `pipeline/` owns preprocessing scripts that derive browser-ready data from the canonical GeoJSON source.
-- `src/app/runtime.js` builds the shared runtime context, `src/app/input.js` handles autocomplete and input, `src/app/round/` contains round UI/transition/flow modules, and `src/app/bootstrap.js` starts the app.
+- `src/app/runtime.js` builds the shared runtime context object used across app modules.
+- `src/app/bootstrap.js` starts the app after all modules are loaded.
+- `src/app/input.js` handles autocomplete and guess submission.
+- `src/app/loadCountries.js` fetches and initialises the country dataset at startup.
+- `src/app/bindings.js` wires DOM event listeners to runtime actions.
+- `src/app/dom.js` provides typed references to key DOM elements.
+- `src/app/logger.js` provides a thin structured-logging wrapper.
+- `src/app/settings.js` reads and writes persistent user settings.
+- `src/app/autoAdvance.js` manages the auto-advance countdown after a solved round.
+- `src/app/timerManager.js` centralises timeout and interval lifecycle management.
+- `src/app/debug.js` exposes in-browser debug helpers.
+- `src/app/round/` contains round UI (`ui.js`), flow control (`control.js`), transitions (`transitions.js`), and the public round API (`index.js`).
 - `styles.css` contains all visual styling for the game shell and states.
 - `docs/diagrams/` holds the architecture and round lifecycle diagrams.
 

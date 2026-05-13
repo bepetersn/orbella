@@ -14,6 +14,6 @@
       "src/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.js", "tests/**/*.js", "pipeline/**/*.mjs", "scripts/**/*.mjs"],
+  "include": ["src/**/*.js", "src/**/*.d.ts", "tests/**/*.js", "pipeline/**/*.mjs", "scripts/**/*.mjs"],
   "exclude": ["src/vendor/**", "node_modules", "dist"]
 }

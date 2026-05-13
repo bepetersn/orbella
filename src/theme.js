@@ -67,6 +67,16 @@ function updateGlobeTexture(theme) {
       const globeImg = theme === 'dark' ? 'img/earth-dark.jpg' : 'img/earth-light.jpg';
       globe.globeImageUrl(globeImg);
 
+      // Update the canvas background color for the new theme
+      try {
+        const backgrounds = window.gameConstants?.GLOBE_BACKGROUND;
+        if (backgrounds && typeof globe.backgroundColor === 'function') {
+          globe.backgroundColor(backgrounds[theme] || backgrounds.light);
+        }
+      } catch (e) {
+        // Ignore if backgroundColor isn't available
+      }
+
       // Force polygon colors to update by re-setting the data
       // This triggers the color callbacks with the new theme colors
       try {

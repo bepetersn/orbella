@@ -19,7 +19,14 @@ const HALO_CONFIG = {
   maxRadius: 150, // pixels for canvas overlay (not 3D scale)
   easing: 'circleOut',
 };
-const noop = () => {};
+const noop = (..._args) => {};
+
+// Fallback globe background colors when window.gameConstants is not yet available.
+// Mirror gameConstants.GLOBE_BACKGROUND in src/constants.js.
+const FALLBACK_GLOBE_BACKGROUND = {
+  light: 'rgba(210, 225, 240, 1.0)',
+  dark: 'rgba(10, 18, 36, 1.0)',
+};
 
 // Fallback colors used when window.gameConstants is not yet available.
 // These values mirror gameConstants.COUNTRY_COLORS in src/constants.js.
@@ -48,6 +55,12 @@ const FALLBACK_COUNTRY_COLORS = {
 const getCountryColorsTop = ({ theme = 'light' } = {}) => {
   const constants = window.gameConstants?.COUNTRY_COLORS ?? FALLBACK_COUNTRY_COLORS;
   return constants[theme] || constants.light;
+};
+
+// Top-level: get globe canvas background color for the given theme
+const getGlobeBackground = ({ theme = 'light' } = {}) => {
+  const backgrounds = window.gameConstants?.GLOBE_BACKGROUND ?? FALLBACK_GLOBE_BACKGROUND;
+  return backgrounds[theme] || backgrounds.light;
 };
 
 // Analyze GeoJSON features to extract coordinate stats and identify potential issues.
@@ -298,7 +311,7 @@ const getCountryCentroidTop = (country) => {
 
 // Top-level: apply a state patch to a matching feature and refresh globe polygons.
 // Shared by markTarget, markSolved, markWrong to eliminate repeated find-mutate-refresh boilerplate.
-const applyPolygonStateTop = (globe, country, patch, { warn = () => {} } = {}) => {
+const applyPolygonStateTop = (globe, country, patch, { warn = (..._args) => {} } = {}) => {
   try {
     const data = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
     if (!Array.isArray(data)) return;
@@ -327,7 +340,7 @@ const applyPolygonStateTop = (globe, country, patch, { warn = () => {} } = {}) =
 const createRuntimeStubTop = (
   features = [],
   globe,
-  { log = () => {}, info = () => {}, warn = () => {} } = {}
+  { log = (..._args) => {}, info = (..._args) => {}, warn = (..._args) => {} } = {}
 ) => {
   try {
     let allFeatures = Array.isArray(features) ? features : [];
@@ -497,6 +510,7 @@ const createGlobeInstanceTop = (
   const fallbackCountryColors = getCountryColorsTop({ theme: fallbackTheme });
 
   const globe = new Globe(container)
+    .backgroundColor(getGlobeBackground({ theme: fallbackTheme }))
     .globeImageUrl(globeImg)
     .globeOffset([0, 0])
     .polygonsData(polygonsData)
@@ -542,7 +556,7 @@ const postConstructionChecksTop = (
   globe,
   container,
   initialView,
-  { log = () => {}, warn = () => {}, error = () => {} } = {}
+  { log = (..._args) => {}, warn = (..._args) => {}, error = (..._args) => {} } = {}
 ) => {
   requestAnimationFrame(() => {
     try {
@@ -592,7 +606,7 @@ const postConstructionChecksTop = (
 };
 
 // Top-level: configure orbit controls for consistent behavior
-const configureControlsTop = (globe, { info = () => {} } = {}) => {
+const configureControlsTop = (globe, { info = (..._args) => {} } = {}) => {
   try {
     const controls = globe.controls();
     if (!controls) return;
@@ -667,7 +681,7 @@ export function createWorldleGlobe(geojson) {
     const key = String(feature?.properties?.name || feature?.properties?.NAME_EN || '')
       .trim()
       .toLowerCase();
-    const boxes = excludedBounds.get(key);
+    const boxes = /** @type {any[]} */ (excludedBounds.get(key));
     if (!boxes || !boxes.length) return feature;
     if (feature.geometry?.type !== 'MultiPolygon') return feature;
     const parts = feature.geometry.coordinates;

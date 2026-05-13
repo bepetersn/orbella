@@ -14,6 +14,12 @@ export const gameConstants = {
   IS_VALID_CLASS: 'is-valid',
   GUESS_PILL_CLASS: 'guess-pill',
 
+  // Globe canvas background colors by theme
+  GLOBE_BACKGROUND: {
+    light: 'rgba(210, 225, 240, 1.0)',
+    dark: 'rgba(10, 18, 36, 1.0)',
+  },
+
   // Country map colors by theme
   COUNTRY_COLORS: {
     light: {
