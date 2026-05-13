@@ -1,7 +1,7 @@
 /**
  * @fileoverview Country-name normalisation utilities.
  *
- * Exposes `normalizeGuess` and `toLooseGuessKey` on `window._gameStore`.
+ * Exports `normalizeGuess` and `toLooseGuessKey` for use by store modules.
  */
 const combiningMarkPattern = /\p{M}/gu;
 const apostropheLikePattern = /[''`´]/gu;

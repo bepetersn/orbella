@@ -4,7 +4,10 @@
 import { createHaloManager } from './globe-halo.js';
 import { installDebugHelpers } from '../app/debug.js';
 import { worldleLiteLogger } from '../app/logger.js';
+import { gameConfig } from '../config.js';
 import { gameConstants } from '../constants.js';
+import Globe from 'globe.gl';
+
 // Top-level helpers pulled out of the `createWorldleGlobe` closure so they
 // can be inspected and tested independently. They accept explicit
 // parameters (including logger functions) instead of relying on closure
@@ -646,7 +649,7 @@ export function createWorldleGlobe(geojson) {
   const SHOULD_HIDE_ANTARCTICA = HIDE_ANTARCTICA_DEFAULT;
   // Strip explicitly excluded polygon parts (e.g. French Guiana from France)
   // using the bounding-box exceptions configured in gameConfig.
-  const excludedBounds = window.gameConfig?.COUNTRY_EXCLUDED_POLYGON_BOUNDS;
+  const excludedBounds = gameConfig.COUNTRY_EXCLUDED_POLYGON_BOUNDS;
   const _applyGlobeExclusions = (feature) => {
     if (!excludedBounds || excludedBounds.size === 0) return feature;
     const key = String(feature?.properties?.name || feature?.properties?.NAME_EN || '')

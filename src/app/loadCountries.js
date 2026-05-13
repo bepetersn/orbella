@@ -1,24 +1,24 @@
 /**
  * @fileoverview Loads the country GeoJSON dataset, hydrates the store,
- * initializes the globe renderer, and starts the first round.
+ * and initializes the globe renderer.
  */
 
-import { round } from './round/index.js';
+import { gameConfig } from '../config.js';
 import { createWorldleGlobe } from '../map/globe.js';
 import { worldleLiteLogger as log } from './logger.js';
-import { installDebugHelpers } from './debug.js';
 
 /**
  * @param {object} deps
  * @param {object} deps.config   - Resolved app config (includes COUNTRIES_GEOJSON_URL).
- * @param {object} deps.runtime  - Live runtime object (mutated to attach worldMapInst).
+ * @param {object} deps.runtime  - Live runtime object (read-only; caller assigns the return value).
  * @param {object} deps._rt      - Raw runtimeOverride (used to resolve createWorldleGlobe).
  * @param {object|null} deps.startup - Optional startup logger.
+ * @returns {Promise<object>} Resolves to the initialized worldMapInst (or a minimal stub).
  */
 export async function loadAndInitCountries({ config, runtime, _rt, startup }) {
   const baseUrl =
     config.COUNTRIES_GEOJSON_URL ||
-    window.gameConfig?.COUNTRIES_GEOJSON_URL ||
+    gameConfig.COUNTRIES_GEOJSON_URL ||
     'pipeline/data/generated/world-countries.render.json';
 
   // Append BUILD_ID so the browser re-fetches only when data is regenerated.
@@ -59,20 +59,14 @@ export async function loadAndInitCountries({ config, runtime, _rt, startup }) {
       log.warn('[bootstrap] populateContinentFilter failed', e);
     }
 
+    let resolvedMapInst = null;
     const globeInit = _rt.createWorldleGlobe ?? createWorldleGlobe;
     if (typeof globeInit === 'function') {
       try {
         startup?.step('initializing globe renderer');
         const worldMapInst = globeInit(data);
         if (worldMapInst) {
-          runtime.worldMapInst = worldMapInst;
-          // Debug helpers must be installed after worldMapInst is set on runtime
-          // so that getGlobe() can resolve runtime.worldMapInst.globe.
-          try {
-            installDebugHelpers();
-          } catch (e) {
-            log.warn('[bootstrap] installDebugHelpers failed', e);
-          }
+          resolvedMapInst = worldMapInst;
         }
         startup?.step('globe renderer initialized');
       } catch (e) {
@@ -89,8 +83,8 @@ export async function loadAndInitCountries({ config, runtime, _rt, startup }) {
     // Ensure a minimal worldMapInst stub exists so `startRound` can
     // safely call `runtime.worldMapInst.resetRoundState()` even if the
     // globe failed to initialize.
-    if (!runtime.worldMapInst) {
-      runtime.worldMapInst = {
+    if (!resolvedMapInst) {
+      resolvedMapInst = {
         resetRoundState: () => {},
         markTarget: () => {},
         zoomToCountry: () => {},
@@ -101,9 +95,7 @@ export async function loadAndInitCountries({ config, runtime, _rt, startup }) {
       };
       startup?.warn('world map fallback stub installed');
     }
-
-    round.startRound?.();
-    startup?.step('first round started');
+    return resolvedMapInst;
   } catch (err) {
     startup?.error('countries dataset failed to load', {
       url,

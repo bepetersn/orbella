@@ -63,9 +63,4 @@ describe('autoAdvance', () => {
     runtime.dom.autoAdvanceToggle = null;
     expect(() => mod.syncAutoAdvanceUi(true)).not.toThrow();
   });
-
-  it('runtime.autoAdvance shim is written', () => {
-    expect(typeof runtime.autoAdvance.setAutoAdvanceEnabled).toBe('function');
-    expect(typeof runtime.autoAdvance.isEnabled).toBe('function');
-  });
 });

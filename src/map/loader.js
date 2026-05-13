@@ -4,6 +4,7 @@ import {
   getCountryKey,
   isCountryInContinent,
 } from './utils.js';
+import { gameConfig } from '../config.js';
 import { buildRenderableMapForContinent, applyContinentVisibilityFilter } from './rendering.js';
 import { createContinentGeometryFilter } from './geometry.js';
 import { safeId } from './utils.js';
@@ -19,8 +20,7 @@ export async function loadCountries(ctx) {
       projection: ctx.projection,
       isCountryInContinent,
       getCountryKey,
-      excludedPolygonBounds:
-        ctx.excludedPolygonBounds ?? window.gameConfig?.COUNTRY_EXCLUDED_POLYGON_BOUNDS,
+      excludedPolygonBounds: ctx.excludedPolygonBounds ?? gameConfig.COUNTRY_EXCLUDED_POLYGON_BOUNDS,
     }) ?? null;
 
   const data = await ctx.d3.json(ctx.countriesGeoJsonUrl);

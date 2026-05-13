@@ -60,11 +60,4 @@ describe('audio', () => {
     audioMod.primeAudio();
     expect(() => audioMod.loss()).not.toThrow();
   });
-
-  it('window.audioFeedback shim exposes the public API', () => {
-    expect(typeof window.audioFeedback.primeAudio).toBe('function');
-    expect(typeof window.audioFeedback.correct).toBe('function');
-    expect(typeof window.audioFeedback.wrong).toBe('function');
-    expect(typeof window.audioFeedback.loss).toBe('function');
-  });
 });

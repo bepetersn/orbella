@@ -148,20 +148,6 @@ describe('round/control', () => {
     vi.useRealTimers();
   });
 
-  // --- shim ---
-
-  it('writes runtime.roundControl with expected methods', () => {
-    const rc = runtime.roundControl;
-    expect(typeof rc.submitGuess).toBe('function');
-    expect(typeof rc.startRound).toBe('function');
-    expect(typeof rc.revealAnswer).toBe('function');
-    expect(typeof rc.showNextHint).toBe('function');
-    expect(typeof rc.advanceToNextRound).toBe('function');
-    expect(typeof rc.replayHalo).toBe('function');
-    expect(typeof rc.renderRoundState).toBe('function');
-    expect(typeof rc.resetAll).toBe('function');
-  });
-
   // --- submitGuess — correct answer ---
 
   describe('submitGuess — correct answer', () => {

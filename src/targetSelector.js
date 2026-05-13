@@ -5,7 +5,6 @@
  * of recent targets, and persists selection history in `localStorage` between
  * sessions.
  *
- * Exported as {@link window.targetSelector}.
  */
 // ---------------------------------------------------------------------------
 // Setup / defaults / utils
@@ -216,8 +215,3 @@ export function createTargetSelector(options = {}) {
     reset: reset.bind(null, state),
   };
 }
-
-// Backward-compat shim — remove once all callers use import
-window.targetSelector = {
-  createTargetSelector,
-};

@@ -1,6 +1,6 @@
 # Project Status — Worldle Lite
 
-*Last updated: May 12, 2026 (review 2 — fixes applied)*
+*Last updated: May 13, 2026 (bootstrap import-order cleanup + test refresh)*
 
 ---
 
@@ -39,7 +39,12 @@ Coverage is **75.38% overall** — above the >70% target. `src/store/` sits at *
 
 ### Recent Work (last 3 commits)
 
-- **Code review 2 fixes applied:** Fixed the `solvedCountriesByRegion`/`celebratedRegions` new-game bug in `control.js`; replaced `debug.js`'s private `getRuntime()` with a proper import; removed the duplicate `syncDebugToggleUi` call in `bindings.js`; replaced `globe.js` fallback color constants with a direct `gameConstants` import and removed the `window.gameConstants` global shim from `constants.js`; deleted the `d3.json` fetch path from `loadCountries.js`; removed self-registration shims from `ui.js` and `input.js`; test count dropped to 335 (2 shim-testing tests deleted).
+- **Bootstrap/import-order cleanup finished:** `src/main.js` now acts as a true entrypoint that calls `bootstrap()`, the old side-effect import chain is gone, and the remaining app-owned import-time globals (`audioFeedback`, `themeSystem`, `targetSelector`, `worldleLiteSettings`) were removed in favor of direct module imports.
+- **Bootstrap coverage improved and shim assertions removed:** Added focused unit coverage for `bootstrap.js`, `loadCountries.js`, and `main.js`, and deleted obsolete shim assertions from audio/theme/target-selector/settings/auto-advance/round-control tests so the suite matches the current runtime architecture.
+- **Removed dead D3 map facade:** Deleted unused `src/map/index.js` and removed its side-effect import from `main.js`; the app now relies exclusively on the Globe.gl-backed `worldMapInst` path.
+- **Fixed stale JSDoc in `normalize.js`:** Replaced the comment claiming the module exposes functions on `window._gameStore` with an accurate description of its named exports.
+- **Fixed `loadCountries.js` parameter mutation:** `loadAndInitCountries` now returns `worldMapInst` instead of writing to `runtime`; `bootstrap.js` assigns the return value and calls `installDebugHelpers` after assignment.
+- **Code review 2 fixes applied:**** Fixed the `solvedCountriesByRegion`/`celebratedRegions` new-game bug in `control.js`; replaced `debug.js`'s private `getRuntime()` with a proper import; removed the duplicate `syncDebugToggleUi` call in `bindings.js`; replaced `globe.js` fallback color constants with a direct `gameConstants` import and removed the `window.gameConstants` global shim from `constants.js`; deleted the `d3.json` fetch path from `loadCountries.js`; removed self-registration shims from `ui.js` and `input.js`; test count dropped to 335 (2 shim-testing tests deleted).
 - **Second code review written:** Produced `docs/reviews/code-review-2026-05-12.md`; identified new issues including module-level unresettable state in `control.js`, `debug.js` bypassing `getRuntime()`, double `syncDebugToggleUi` call in `bindings.js`, color-palette duplication between `globe.js` and `constants.js`, import-time self-registration shims in `ui.js`/`input.js`, and parameter mutation in `loadCountries.js`.
 - **Coverage milestone:** Overall coverage crossed the >70% target at **75.38%**; `src/store/` reached 93.22%, `src/map/geometry.js` reached 91.56%, and `src/store/actions.js` reached 96.84%; test count grew to 337 across 26 files.
 
@@ -49,13 +54,10 @@ Coverage is **75.38% overall** — above the >70% target. `src/store/` sits at *
 
 | # | Issue | Severity |
 |---|---|---|
-| 1 | `main.js` is still all side-effect imports in a load-bearing order. Multiple modules write globals (`window.worldMap`, `window.audioFeedback`, `window.themeSystem`, `window.targetSelector`, `window.worldleLiteSettings`) during import. This is the last remnant of the pre-Vite `<script>` tag architecture. | 🔥 High |
-| 2 | `src/map/index.js` is almost certainly dead code. It defines a D3 SVG `createWorldMap` that is imported as a side effect in `main.js` (registering `window.worldMap`) but `createWorldMap` is never called anywhere in the codebase. The app uses `worldMapInst` (Globe.gl) exclusively. | 🔥 High |
-| 3 | Coverage is **75.38% overall** — above the >70% target. `src/store/` is at 93.22%, `src/map/geometry.js` is at 91.56%. Remaining gaps: `src/app/round/ui.js` (41.51%), `src/app/input.js` (40.3%), `src/app/debug.js` (13.89%). | Low |
-| 4 | `runtime.js` falls back to `window.worldleLiteRuntime` when `_runtime` is null so test-reset module state survives `vi.resetModules()`. This is a test-architecture smell — don't replicate. | Medium |
-| 5 | `src/store/normalize.js` has a stale JSDoc on line 4 claiming it "Exposes `normalizeGuess` and `toLooseGuessKey` on `window._gameStore`" — it does no such thing; the `window._gameStore` bus has been removed from the code. | Low |
-| 6 | `src/map/globe.js` and `src/map/globe-halo.js` have severe cyclomatic complexity — `createWorldleGlobe` (CC=77), `createHaloManager` (CC=60), `createRuntimeStubTop` (CC=37). See recommendations below. | 🔥 High |
-| 7 | `loadCountries.js` still mutates the `runtime` parameter directly (`runtime.worldMapInst = worldMapInst`). The function should return `worldMapInst` and let the caller assign it. | Medium |
+| 1 | Coverage is **75.38% overall** — above the >70% target. `src/store/` is at 93.22%, `src/map/geometry.js` is at 91.56%. Remaining gaps: `src/app/round/ui.js` (41.51%), `src/app/input.js` (40.3%), `src/app/debug.js` (13.89%). | Low |
+| 2 | `runtime.js` falls back to `window.worldleLiteRuntime` when `_runtime` is null so test-reset module state survives `vi.resetModules()`. This is a test-architecture smell — don't replicate. | Medium |
+| 3 | `src/map/globe.js` and `src/map/globe-halo.js` have severe cyclomatic complexity — `createWorldleGlobe` (CC=77), `createHaloManager` (CC=60), `createRuntimeStubTop` (CC=37). See recommendations below. | 🔥 High |
+
 
 ---
 
@@ -104,10 +106,7 @@ After these three extractions `createHaloManager` becomes a thin setup function 
 ## Next Priorities
 
 1. **Reduce map-layer cyclomatic complexity** — extract `_applyGlobeExclusions`, `buildProcessedFeatures`, `markTargetTop` from their closures in `globe.js`, and `project3DToScreen` + `drawHaloFrame` from `globe-halo.js` (see above). This is a prerequisite for unit-testing the map layer.
-2. **Audit and delete `src/map/index.js`** — verify nothing calls `createWorldMap`, then remove the file and its import from `main.js`. This unblocks understanding the true module graph.
-3. **Fix `main.js` side-effect imports** — convert to real named imports/exports now that `window._gameStore` is gone; the remaining window globals are the last barrier.
-4. **Continue pushing coverage higher** — `src/app/round/ui.js` (41.51%), `src/app/input.js` (40.3%), and `src/app/debug.js` (13.89%) are the remaining meaningful gaps now that the >70% target is met.
-5. **Update `tests/README.md`** — correct the test count (255, not 91) and remove the false "✅ Complete" coverage claims.
-6. **Fix `normalize.js` JSDoc** — remove the stale `window._gameStore` comment.
-7. **Fix `debug.js` indentation.**
-8. Consider Playwright E2E tests (scaffolded in `package.json` as `test:e2e` but not yet written).
+2. **Continue pushing coverage higher** — `src/app/round/ui.js` (41.51%), `src/app/input.js` (40.3%), and `src/app/debug.js` (13.89%) are the remaining meaningful gaps now that the >70% target is met.
+3. **Update `tests/README.md`** — correct the test count (255, not 91) and remove the false "✅ Complete" coverage claims.
+4. **Fix `debug.js` indentation.**
+5. Consider Playwright E2E tests (scaffolded in `package.json` as `test:e2e` but not yet written).

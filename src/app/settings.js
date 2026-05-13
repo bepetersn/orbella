@@ -104,14 +104,6 @@ function bindEventListeners() {
   document.addEventListener('keydown', handleKeyDown);
 }
 
-// Backward-compat shim — remove once all callers use import
-window.worldleLiteSettings = {
-  openModal,
-  closeModal,
-  toggleModal,
-  isModalOpen,
-};
-
 /**
  * Initialize the settings subsystem. Wires DOM event listeners for the
  * settings modal as soon as the DOM is ready. Call once from the app

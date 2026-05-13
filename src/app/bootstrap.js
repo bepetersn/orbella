@@ -2,23 +2,24 @@
  * @fileoverview Bootstrap: initialize UI, load countries, render globe, and start the round.
  */
 
+import * as d3 from 'd3';
 import * as roundUiModule from './round/ui.js';
 import * as inputModule from './input.js';
 import * as roundTransitionsModule from './round/transitions.js';
 import { queryDomElements } from './dom.js';
 import { createTimerManager } from './timerManager.js';
 import { gameConfig, COPY as _COPY } from '../config.js';
-import { gameConstants } from '../constants.js';
 import { gameStore } from '../store/index.js';
 import { createTargetSelector } from '../targetSelector.js';
 import * as audioFeedback from '../audio.js';
 import * as themeSystem from '../theme.js';
-import { resolveDebugMode } from './debug.js';
+import { resolveDebugMode, installDebugHelpers } from './debug.js';
 import { loadAndInitCountries } from './loadCountries.js';
 import { worldleLiteLogger as log } from './logger.js';
 import { initializeAutoAdvance } from './autoAdvance.js';
 import { initializeCopy, bindEventListeners } from './bindings.js';
 import { initialize as initializeSettings } from './settings.js';
+import { round } from './round/index.js';
 
 //
 /**
@@ -53,7 +54,7 @@ export function buildRuntime(_rt, { dom, config, timers, startup }) {
     ..._rt,
     BUILD_ID: _rt.BUILD_ID ?? gameConfig.BUILD_ID ?? '',
     config,
-    d3: _rt.d3 ?? window.d3,
+    d3: _rt.d3 ?? d3,
     audioFeedback: _rt.audioFeedback ?? audioFeedback,
     themeSystem: _rt.themeSystem ?? themeSystem,
     roundUi: _rt.roundUi ?? roundUiModule,
@@ -109,5 +110,14 @@ export async function bootstrap(runtimeOverride) {
   startup?.step('settings initialized');
   initializeAutoAdvance(dom.autoAdvanceToggle);
   startup?.step('auto-advance initialized');
-  await loadAndInitCountries({ config, runtime, _rt, startup });
+  runtime.worldMapInst = await loadAndInitCountries({ config, runtime, _rt, startup });
+  // Debug helpers must be installed after worldMapInst is set on runtime
+  // so that getGlobe() can resolve runtime.worldMapInst.globe.
+  try {
+    installDebugHelpers();
+  } catch (e) {
+    log.warn('[bootstrap] installDebugHelpers failed', e);
+  }
+  round.startRound?.();
+  startup?.step('first round started');
 }

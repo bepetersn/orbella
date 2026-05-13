@@ -69,8 +69,4 @@ describe('targetSelector', () => {
       expect(pool).toContain(second);
     });
   });
-
-  it('window.targetSelector shim is present', () => {
-    expect(typeof window.targetSelector.createTargetSelector).toBe('function');
-  });
 });

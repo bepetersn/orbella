@@ -5,7 +5,6 @@
  * incorrect guesses, and round losses.  Device vibration is triggered alongside
  * each cue on browsers that support `navigator.vibrate`.
  *
- * Exported as {@link window.audioFeedback}.
  */
 let audioCtx = null;
 
@@ -114,11 +113,3 @@ export function loss() {
     navigator.vibrate([80, 60, 80]);
   }
 }
-
-// Backward-compat shim — remove once all callers use import
-window.audioFeedback = {
-  primeAudio,
-  correct,
-  wrong,
-  loss,
-};

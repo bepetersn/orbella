@@ -64,11 +64,4 @@ describe('settings', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     expect(isModalOpen()).toBe(false);
   });
-
-  it('window.worldleLiteSettings shim exposes the public API', () => {
-    expect(typeof window.worldleLiteSettings.openModal).toBe('function');
-    expect(typeof window.worldleLiteSettings.closeModal).toBe('function');
-    expect(typeof window.worldleLiteSettings.toggleModal).toBe('function');
-    expect(typeof window.worldleLiteSettings.isModalOpen).toBe('function');
-  });
 });

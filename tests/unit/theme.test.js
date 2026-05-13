@@ -76,9 +76,4 @@ describe('theme', () => {
       expect(localStorage.getItem('worldle-lite-theme')).toBe('dark');
     });
   });
-
-  it('window.themeSystem shim is present', () => {
-    expect(typeof window.themeSystem.getInitialTheme).toBe('function');
-    expect(typeof window.themeSystem.toggleTheme).toBe('function');
-  });
 });

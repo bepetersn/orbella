@@ -6,7 +6,6 @@
  * wires the toggle checkbox so changing it cycles between `"light"` and
  * `"dark"`.
  *
- * Exported as {@link window.themeSystem}.
  */
 import { gameConfig } from './config.js';
 import { gameConstants } from './constants.js';
@@ -127,11 +126,3 @@ export function initializeTheme(themeToggleElementArg, { getGlobe = () => null }
     themeToggleElement.addEventListener('change', toggleTheme);
   }
 }
-
-// Backward-compat shim — remove once all callers use import
-window.themeSystem = {
-  getInitialTheme,
-  applyTheme,
-  toggleTheme,
-  initializeTheme,
-};

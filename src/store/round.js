@@ -2,12 +2,14 @@
  * @fileoverview Round-state actions: start, hint, guess submission, and reveal.
  */
 import { worldleLiteLogger as log } from '../app/logger.js';
+import { gameConfig } from '../config.js';
 import { dispatch, getCurrentState } from './reducer.js';
 import { normalizeGuess } from './normalize.js';
 import { resolveCountryGuess } from './query.js';
 import { ROUND_OUTCOME, STATE_ACTIONS } from './constants.js';
 import { incrementHintsUsed } from './actions.js';
-const MAX_HINTS_PER_ROUND = window.gameConfig?.MAX_HINTS_PER_ROUND ?? 3;
+
+const MAX_HINTS_PER_ROUND = gameConfig.MAX_HINTS_PER_ROUND ?? 3;
 
 const letterOnlyPattern = /\p{L}/gu;
 
