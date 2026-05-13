@@ -20,7 +20,8 @@ export async function loadCountries(ctx) {
       projection: ctx.projection,
       isCountryInContinent,
       getCountryKey,
-      excludedPolygonBounds: ctx.excludedPolygonBounds ?? gameConfig.COUNTRY_EXCLUDED_POLYGON_BOUNDS,
+      excludedPolygonBounds:
+        ctx.excludedPolygonBounds ?? gameConfig.COUNTRY_EXCLUDED_POLYGON_BOUNDS,
     }) ?? null;
 
   const data = await ctx.d3.json(ctx.countriesGeoJsonUrl);

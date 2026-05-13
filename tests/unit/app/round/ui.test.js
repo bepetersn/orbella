@@ -7,7 +7,7 @@ describe('round/ui', () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    runtime = buildRuntime();
+    runtime = await buildRuntime();
 
     // Set up DOM stubs in runtime.dom
     const make = (tag = 'div') => document.createElement(tag);

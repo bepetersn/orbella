@@ -8,7 +8,7 @@ describe('round/transitions', () => {
   beforeEach(async () => {
     vi.resetModules();
     vi.useFakeTimers();
-    runtime = buildRuntime();
+    runtime = await buildRuntime();
 
     // Replace timers stub with a real createTimerManager so schedule/cancel work
     const { createTimerManager } = await import('../../../../src/app/timerManager.js');

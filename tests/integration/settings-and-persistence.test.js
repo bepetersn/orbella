@@ -74,32 +74,32 @@ describe('Integration / Settings & Persistence (real)', () => {
 
   describe('autoAdvance persistence', () => {
     it('defaults to enabled when localStorage is empty', async () => {
-      buildRuntime();
+      await buildRuntime();
       const mod = await import('../../src/app/autoAdvance.js');
       expect(mod.isEnabled()).toBe(true);
     });
 
     it('reads stored "off" preference after a module reset', async () => {
       localStorage.setItem('worldle-lite-auto-advance', 'off');
-      buildRuntime();
+      await buildRuntime();
       const mod = await import('../../src/app/autoAdvance.js');
       expect(mod.isEnabled()).toBe(false);
     });
 
     it('setAutoAdvanceEnabled persists preference so next session reads it', async () => {
-      buildRuntime();
+      await buildRuntime();
       const mod = await import('../../src/app/autoAdvance.js');
       mod.setAutoAdvanceEnabled(false);
       expect(localStorage.getItem('worldle-lite-auto-advance')).toBe('off');
 
       vi.resetModules();
-      buildRuntime();
+      await buildRuntime();
       const mod2 = await import('../../src/app/autoAdvance.js');
       expect(mod2.isEnabled()).toBe(false);
     });
 
     it('setAutoAdvanceEnabled(true) writes "on" to localStorage', async () => {
-      buildRuntime();
+      await buildRuntime();
       const mod = await import('../../src/app/autoAdvance.js');
       mod.setAutoAdvanceEnabled(true);
       expect(localStorage.getItem('worldle-lite-auto-advance')).toBe('on');
@@ -148,7 +148,7 @@ describe('Integration / Settings & Persistence (real)', () => {
 
   describe('cross-module: theme + autoAdvance toggled in same session', () => {
     it('both preferences survive independently in localStorage', async () => {
-      buildRuntime();
+      await buildRuntime();
       const { applyTheme, toggleTheme } = await import('../../src/theme.js');
       const autoMod = await import('../../src/app/autoAdvance.js');
 
@@ -161,7 +161,7 @@ describe('Integration / Settings & Persistence (real)', () => {
 
       // Reload both modules
       vi.resetModules();
-      buildRuntime();
+      await buildRuntime();
       const { getInitialTheme } = await import('../../src/theme.js');
       const autoMod2 = await import('../../src/app/autoAdvance.js');
 

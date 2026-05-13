@@ -39,11 +39,6 @@ export function setRuntime(runtime) {
  */
 export function getRuntime() {
   if (!_runtime) {
-    // Fall back to the window-backed reference so that the runtime installed by
-    // buildRuntime() in tests survives vi.resetModules() clearing this module.
-    if (typeof window !== 'undefined' && window.worldleLiteRuntime) {
-      return window.worldleLiteRuntime;
-    }
     throw new Error(
       '[runtime] getRuntime() called before setRuntime(). ' +
         'Ensure bootstrap() has run before any module reads the runtime.'

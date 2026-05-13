@@ -1,6 +1,6 @@
 # Project Status — Worldle Lite
 
-*Last updated: May 13, 2026 (bootstrap import-order cleanup + test refresh)*
+*Last updated: May 13, 2026*
 
 ---
 

@@ -19,6 +19,7 @@ import { worldleLiteLogger as log } from './logger.js';
 import { initializeAutoAdvance } from './autoAdvance.js';
 import { initializeCopy, bindEventListeners } from './bindings.js';
 import { initialize as initializeSettings } from './settings.js';
+import { setRuntime } from './runtime.js';
 import { round } from './round/index.js';
 
 //
@@ -90,8 +91,9 @@ export async function bootstrap(runtimeOverride) {
   log.debug('[bootstrap] runtime exists?', !!runtime.dom);
 
   window.__WORLDLE_DEBUG__ = resolveDebugMode() ?? Boolean(config.DEBUG);
-  // Expose runtime on window early so lazy readers (debug.js, round/* modules) can
-  // access it during the initialization sequence that follows.
+  setRuntime(runtime);
+  // Expose runtime on window for debug/test helpers, but app modules should
+  // resolve it via getRuntime() so initialization order stays explicit.
   window.worldleLiteRuntime = runtime;
 
   startup?.step('app initialization started', {

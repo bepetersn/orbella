@@ -24,7 +24,7 @@ describe('round/control', () => {
     vi.resetModules();
     vi.useFakeTimers();
 
-    runtime = buildRuntime();
+    runtime = await buildRuntime();
 
     // Real timer manager so schedule/cancel work
     runtime.timers = createTimerManager();

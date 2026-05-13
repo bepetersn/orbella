@@ -39,10 +39,7 @@ describe('loadAndInitCountries', () => {
   });
 
   it('returns the map instance without mutating runtime.worldMapInst', async () => {
-    const features = [
-      { properties: { name: 'France' } },
-      { properties: { name: 'Brazil' } },
-    ];
+    const features = [{ properties: { name: 'France' } }, { properties: { name: 'Brazil' } }];
     const runtime = {
       BUILD_ID: 'build-123',
       actions: { loadCountriesIntoState: vi.fn() },

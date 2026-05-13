@@ -7,7 +7,7 @@ describe('input', () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    runtime = buildRuntime();
+    runtime = await buildRuntime();
 
     // DOM stubs
     runtime.dom.input = document.createElement('input');

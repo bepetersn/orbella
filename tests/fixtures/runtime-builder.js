@@ -1,23 +1,23 @@
 /**
  * @fileoverview Factory for building a fully-stubbed window.worldleLiteRuntime.
  *
- * Call buildRuntime(overrides) in a beforeEach to install a clean fake runtime
+ * Call await buildRuntime(overrides) in a beforeEach to install a clean fake runtime
  * before loading or re-executing any IIFE under test.  Every slot that source
  * files read from the runtime is pre-populated with a vi.fn() stub so callers
  * never hit "cannot read property of undefined" errors.
  *
  * Usage:
  *   import { buildRuntime } from '../fixtures/runtime-builder.js';
- *   beforeEach(() => { buildRuntime(); });
+ *   beforeEach(async () => { await buildRuntime(); });
  */
 
 /**
  * Build and install a stubbed runtime on window.worldleLiteRuntime.
  *
  * @param {object} overrides - Deep-merged on top of the default stubs.
- * @returns {object} The installed runtime object.
+ * @returns {Promise<object>} The installed runtime object.
  */
-export function buildRuntime(overrides = {}) {
+export async function buildRuntime(overrides = {}) {
   const runtime = {
     BUILD_ID: 'test-build',
 
@@ -145,6 +145,8 @@ export function buildRuntime(overrides = {}) {
     }
   }
 
+  const { setRuntime } = await import('../../src/app/runtime.js');
+  setRuntime(runtime);
   window.worldleLiteRuntime = runtime;
   return runtime;
 }

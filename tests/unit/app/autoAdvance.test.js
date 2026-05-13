@@ -8,7 +8,7 @@ describe('autoAdvance', () => {
   beforeEach(async () => {
     vi.resetModules();
     localStorage.clear();
-    runtime = buildRuntime();
+    runtime = await buildRuntime();
     mod = await import('../../../src/app/autoAdvance.js');
   });
 
@@ -24,7 +24,7 @@ describe('autoAdvance', () => {
   it('reads stored "off" preference and defaults to disabled', async () => {
     localStorage.setItem('worldle-lite-auto-advance', 'off');
     vi.resetModules();
-    runtime = buildRuntime();
+    runtime = await buildRuntime();
     mod = await import('../../../src/app/autoAdvance.js');
     expect(mod.isEnabled()).toBe(false);
   });
@@ -32,7 +32,7 @@ describe('autoAdvance', () => {
   it('reads stored "on" preference', async () => {
     localStorage.setItem('worldle-lite-auto-advance', 'on');
     vi.resetModules();
-    runtime = buildRuntime();
+    runtime = await buildRuntime();
     mod = await import('../../../src/app/autoAdvance.js');
     expect(mod.isEnabled()).toBe(true);
   });
