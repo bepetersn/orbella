@@ -670,7 +670,7 @@ const createGlobeInstanceTop = (
     .globeOffset([0, 0])
     .polygonsData(polygonsData)
     .polygonGeoJsonGeometry('geometry')
-    .polygonAltitude(() => 0.02)
+    .polygonAltitude(() => 0.005)
     .polygonCapColor((d) => {
       try {
         // Dynamically get current theme colors on each render
@@ -769,7 +769,7 @@ const configureControlsTop = (globe, { info = (..._args) => {} } = {}) => {
     controls.enableZoom = true;
     controls.rotateSpeed = 0.6;
     const globeRadiusAbs = typeof globe.getGlobeRadius === 'function' ? globe.getGlobeRadius() : 1;
-    // Set minDistance to prevent zooming through polygons (which render at altitude 0.02)
+    // Set minDistance to prevent zooming through polygons (which render at altitude 0.005)
     controls.minDistance = Math.max(1.05, globeRadiusAbs * 1.05);
     controls.maxDistance = Math.max(3, globeRadiusAbs * 10);
     controls.minPolarAngle = 0.2;
@@ -1017,7 +1017,10 @@ export function createWorldleGlobe(geojson) {
 
   // Live debug overlay: use top-level creator to avoid closure bloat
   try {
-    createDebugPanelTop(globe);
+    if (window.__WORLDLE_DEBUG__) {
+      worldleLiteLogger.debug('Debug mode enabled; creating debug panel');
+      createDebugPanelTop(globe);
+    }
     // debug panel created but not exposed globally in production builds
   } catch (e) {
     /* non-fatal */

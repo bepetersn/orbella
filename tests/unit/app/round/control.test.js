@@ -166,7 +166,7 @@ describe('round/control', () => {
 
     it('calls setFeedback with correct message and class', () => {
       mod.submitGuess();
-      expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith('Correct!', 'correct');
+      expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith('Correct!', 'correct-msg');
     });
 
     it('calls audioFeedback.correct', () => {
@@ -205,7 +205,7 @@ describe('round/control', () => {
       mod.submitGuess();
       expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith(
         expect.stringContaining('4'),
-        'wrong'
+        'wrong-msg'
       );
     });
 
@@ -231,7 +231,7 @@ describe('round/control', () => {
 
     it('calls setFeedback with loss message and failure class', () => {
       mod.submitGuess();
-      expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith('Out of guesses.', 'failure');
+      expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith('Out of guesses.', 'failure-msg');
     });
 
     it('does not auto-advance on loss (autoAdvance: false in finishRound)', () => {
@@ -264,7 +264,10 @@ describe('round/control', () => {
         outcome: ROUND_OUTCOME.revealed,
       });
       mod.revealAnswer();
-      expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith('The answer was shown.', 'failure');
+      expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith(
+        'The answer was shown.',
+        'failure-msg'
+      );
     });
 
     it('does not play the win sound (correct)', () => {

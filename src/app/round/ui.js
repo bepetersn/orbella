@@ -8,6 +8,7 @@
  * Attaches itself to `runtime.roundUi`.
  */
 import { worldleLiteLogger as log } from '../logger.js';
+import { gameConstants } from '../../constants.js';
 
 import { getRuntime } from '../runtime.js';
 
@@ -240,7 +241,7 @@ export function shakeInput() {
 
 function createGuessPill() {
   const pill = document.createElement('span');
-  pill.className = `${getConfig().GUESS_PILL_CLASS} empty visible`;
+  pill.className = `${gameConstants.GUESS_PILL_CLASS} empty visible`;
   pill.textContent = '';
   pill.setAttribute('aria-hidden', 'true');
   return pill;

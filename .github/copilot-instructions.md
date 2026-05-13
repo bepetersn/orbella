@@ -5,10 +5,6 @@ Worldle Lite is a single-page geography guessing game (Vite + Vitest, vanilla ES
 **Key documentation:**
 - [README.md](../README.md) — project overview, features, how to run, module map.
 - [docs/STATUS.md](../docs/STATUS.md) — current test results, coverage numbers, recent work, and the prioritised tech-debt backlog.
-- [docs/reviews/code-review-2026-05-07.md](../docs/reviews/code-review-2026-05-07.md) — detailed review notes on architecture problems and code quality.
-- [tests/README.md](../tests/README.md) — test suite structure, fixture guide, and patterns.
-- [diagrams/architecture.mmd](../docs/diagrams/architecture.mmd) · [diagrams/round-lifecycle.mmd](../docs/diagrams/round-lifecycle.mmd) — visual architecture and round flow.
-
 ---
 
 ## ⚠️ Always update `docs/STATUS.md` after making changes

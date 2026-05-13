@@ -108,6 +108,8 @@ export async function bootstrap(runtimeOverride) {
   startup?.step('theme initialized');
   bindEventListeners(dom, runtime);
   startup?.step('event listeners bound');
+  runtime.roundUi?.renderGuessPlaceholders?.();
+  startup?.step('guess placeholders rendered');
   initializeSettings();
   startup?.step('settings initialized');
   initializeAutoAdvance(dom.autoAdvanceToggle);

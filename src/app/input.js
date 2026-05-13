@@ -9,6 +9,7 @@
  * Attaches itself to `runtime.input`.
  */
 import { ROUND_OUTCOME } from '../store/constants.js';
+import { gameConstants } from '../constants.js';
 import { round } from './round/index.js';
 import { getRuntime } from './runtime.js';
 
@@ -31,7 +32,7 @@ export function syncGuessButtonState(isValidInput = false) {
   const roundState = getActions().getRoundState(getConfig().MAX_MISSES_PER_ROUND);
   const canSubmit = roundState.outcome === ROUND_OUTCOME.active;
   getDom().input.disabled = !canSubmit;
-  getDom().input.classList.toggle(getConfig().IS_VALID_CLASS, canSubmit && isValidInput);
+  getDom().input.classList.toggle(gameConstants.IS_VALID_CLASS, canSubmit && isValidInput);
 }
 
 export function isCountryInSelectedContinent(country, selectedContinent) {

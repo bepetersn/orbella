@@ -8,6 +8,7 @@
  * Attaches itself to `runtime.roundControl`.
  */
 import { ROUND_OUTCOME } from '../../store/constants.js';
+import { gameConstants } from '../../constants.js';
 import { continentGeometry } from '../../map/geometry.js';
 import { getLastClickedCountry, clearLastClickedCountry } from '../debug.js';
 import { worldleLiteLogger as log } from '../logger.js';
@@ -129,7 +130,7 @@ function handleWin(match) {
   finishRound({
     outcome: ROUND_OUTCOME.won,
     message: getConfig().COPY.feedback.correct,
-    feedbackClass: getConfig().CORRECT_MSG_CLASS,
+    feedbackClass: gameConstants.CORRECT_MSG_CLASS,
     advanceAfterMs: getConfig().ROUND_ADVANCE_MS.correct,
     transitionLabel: getConfig().COPY.transitions.loadingNextCountry,
     autoAdvance: true,
@@ -212,7 +213,7 @@ function handleGuess(match, remaining, shouldEndRound) {
     finishRound({
       outcome: ROUND_OUTCOME.missed,
       message: getConfig().COPY.feedback.outOfGuesses,
-      feedbackClass: getConfig().FAILURE_MSG_CLASS,
+      feedbackClass: gameConstants.FAILURE_MSG_CLASS,
       advanceAfterMs: getConfig().ROUND_ADVANCE_MS.miss,
       transitionLabel: getConfig().COPY.transitions.loadingNextCountry,
       autoAdvance: false,
@@ -221,7 +222,7 @@ function handleGuess(match, remaining, shouldEndRound) {
     getRuntime().audioFeedback.wrong();
     setFeedback(
       `${getConfig().COPY.feedback.wrongPrefix}${remaining}${getConfig().COPY.feedback.wrongSuffix}`,
-      getConfig().WRONG_MSG_CLASS
+      gameConstants.WRONG_MSG_CLASS
     );
     shakeInput();
   }
@@ -518,7 +519,7 @@ export function revealAnswer() {
   finishRound({
     outcome: result.outcome,
     message: getConfig().COPY.feedback.answerShown,
-    feedbackClass: getConfig().FAILURE_MSG_CLASS,
+    feedbackClass: gameConstants.FAILURE_MSG_CLASS,
     advanceAfterMs: getConfig().ROUND_ADVANCE_MS.reveal,
     transitionLabel: getConfig().COPY.transitions.loadingNextCountry,
     autoAdvance: false,
