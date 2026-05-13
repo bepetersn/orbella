@@ -1,186 +1,179 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mockCountries } from '../../fixtures/mock-countries.js';
-
 /**
- * Unit Tests for src/store/round.js
- * Tests round state transitions and guess resolution
+ * Tests for src/store/round.js — imports and exercises the REAL module.
+ *
+ * Each test resets modules so it gets a fresh store instance.
  */
-describe('Store / Round', () => {
-  const ROUND_OUTCOME = {
-    active: 'active',
-    won: 'won',
-    exhausted: 'exhausted',
-    revealed: 'revealed',
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+let dispatch, startRound, submitRoundGuess, revealRoundAnswer, getRoundState, canSubmitRound;
+
+function makeCountry(name, aliases = []) {
+  return {
+    properties: {
+      name,
+      displayName: name,
+      aliases,
+    },
   };
+}
 
-  const normalizeGuess = (name) => {
-    return String(name ?? '')
-      .trim()
-      .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')
-      .replace(/\s+/g, ' ');
-  };
+async function seedStore(targetCountry, extraCountries = []) {
+  const { dispatch: d } = await import('../../../src/store/reducer.js');
+  const { createCountryGuessLookup } = await import('../../../src/store/lookup.js');
+  const countries = [targetCountry, ...extraCountries];
+  const lookup = createCountryGuessLookup(countries, new Map());
+  d({
+    type: 'loadCountries',
+    countriesData: countries,
+    countryNames: countries.map((c) => c.properties.name),
+    countryByName: new Map(countries.map((c) => [c.properties.name.toLowerCase(), c])),
+    countryByGuess: lookup.countryByGuess,
+    countryByLooseGuess: lookup.countryByLooseGuess,
+    countryLookupEntries: lookup.countryLookupEntries,
+  });
+  d({ type: 'setTargetCountry', targetCountry });
+  return d;
+}
 
-  const resolveCountryGuess = (guessName, targetCountry) => {
-    const normalizedGuess = normalizeGuess(guessName);
-    const normalizedTarget = normalizeGuess(targetCountry.name);
+beforeEach(async () => {
+  vi.resetModules();
+  const roundMod = await import('../../../src/store/round.js');
+  const reducerMod = await import('../../../src/store/reducer.js');
+  dispatch = reducerMod.dispatch;
+  startRound = roundMod.startRound;
+  submitRoundGuess = roundMod.submitRoundGuess;
+  revealRoundAnswer = roundMod.revealRoundAnswer;
+  getRoundState = roundMod.getRoundState;
+  canSubmitRound = roundMod.canSubmitRound;
+});
 
-    if (normalizedGuess === normalizedTarget) {
-      return targetCountry;
-    }
+describe('Store / Round (real)', () => {
+  describe('startRound', () => {
+    it('should set targetName and reset misses', async () => {
+      const state = startRound('France');
+      expect(state.targetName).toBe('France');
+      expect(state.missesUsed).toBe(0);
+      expect(state.outcome).toBe('active');
+    });
 
-    // Check aliases
-    for (const alias of targetCountry.aliases || []) {
-      if (normalizeGuess(alias) === normalizedGuess) {
-        return targetCountry;
-      }
-    }
-
-    return null;
-  };
-
-  describe('test_correctGuess_exactMatch', () => {
-    it('should mark outcome as won when guess exactly matches target', () => {
-      const targetCountry = mockCountries[0]; // France
-      const roundState = {
-        outcome: ROUND_OUTCOME.active,
-        targetName: 'France',
-        missesUsed: 0,
-        guesses: [],
-        hintLevel: 0,
-        revealedHints: [],
-      };
-
-      const result = resolveCountryGuess('France', targetCountry);
-      expect(result).toBe(targetCountry);
-
-      const newRoundState = {
-        ...roundState,
-        outcome: ROUND_OUTCOME.won,
-        guesses: [...roundState.guesses, 'France'],
-      };
-
-      expect(newRoundState.outcome).toBe(ROUND_OUTCOME.won);
-      expect(newRoundState.guesses).toContain('France');
+    it('should reset hintLevel and guesses', async () => {
+      const state = startRound('Germany');
+      expect(state.hintLevel).toBe(0);
+      expect(state.revealedHints).toEqual([]);
     });
   });
 
-  describe('test_correctGuess_aliasMatch', () => {
-    it('should resolve alias match as correct outcome', () => {
-      const targetCountry = mockCountries[3]; // Côte d'Ivoire with aliases
+  describe('canSubmitRound', () => {
+    it('should return true when round is active', () => {
+      startRound('France');
+      expect(canSubmitRound()).toBe(true);
+    });
 
-      // Test exact alias match
-      const result1 = resolveCountryGuess('Ivory Coast', targetCountry);
-      // Note: Ivory Coast not in our mock, but Cote d'Ivoire is
-
-      const result2 = resolveCountryGuess('Cote d Ivoire', targetCountry);
-      expect(result2).toBe(targetCountry);
+    it('should return false after round is won', async () => {
+      const france = makeCountry('France');
+      await seedStore(france);
+      startRound('France');
+      submitRoundGuess('France');
+      expect(canSubmitRound()).toBe(false);
     });
   });
 
-  describe('test_wrongGuess_incidentMiss', () => {
-    it('should increment missesUsed for wrong country', () => {
-      const targetCountry = mockCountries[0]; // France
-      const wrongGuess = 'Germany';
-
-      const roundState = {
-        outcome: ROUND_OUTCOME.active,
-        targetName: 'France',
-        missesUsed: 0,
-        guesses: [],
-        hintLevel: 0,
-        revealedHints: [],
-      };
-
-      const result = resolveCountryGuess(wrongGuess, targetCountry);
-      expect(result).toBeNull();
-
-      const newRoundState = {
-        ...roundState,
-        missesUsed: roundState.missesUsed + 1,
-        guesses: [...roundState.guesses, wrongGuess],
-      };
-
-      expect(newRoundState.missesUsed).toBe(1);
-      expect(newRoundState.guesses).toContain('Germany');
+  describe('getRoundState', () => {
+    it('should return missesRemaining relative to maxMissesPerRound', () => {
+      startRound('France');
+      const state = getRoundState(3);
+      expect(state.missesRemaining).toBe(3);
     });
   });
 
-  describe('test_roundEndsAtThreeMisses', () => {
-    it('should transition outcome to exhausted at 3 misses', () => {
-      let roundState = {
-        outcome: ROUND_OUTCOME.active,
-        targetName: 'France',
-        missesUsed: 2,
-        guesses: ['Germany', 'Italy'],
-        hintLevel: 0,
-        revealedHints: [],
-      };
+  describe('submitRoundGuess', () => {
+    it('should return correct status for an exact-match guess', async () => {
+      const france = makeCountry('France');
+      await seedStore(france);
+      startRound('France');
+      const result = submitRoundGuess('France');
+      expect(result.status).toBe('correct');
+      expect(result.outcome).toBe('won');
+    });
 
-      const targetCountry = mockCountries[0];
-      const thirdWrongGuess = 'Spain';
+    it('should return guess status and decrement remaining for a wrong guess', async () => {
+      const france = makeCountry('France');
+      await seedStore(france, [makeCountry('Germany')]);
+      startRound('France');
+      const result = submitRoundGuess('Germany');
+      expect(result.status).toBe('guess');
+      expect(result.remaining).toBe(2);
+    });
 
-      // Submit third wrong guess
-      const result = resolveCountryGuess(thirdWrongGuess, targetCountry);
-      expect(result).toBeNull();
+    it('should return missed status when misses are exhausted', async () => {
+      const france = makeCountry('France');
+      await seedStore(france, [makeCountry('Germany'), makeCountry('Spain'), makeCountry('Italy')]);
+      startRound('France');
+      submitRoundGuess('Germany');
+      submitRoundGuess('Spain');
+      const result = submitRoundGuess('Italy');
+      expect(result.status).toBe('missed');
+      expect(result.remaining).toBe(0);
+    });
 
-      roundState = {
-        ...roundState,
-        missesUsed: 3,
-        guesses: [...roundState.guesses, thirdWrongGuess],
-      };
+    it('should return duplicate status for repeated wrong guess', async () => {
+      const france = makeCountry('France');
+      await seedStore(france, [makeCountry('Germany')]);
+      startRound('France');
+      submitRoundGuess('Germany');
+      const result = submitRoundGuess('Germany');
+      expect(result.status).toBe('duplicate');
+    });
 
-      // Outcome should be exhausted
-      const newRoundState = {
-        ...roundState,
-        outcome: ROUND_OUTCOME.exhausted,
-      };
+    it('should return locked when round is already over', async () => {
+      const france = makeCountry('France');
+      await seedStore(france);
+      startRound('France');
+      submitRoundGuess('France'); // wins round
+      const result = submitRoundGuess('France');
+      expect(result.status).toBe('locked');
+    });
 
-      expect(newRoundState.outcome).toBe(ROUND_OUTCOME.exhausted);
-      expect(newRoundState.missesUsed).toBe(3);
+    it('should return invalid for empty guess', async () => {
+      const france = makeCountry('France');
+      await seedStore(france);
+      startRound('France');
+      const result = submitRoundGuess('');
+      expect(result.status).toBe('invalid');
+    });
+
+    it('should return invalid for an unrecognised country name', async () => {
+      const france = makeCountry('France');
+      await seedStore(france);
+      startRound('France');
+      const result = submitRoundGuess('ZZZNoSuchCountry');
+      expect(result.status).toBe('invalid');
+    });
+
+    it('should resolve an alias to the correct country', async () => {
+      const usa = makeCountry('United States', ['USA', 'America']);
+      await seedStore(usa);
+      startRound('United States');
+      const result = submitRoundGuess('USA');
+      expect(result.status).toBe('correct');
     });
   });
 
-  describe('test_correctGuessEndsRound', () => {
-    it('should update outcome to won and increment score', () => {
-      const state = {
-        numCorrect: 5,
-        numPlayed: 10,
-        numHintsUsed: 2,
-      };
+  describe('revealRoundAnswer', () => {
+    it('should set outcome to revealed on an active round', async () => {
+      startRound('France');
+      const result = revealRoundAnswer();
+      expect(result.changed).toBe(true);
+      expect(result.outcome).toBe('revealed');
+    });
 
-      const roundState = {
-        outcome: ROUND_OUTCOME.active,
-        targetName: 'France',
-        missesUsed: 1,
-        guesses: ['Germany'],
-        hintLevel: 1,
-        revealedHints: [],
-      };
-
-      const targetCountry = mockCountries[0];
-      const correctGuess = 'France';
-
-      const result = resolveCountryGuess(correctGuess, targetCountry);
-      expect(result).toBe(targetCountry);
-
-      // Update round state
-      const newRoundState = {
-        ...roundState,
-        outcome: ROUND_OUTCOME.won,
-        guesses: [...roundState.guesses, correctGuess],
-      };
-
-      // Update game stats
-      const newState = {
-        ...state,
-        numCorrect: state.numCorrect + 1,
-        numPlayed: state.numPlayed + 1,
-      };
-
-      expect(newRoundState.outcome).toBe(ROUND_OUTCOME.won);
-      expect(newState.numCorrect).toBe(6);
-      expect(newState.numPlayed).toBe(11);
+    it('should return changed: false on a finished round', async () => {
+      const france = makeCountry('France');
+      await seedStore(france);
+      startRound('France');
+      submitRoundGuess('France'); // won
+      const result = revealRoundAnswer();
+      expect(result.changed).toBe(false);
     });
   });
 });

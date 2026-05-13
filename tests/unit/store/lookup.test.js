@@ -1,111 +1,116 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mockCountries, createMockCountryLookup } from '../../fixtures/mock-countries.js';
-
 /**
- * Unit Tests for src/store/lookup.js
- * Tests country lookup table construction
+ * Tests for src/store/lookup.js — imports and exercises the REAL module.
  */
-describe('Store / Lookup', () => {
-  let lookup;
-  let mockCountryData;
+import { describe, it, expect } from 'vitest';
+import { createCountryGuessLookup } from '../../../src/store/lookup.js';
 
-  beforeEach(() => {
-    // Simulate the structure of real country data
-    mockCountryData = mockCountries.map((c) => ({
-      properties: {
-        id: c.id,
-        name: c.name,
-        displayName: c.name,
-        aliases: c.aliases,
-        continent: c.continent,
-      },
-    }));
+function makeCountry(name, aliases = [], extra = {}) {
+  return {
+    properties: {
+      name,
+      displayName: name,
+      aliases,
+      ...extra,
+    },
+  };
+}
 
-    lookup = createMockCountryLookup();
-  });
+describe('Store / Lookup (real)', () => {
+  describe('canonical name lookup', () => {
+    it('should find a country by its canonical name (case-insensitive)', () => {
+      const france = makeCountry('France');
+      const { countryByGuess } = createCountryGuessLookup([france], new Map());
+      expect(countryByGuess.get('france')).toBe(france);
+    });
 
-  describe('test_addCanonicalCountryToLookup', () => {
-    it('should map canonical name to country', () => {
-      expect(lookup['france']).toBeDefined();
-      expect(lookup['france'].id).toBe('FR');
-      expect(lookup['france'].country).toBe('France');
+    it('should return undefined for an unknown name', () => {
+      const { countryByGuess } = createCountryGuessLookup([], new Map());
+      expect(countryByGuess.get('neverland')).toBeUndefined();
     });
   });
 
-  describe('test_addCountryAliases', () => {
-    it('should map aliases to same country', () => {
-      // UK aliases
-      expect(lookup['uk']).toBeDefined();
-      expect(lookup['uk'].id).toBe('GB');
-
-      expect(lookup['britain']).toBeDefined();
-      expect(lookup['britain'].id).toBe('GB');
-
-      // Should all point to same country
-      expect(lookup['uk'].country).toBe('United Kingdom');
-      expect(lookup['britain'].country).toBe('United Kingdom');
+  describe('"The " prefix stripping', () => {
+    it('should add a lookup entry without the "The " prefix', () => {
+      const netherlands = makeCountry('The Netherlands');
+      const { countryByGuess } = createCountryGuessLookup([netherlands], new Map());
+      expect(countryByGuess.get('netherlands')).toBe(netherlands);
+      expect(countryByGuess.get('the netherlands')).toBe(netherlands);
     });
   });
 
-  describe('test_stripThePrefixFromName', () => {
-    it('should handle "The" prefix in country names', () => {
-      // Netherlands can be accessed with or without "The"
-      expect(lookup['netherlands']).toBeDefined();
-      expect(lookup['netherlands'].id).toBe('NL');
+  describe('aliases', () => {
+    it('should map each alias to the same country', () => {
+      const uk = makeCountry('United Kingdom', ['UK', 'Britain', 'Great Britain']);
+      const { countryByGuess } = createCountryGuessLookup([uk], new Map());
+      expect(countryByGuess.get('united kingdom')).toBe(uk);
+      expect(countryByGuess.get('uk')).toBe(uk);
+      expect(countryByGuess.get('britain')).toBe(uk);
+      expect(countryByGuess.get('great britain')).toBe(uk);
+    });
 
-      expect(lookup['the netherlands']).toBeDefined();
-      expect(lookup['the netherlands'].id).toBe('NL');
+    it('should handle countries with no aliases', () => {
+      const germany = makeCountry('Germany');
+      const { countryByGuess } = createCountryGuessLookup([germany], new Map());
+      expect(countryByGuess.get('germany')).toBe(germany);
     });
   });
 
-  describe('test_multiwordCountryNames', () => {
-    it('should correctly match multi-word country names', () => {
-      expect(lookup['united kingdom']).toBeDefined();
-      expect(lookup['united kingdom'].id).toBe('GB');
+  describe('countryLookupEntries', () => {
+    it('should include an entry for the canonical name', () => {
+      const france = makeCountry('France');
+      const { countryLookupEntries } = createCountryGuessLookup([france], new Map());
+      const keys = countryLookupEntries.map((e) => e.key);
+      expect(keys).toContain('france');
+    });
 
-      expect(lookup['united states']).toBeDefined();
-      expect(lookup['united states'].id).toBe('US');
+    it('should include entries for aliases', () => {
+      const usa = makeCountry('United States', ['USA', 'America']);
+      const { countryLookupEntries } = createCountryGuessLookup([usa], new Map());
+      const keys = countryLookupEntries.map((e) => e.key);
+      expect(keys).toContain('usa');
+      expect(keys).toContain('america');
+    });
 
-      expect(lookup['costa rica']).toBeDefined();
-      expect(lookup['costa rica'].id).toBe('CR');
-
-      expect(lookup['côte d ivoire']).toBeDefined();
-      expect(lookup['côte d ivoire'].id).toBe('CI');
+    it('should not contain duplicate entry keys', () => {
+      const france = makeCountry('France', ['France']); // alias same as canonical
+      const { countryLookupEntries } = createCountryGuessLookup([france], new Map());
+      const franceEntries = countryLookupEntries.filter((e) => e.key === 'france');
+      expect(franceEntries.length).toBe(1);
     });
   });
 
-  describe('test_lookupDeduplication', () => {
-    it('should not create duplicate entries for same country', () => {
-      // The lookup is a Map, so keys are unique
-      // France appears only once even though it could be accessed multiple ways
-      const frKeys = Object.keys(lookup).filter((k) => lookup[k].id === 'FR');
-
-      // Should have canonical and possibly alias variations, but all point to same country
-      frKeys.forEach((key) => {
-        expect(lookup[key].id).toBe('FR');
-        expect(lookup[key].country).toBe('France');
-      });
+  describe('loose lookup', () => {
+    it('should map a loose key (spaces removed) to the country', () => {
+      const costaRica = makeCountry('Costa Rica');
+      const { countryByLooseGuess } = createCountryGuessLookup([costaRica], new Map());
+      expect(countryByLooseGuess.get('costarica')).toBe(costaRica);
     });
   });
 
-  describe('test_emptyOrInvalidCountriesHandled', () => {
-    it('should not crash with null/undefined properties', () => {
-      const invalidCountries = [
-        { properties: null },
-        { properties: {} },
-        { properties: { name: null } },
-        {},
-        null,
-      ];
+  describe('countryByName override map', () => {
+    it('should add entries from the provided countryByName map', () => {
+      const country = makeCountry('Japan');
+      const override = new Map([['nippon', country]]);
+      const { countryByGuess } = createCountryGuessLookup([], override);
+      expect(countryByGuess.get('nippon')).toBe(country);
+    });
+  });
 
-      // Test that empty/null handling doesn't throw
-      expect(() => {
-        invalidCountries.forEach((country) => {
-          if (!country || !country.properties || !country.properties.name) {
-            return; // Skip processing
-          }
-        });
-      }).not.toThrow();
+  describe('missing displayName', () => {
+    it('should skip countries with no displayName and no name', () => {
+      const bad = { properties: {} };
+      const { countryLookupEntries } = createCountryGuessLookup([bad], new Map());
+      expect(countryLookupEntries).toHaveLength(0);
+    });
+  });
+
+  describe('multiple countries', () => {
+    it('should build a lookup across all provided countries', () => {
+      const countries = [makeCountry('France'), makeCountry('Germany'), makeCountry('Spain')];
+      const { countryByGuess } = createCountryGuessLookup(countries, new Map());
+      expect(countryByGuess.get('france')).toBeDefined();
+      expect(countryByGuess.get('germany')).toBeDefined();
+      expect(countryByGuess.get('spain')).toBeDefined();
     });
   });
 });

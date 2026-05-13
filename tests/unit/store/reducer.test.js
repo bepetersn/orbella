@@ -1,96 +1,135 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mockCountries, createMockCountryLookup } from '../../fixtures/mock-countries.js';
-import {
-  initialState,
-  roundInProgressState,
-  roundCompletedState,
-  roundExhaustedState,
-} from '../../fixtures/mock-state.js';
-
 /**
- * Unit Tests for src/store/reducer.js
- * Tests core state management and action handling
+ * Tests for src/store/reducer.js — imports and exercises the REAL module.
  */
-describe('Store / Reducer', () => {
-  describe('test_initializeRoundState', () => {
-    it('should initialize round with correct defaults', () => {
-      // Mock the reducer behavior
-      const createInitialRoundState = () => ({
-        outcome: 'active',
-        targetName: null,
-        missesUsed: 0,
-        guesses: [],
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+// Reset module state between tests so each test gets a fresh store.
+let dispatch, getCurrentState;
+
+beforeEach(async () => {
+  vi.resetModules();
+  const mod = await import('../../../src/store/reducer.js');
+  dispatch = mod.dispatch;
+  getCurrentState = mod.getCurrentState;
+});
+
+describe('Store / Reducer (real)', () => {
+  describe('initial state', () => {
+    it('should start with empty countries and active round', () => {
+      const state = getCurrentState();
+      expect(state.countriesData).toEqual([]);
+      expect(state.numCorrect).toBe(0);
+      expect(state.numPlayed).toBe(0);
+      expect(state.round.outcome).toBe('active');
+      expect(state.round.missesUsed).toBe(0);
+    });
+  });
+
+  describe('loadCountries action', () => {
+    it('should populate country data in state', () => {
+      const fakeCountries = [{ properties: { name: 'France' } }];
+      const fakeMap = new Map([['france', fakeCountries[0]]]);
+      dispatch({
+        type: 'loadCountries',
+        countriesData: fakeCountries,
+        countryNames: ['France'],
+        countryByName: fakeMap,
+        countryByGuess: fakeMap,
+        countryByLooseGuess: fakeMap,
+        countryLookupEntries: [],
+      });
+      const state = getCurrentState();
+      expect(state.countriesData).toHaveLength(1);
+      expect(state.countryNames).toContain('France');
+    });
+  });
+
+  describe('setTargetCountry action', () => {
+    it('should update targetCountry', () => {
+      const country = { properties: { name: 'Germany' } };
+      dispatch({ type: 'setTargetCountry', targetCountry: country });
+      expect(getCurrentState().targetCountry).toBe(country);
+    });
+  });
+
+  describe('incrementCorrect action', () => {
+    it('should increment numCorrect', () => {
+      dispatch({ type: 'incrementCorrect' });
+      expect(getCurrentState().numCorrect).toBe(1);
+      dispatch({ type: 'incrementCorrect' });
+      expect(getCurrentState().numCorrect).toBe(2);
+    });
+  });
+
+  describe('incrementPlayed action', () => {
+    it('should increment numPlayed', () => {
+      dispatch({ type: 'incrementPlayed' });
+      expect(getCurrentState().numPlayed).toBe(1);
+    });
+  });
+
+  describe('incrementHintsUsed action', () => {
+    it('should increment numHintsUsed', () => {
+      dispatch({ type: 'incrementHintsUsed' });
+      expect(getCurrentState().numHintsUsed).toBe(1);
+    });
+  });
+
+  describe('resetScores action', () => {
+    it('should reset numCorrect, numPlayed, numHintsUsed to 0', () => {
+      dispatch({ type: 'incrementCorrect' });
+      dispatch({ type: 'incrementPlayed' });
+      dispatch({ type: 'incrementHintsUsed' });
+      dispatch({ type: 'resetScores' });
+      const state = getCurrentState();
+      expect(state.numCorrect).toBe(0);
+      expect(state.numPlayed).toBe(0);
+      expect(state.numHintsUsed).toBe(0);
+    });
+  });
+
+  describe('setSelectedContinent action', () => {
+    it('should update selectedContinent', () => {
+      dispatch({ type: 'setSelectedContinent', selectedContinent: 'Europe' });
+      expect(getCurrentState().selectedContinent).toBe('Europe');
+    });
+  });
+
+  describe('setSelectedIndex action', () => {
+    it('should update selectedIndex', () => {
+      dispatch({ type: 'setSelectedIndex', selectedIndex: 3 });
+      expect(getCurrentState().selectedIndex).toBe(3);
+    });
+  });
+
+  describe('showFirstRound action', () => {
+    it('should set hasShownFirstRound to true', () => {
+      dispatch({ type: 'showFirstRound' });
+      expect(getCurrentState().hasShownFirstRound).toBe(true);
+    });
+  });
+
+  describe('setRoundState action', () => {
+    it('should replace round state', () => {
+      const newRound = {
+        outcome: 'won',
+        targetName: 'France',
+        missesUsed: 1,
+        guesses: ['germany'],
         hintLevel: 0,
         revealedHints: [],
-      });
-
-      const roundState = createInitialRoundState();
-
-      expect(roundState.outcome).toBe('active');
-      expect(roundState.targetName).toBeNull();
-      expect(roundState.missesUsed).toBe(0);
-      expect(roundState.guesses).toEqual([]);
-      expect(roundState.hintLevel).toBe(0);
-      expect(roundState.revealedHints).toEqual([]);
+      };
+      dispatch({ type: 'setRoundState', round: newRound });
+      expect(getCurrentState().round.outcome).toBe('won');
+      expect(getCurrentState().round.targetName).toBe('France');
     });
   });
 
-  describe('test_setTargetCountry', () => {
-    it('should correctly update targetCountry in state', () => {
-      const initialState = { targetCountry: null };
-      const action = { type: 'SET_TARGET_COUNTRY', targetCountry: mockCountries[0] };
-
-      const newState = {
-        ...initialState,
-        targetCountry: action.targetCountry,
-      };
-
-      expect(newState.targetCountry).toBe(mockCountries[0]);
-      expect(newState.targetCountry.id).toBe('FR');
-      expect(newState.targetCountry.name).toBe('France');
-    });
-  });
-
-  describe('test_incrementCorrect', () => {
-    it('should increment numCorrect score and persist', () => {
-      const state = { numCorrect: 0, numPlayed: 0, numHintsUsed: 0 };
-      const action = { type: 'INCREMENT_CORRECT' };
-
-      const newState = {
-        ...state,
-        numCorrect: state.numCorrect + 1,
-      };
-
-      expect(newState.numCorrect).toBe(1);
-      expect(state.numCorrect).toBe(0); // Original unchanged
-
-      // Multiple increments
-      const newState2 = { ...newState, numCorrect: newState.numCorrect + 1 };
-      expect(newState2.numCorrect).toBe(2);
-    });
-  });
-
-  describe('test_resetScores', () => {
-    it('should reset all scores to 0 and initialize new round', () => {
-      const state = {
-        numCorrect: 5,
-        numPlayed: 10,
-        numHintsUsed: 8,
-        round: { outcome: 'won' },
-      };
-
-      const action = { type: 'RESET_SCORES' };
-
-      const newState = {
-        ...state,
-        numCorrect: 0,
-        numPlayed: 0,
-        numHintsUsed: 0,
-      };
-
-      expect(newState.numCorrect).toBe(0);
-      expect(newState.numPlayed).toBe(0);
-      expect(newState.numHintsUsed).toBe(0);
+  describe('unknown action', () => {
+    it('should preserve state on unknown action type', () => {
+      dispatch({ type: 'incrementCorrect' });
+      dispatch({ type: '__unknown__' });
+      expect(getCurrentState().numCorrect).toBe(1);
     });
   });
 });
