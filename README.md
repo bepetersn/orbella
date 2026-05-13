@@ -9,7 +9,7 @@ Worldle Lite is a lightweight, single-page geography guessing game. Each round z
 - `src/store/` keeps the shared game state engine and action/query API in small focused files, with `src/store/index.js` exposing `window.gameStore`.
 - `src/theme.js` owns theme persistence and the light/dark toggle behavior.
 - `src/audio.js` owns tone generation, win/loss cues, and vibration feedback.
-- `src/map/worldMap.js` owns SVG setup, GeoJSON loading, and country map rendering.
+- `src/map/globe.js` owns the 3D globe setup, GeoJSON loading, and country map rendering.
 - `src/map/geometry.js` owns continent-aware multipolygon trimming for regional map views.
 - `pipeline/` owns preprocessing scripts that derive browser-ready data from the canonical GeoJSON source.
 - `src/app/runtime.js` builds the shared runtime context, `src/app/input.js` handles autocomplete and input, `src/app/round/` contains round UI/transition/flow modules, and `src/app/bootstrap.js` starts the app.
@@ -28,24 +28,26 @@ Worldle Lite is a lightweight, single-page geography guessing game. Each round z
 
 ## How to run
 
-1. Open `worldle-lite.html` in a modern browser.
-2. If your browser blocks loading the map data from a local file, serve the folder with a simple local web server instead.
-3. The page loads a vendored local copy of D3 (`src/vendor/d3.v7.min.js`) and fetches country GeoJSON from the local `pipeline/data/` folder, so a simple local web server is the easiest way to run it reliably.
+1. Install dependencies with `npm install`.
+2. Start the Vite development server with `npm run dev`.
+3. Open the URL printed by Vite (typically `http://localhost:5173`) in a modern browser.
 
-### Example local server
+To build a production bundle run `npm run build`. The output lands in `dist/`.
+
+To run the test suite:
 
 ```bash
-python3 -m http.server 8000
+npm test
 ```
-
-Then open `http://localhost:8000/worldle-lite.html`.
 
 ## Structure
 
-- The app is intentionally static: no bundler, no build step, and no package install is required.
-- `src/config.js`, `src/store/`, `src/theme.js`, `src/audio.js`, and `src/map/worldMap.js` are split out so the runtime modules stay focused on orchestration.
-- Round rules now live in the store reducer/actions API under `src/store/` so round state is part of the same app state model.
-- `src/app/runtime.js`, `src/app/input.js`, `src/app/round/`, and `src/app/bootstrap.js` coordinate the UI around the store and map API.
+- **Build tooling:** [Vite](https://vitejs.dev/) is the bundler and dev server (`vite.config.js`). `package.json` lists all runtime and development dependencies. Tests are run with [Vitest](https://vitest.dev/) (`vitest.config.js`).
+- **Source:** `src/` contains all application source modules. `src/config.js`, `src/store/`, `src/theme.js`, `src/audio.js`, and `src/map/` are split out so the runtime modules stay focused on orchestration.
+- **App entrypoint:** `worldle-lite.html` is the browser entrypoint; `src/main.js` is the JavaScript entrypoint consumed by Vite.
+- **Round & store:** Round rules live in the store reducer/actions API under `src/store/` so round state is part of the same app state model. `src/app/runtime.js`, `src/app/input.js`, `src/app/round/`, and `src/app/bootstrap.js` coordinate the UI around the store and map API.
+- **Data pipeline:** `pipeline/` holds preprocessing scripts that derive browser-ready data from the canonical GeoJSON source. Run these scripts separately before building if the generated data needs to be refreshed.
+- **Tests:** `tests/` contains unit and integration tests executed via `npm test`.
 
 ## Controls
 

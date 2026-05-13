@@ -20,6 +20,7 @@ describe('settings', () => {
     closeModal = mod.closeModal;
     toggleModal = mod.toggleModal;
     isModalOpen = mod.isModalOpen;
+    mod.initialize();
   });
 
   afterEach(() => {

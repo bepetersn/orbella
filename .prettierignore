@@ -1,0 +1,4 @@
+src/vendor/
+pipeline/data/
+dist/
+coverage/

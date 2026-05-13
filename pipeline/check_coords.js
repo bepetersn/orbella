@@ -12,7 +12,13 @@ function scanCoords(obj, featureIdx) {
       const lat = obj[1];
       totalCoords++;
       maxAbs = Math.max(maxAbs, Math.abs(lon), Math.abs(lat));
-      const bad = Math.abs(lon) > 1000 || Math.abs(lat) > 1000 || lon < -180 || lon > 180 || lat < -90 || lat > 90;
+      const bad =
+        Math.abs(lon) > 1000 ||
+        Math.abs(lat) > 1000 ||
+        lon < -180 ||
+        lon > 180 ||
+        lat < -90 ||
+        lat > 90;
       if (bad) {
         offenders.push({ featureIdx, lon, lat });
       }
@@ -46,11 +52,14 @@ if (offenders.length > 0) {
   for (const [idx, count] of byFeature.entries()) {
     if (shown++ > 50) break;
     const f = data.features[idx];
-    const name = (f.properties && (f.properties.name || f.properties.NAME || f.properties.admin)) || f.id || `#${idx}`;
+    const name =
+      (f.properties && (f.properties.name || f.properties.NAME || f.properties.admin)) ||
+      f.id ||
+      `#${idx}`;
     console.log(idx, 'name:', name, 'offending coords:', count);
   }
   console.log('\nSample offenders (up to 20):');
-  offenders.slice(0,20).forEach(o => console.log(o));
+  offenders.slice(0, 20).forEach((o) => console.log(o));
 } else {
   console.log('No offending coordinates found.');
 }

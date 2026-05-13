@@ -5,7 +5,6 @@ import { describe, it, expect } from 'vitest';
  * Tests country name normalization logic
  */
 describe('Store / Normalize', () => {
-  
   // Pure implementation of normalize for testing
   const combiningMarkPattern = /\p{M}/gu;
   const apostropheLikePattern = /[''`´]/gu;
@@ -13,14 +12,14 @@ describe('Store / Normalize', () => {
   const looseKeyNonAlphaNumericPattern = /[^\p{L}\p{N}]/gu;
 
   function normalizeGuess(guessName) {
-    return String(guessName ?? "")
+    return String(guessName ?? '')
       .trim()
-      .normalize("NFKD")
-      .replace(combiningMarkPattern, "")
-      .replace(ampersandPattern, " and ")
-      .replace(apostropheLikePattern, " ")
-      .replace(/[^\p{L}\p{N}]+/gu, " ")
-      .replace(/\s+/g, " ")
+      .normalize('NFKD')
+      .replace(combiningMarkPattern, '')
+      .replace(ampersandPattern, ' and ')
+      .replace(apostropheLikePattern, ' ')
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .replace(/\s+/g, ' ')
       .toLowerCase()
       .trim();
   }
@@ -29,8 +28,8 @@ describe('Store / Normalize', () => {
     const normalized = normalizeGuess(guessName);
     return normalized
       .split(/\s+/)
-      .filter(word => word.length > 1)
-      .join("");
+      .filter((word) => word.length > 1)
+      .join('');
   }
 
   describe('test_normalizeGuess_caseInsensitive', () => {
@@ -52,15 +51,15 @@ describe('Store / Normalize', () => {
 
   describe('test_normalizeGuess_diacritics', () => {
     it('should normalize diacritics for matching', () => {
-      const normalized1 = normalizeGuess('Côte d\'Ivoire');
+      const normalized1 = normalizeGuess("Côte d'Ivoire");
       const normalized2 = normalizeGuess('Cote d Ivoire');
       // Both should normalize to same form
       expect(normalized1).toBe(normalized2);
-      
+
       // Accents removed
       const frenchAccent = normalizeGuess('café');
       expect(frenchAccent).toBe('cafe');
-      
+
       const spanishN = normalizeGuess('España');
       expect(spanishN).toBe('espana');
     });
@@ -71,10 +70,10 @@ describe('Store / Normalize', () => {
       const withQuote1 = normalizeGuess("Côte d'Ivoire");
       const withQuote2 = normalizeGuess("Côte d'Ivoire");
       expect(withQuote1).toBe(withQuote2);
-      
+
       const withHyphen = normalizeGuess('Bosnia-Herzegovina');
       expect(withHyphen).toBe('bosnia herzegovina');
-      
+
       const withAnd = normalizeGuess('Trinidad & Tobago');
       expect(withAnd).toBe('trinidad and tobago');
     });
@@ -84,10 +83,10 @@ describe('Store / Normalize', () => {
     it('should return fuzzy-match-friendly format without spaces', () => {
       const looseKey = toLooseGuessKey('United Kingdom');
       expect(looseKey).toBe('unitedkingdom');
-      
+
       const looseFrance = toLooseGuessKey('France');
       expect(looseFrance).toBe('france');
-      
+
       const looseComplex = toLooseGuessKey("Côte d'Ivoire");
       // Should be alphanumeric only, no spaces
       expect(looseComplex).toBe('coteivoire');

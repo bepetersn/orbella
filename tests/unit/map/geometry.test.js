@@ -5,24 +5,44 @@ import { describe, it, expect } from 'vitest';
  * Tests geometry manipulation and trimming
  */
 describe('Map / Geometry', () => {
-  
   const validPolygon = {
     type: 'Polygon',
-    coordinates: [[[-5, 41], [8, 51], [8, 41], [-5, 41]]]
+    coordinates: [
+      [
+        [-5, 41],
+        [8, 51],
+        [8, 41],
+        [-5, 41],
+      ],
+    ],
   };
 
   const validMultiPolygon = {
     type: 'MultiPolygon',
     coordinates: [
-      [[[-5, 41], [8, 51], [8, 41], [-5, 41]]],
-      [[[9, 40], [15, 50], [15, 40], [9, 40]]]
-    ]
+      [
+        [
+          [-5, 41],
+          [8, 51],
+          [8, 41],
+          [-5, 41],
+        ],
+      ],
+      [
+        [
+          [9, 40],
+          [15, 50],
+          [15, 40],
+          [9, 40],
+        ],
+      ],
+    ],
   };
 
   const continentBounds = {
     Europe: { minLat: 36, maxLat: 71, minLon: -25, maxLon: 45 },
     'North America': { minLat: 15, maxLat: 84, minLon: -170, maxLon: -52 },
-    Africa: { minLat: -35, maxLat: 37, minLon: -18, maxLon: 52 }
+    Africa: { minLat: -35, maxLat: 37, minLon: -18, maxLon: 52 },
   };
 
   describe('test_multipolygonTrimming_continent_mode', () => {
@@ -36,18 +56,24 @@ describe('Map / Geometry', () => {
         if (!bounds) return geometry;
 
         const isInBounds = (lat, lon) => {
-          return lat >= bounds.minLat && lat <= bounds.maxLat &&
-                 lon >= bounds.minLon && lon <= bounds.maxLon;
+          return (
+            lat >= bounds.minLat &&
+            lat <= bounds.maxLat &&
+            lon >= bounds.minLon &&
+            lon <= bounds.maxLon
+          );
         };
 
         if (geometry.type === 'MultiPolygon') {
           const trimmedPolygons = geometry.coordinates
-            .map(polygon => {
-              return polygon.map(ring => {
-                return ring.filter(([lon, lat]) => isInBounds(lat, lon));
-              }).filter(ring => ring.length >= 3);
+            .map((polygon) => {
+              return polygon
+                .map((ring) => {
+                  return ring.filter(([lon, lat]) => isInBounds(lat, lon));
+                })
+                .filter((ring) => ring.length >= 3);
             })
-            .filter(polygon => polygon.length > 0);
+            .filter((polygon) => polygon.length > 0);
 
           return trimmedPolygons.length > 0
             ? { type: 'MultiPolygon', coordinates: trimmedPolygons }
@@ -67,7 +93,15 @@ describe('Map / Geometry', () => {
     it('should preserve geometry for single continent countries', () => {
       const simpleCountry = {
         type: 'Polygon',
-        coordinates: [[[0, 50], [5, 50], [5, 55], [0, 55], [0, 50]]]
+        coordinates: [
+          [
+            [0, 50],
+            [5, 50],
+            [5, 55],
+            [0, 55],
+            [0, 50],
+          ],
+        ],
       };
 
       const trimmed = simpleCountry; // Single polygon doesn't need trimming
@@ -84,14 +118,15 @@ describe('Map / Geometry', () => {
         if (!geometry.coordinates) return false;
 
         if (geometry.type === 'Polygon') {
-          return Array.isArray(geometry.coordinates) &&
-                 geometry.coordinates.length > 0 &&
-                 geometry.coordinates[0].length >= 3;
+          return (
+            Array.isArray(geometry.coordinates) &&
+            geometry.coordinates.length > 0 &&
+            geometry.coordinates[0].length >= 3
+          );
         }
 
         if (geometry.type === 'MultiPolygon') {
-          return Array.isArray(geometry.coordinates) &&
-                 geometry.coordinates.length > 0;
+          return Array.isArray(geometry.coordinates) && geometry.coordinates.length > 0;
         }
 
         return false;
@@ -112,10 +147,19 @@ describe('Map / Geometry', () => {
         return first[0] === last[0] && first[1] === last[1];
       };
 
-      const validRing = [[-5, 41], [8, 51], [8, 41], [-5, 41]];
+      const validRing = [
+        [-5, 41],
+        [8, 51],
+        [8, 41],
+        [-5, 41],
+      ];
       expect(isSimpleRing(validRing)).toBe(true);
 
-      const invalidRing = [[-5, 41], [8, 51], [8, 41]]; // Doesn't close
+      const invalidRing = [
+        [-5, 41],
+        [8, 51],
+        [8, 41],
+      ]; // Doesn't close
       expect(isSimpleRing(invalidRing)).toBe(false);
     });
   });
@@ -150,7 +194,7 @@ describe('Map / Geometry', () => {
           return {
             displayed: true,
             fallback: true,
-            message: `No map available for ${country.name}`
+            message: `No map available for ${country.name}`,
           };
         }
         return { displayed: true, fallback: false };
@@ -166,8 +210,10 @@ describe('Map / Geometry', () => {
   describe('test_geometryBounds', () => {
     it('should calculate correct bounds from geometry', () => {
       const getBounds = (coordinates) => {
-        let minLat = Infinity, maxLat = -Infinity;
-        let minLon = Infinity, maxLon = -Infinity;
+        let minLat = Infinity,
+          maxLat = -Infinity;
+        let minLon = Infinity,
+          maxLon = -Infinity;
 
         const processCoord = ([lon, lat]) => {
           minLat = Math.min(minLat, lat);

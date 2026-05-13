@@ -6,12 +6,11 @@ import { mockCountries } from '../../fixtures/mock-countries.js';
  * Tests round state transitions and guess resolution
  */
 describe('Store / Round', () => {
-  
   const ROUND_OUTCOME = {
     active: 'active',
     won: 'won',
     exhausted: 'exhausted',
-    revealed: 'revealed'
+    revealed: 'revealed',
   };
 
   const normalizeGuess = (name) => {
@@ -25,18 +24,18 @@ describe('Store / Round', () => {
   const resolveCountryGuess = (guessName, targetCountry) => {
     const normalizedGuess = normalizeGuess(guessName);
     const normalizedTarget = normalizeGuess(targetCountry.name);
-    
+
     if (normalizedGuess === normalizedTarget) {
       return targetCountry;
     }
-    
+
     // Check aliases
     for (const alias of targetCountry.aliases || []) {
       if (normalizeGuess(alias) === normalizedGuess) {
         return targetCountry;
       }
     }
-    
+
     return null;
   };
 
@@ -49,7 +48,7 @@ describe('Store / Round', () => {
         missesUsed: 0,
         guesses: [],
         hintLevel: 0,
-        revealedHints: []
+        revealedHints: [],
       };
 
       const result = resolveCountryGuess('France', targetCountry);
@@ -58,7 +57,7 @@ describe('Store / Round', () => {
       const newRoundState = {
         ...roundState,
         outcome: ROUND_OUTCOME.won,
-        guesses: [...roundState.guesses, 'France']
+        guesses: [...roundState.guesses, 'France'],
       };
 
       expect(newRoundState.outcome).toBe(ROUND_OUTCOME.won);
@@ -69,11 +68,11 @@ describe('Store / Round', () => {
   describe('test_correctGuess_aliasMatch', () => {
     it('should resolve alias match as correct outcome', () => {
       const targetCountry = mockCountries[3]; // Côte d'Ivoire with aliases
-      
+
       // Test exact alias match
       const result1 = resolveCountryGuess('Ivory Coast', targetCountry);
       // Note: Ivory Coast not in our mock, but Cote d'Ivoire is
-      
+
       const result2 = resolveCountryGuess('Cote d Ivoire', targetCountry);
       expect(result2).toBe(targetCountry);
     });
@@ -83,14 +82,14 @@ describe('Store / Round', () => {
     it('should increment missesUsed for wrong country', () => {
       const targetCountry = mockCountries[0]; // France
       const wrongGuess = 'Germany';
-      
+
       const roundState = {
         outcome: ROUND_OUTCOME.active,
         targetName: 'France',
         missesUsed: 0,
         guesses: [],
         hintLevel: 0,
-        revealedHints: []
+        revealedHints: [],
       };
 
       const result = resolveCountryGuess(wrongGuess, targetCountry);
@@ -99,7 +98,7 @@ describe('Store / Round', () => {
       const newRoundState = {
         ...roundState,
         missesUsed: roundState.missesUsed + 1,
-        guesses: [...roundState.guesses, wrongGuess]
+        guesses: [...roundState.guesses, wrongGuess],
       };
 
       expect(newRoundState.missesUsed).toBe(1);
@@ -115,7 +114,7 @@ describe('Store / Round', () => {
         missesUsed: 2,
         guesses: ['Germany', 'Italy'],
         hintLevel: 0,
-        revealedHints: []
+        revealedHints: [],
       };
 
       const targetCountry = mockCountries[0];
@@ -128,13 +127,13 @@ describe('Store / Round', () => {
       roundState = {
         ...roundState,
         missesUsed: 3,
-        guesses: [...roundState.guesses, thirdWrongGuess]
+        guesses: [...roundState.guesses, thirdWrongGuess],
       };
 
       // Outcome should be exhausted
       const newRoundState = {
         ...roundState,
-        outcome: ROUND_OUTCOME.exhausted
+        outcome: ROUND_OUTCOME.exhausted,
       };
 
       expect(newRoundState.outcome).toBe(ROUND_OUTCOME.exhausted);
@@ -147,7 +146,7 @@ describe('Store / Round', () => {
       const state = {
         numCorrect: 5,
         numPlayed: 10,
-        numHintsUsed: 2
+        numHintsUsed: 2,
       };
 
       const roundState = {
@@ -156,7 +155,7 @@ describe('Store / Round', () => {
         missesUsed: 1,
         guesses: ['Germany'],
         hintLevel: 1,
-        revealedHints: []
+        revealedHints: [],
       };
 
       const targetCountry = mockCountries[0];
@@ -169,14 +168,14 @@ describe('Store / Round', () => {
       const newRoundState = {
         ...roundState,
         outcome: ROUND_OUTCOME.won,
-        guesses: [...roundState.guesses, correctGuess]
+        guesses: [...roundState.guesses, correctGuess],
       };
 
       // Update game stats
       const newState = {
         ...state,
         numCorrect: state.numCorrect + 1,
-        numPlayed: state.numPlayed + 1
+        numPlayed: state.numPlayed + 1,
       };
 
       expect(newRoundState.outcome).toBe(ROUND_OUTCOME.won);

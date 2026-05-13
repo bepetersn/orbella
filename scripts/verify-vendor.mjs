@@ -82,12 +82,16 @@ for (const { vendoredPath, npmPackage, distPath } of VENDOR_MAP) {
     console.error(`  vendored hash  : ${vendoredHash}`);
     console.error(`  The vendored file does not match the installed npm package.`);
     console.error(`  Fix: run \`npm run vendor:update\` to sync src/vendor/ from node_modules,`);
-    console.error(`       or update the version in package.json then \`npm install && npm run vendor:update\`.`);
+    console.error(
+      `       or update the version in package.json then \`npm install && npm run vendor:update\`.`
+    );
     failed = true;
   } else {
-    console.log(`[vendor:verify] OK  ${vendoredPath}  (${npmPackage}@${
-      JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).devDependencies[npmPackage]
-    })`);
+    console.log(
+      `[vendor:verify] OK  ${vendoredPath}  (${npmPackage}@${
+        JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).devDependencies[npmPackage]
+      })`
+    );
   }
 }
 

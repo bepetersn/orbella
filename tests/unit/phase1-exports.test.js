@@ -7,19 +7,35 @@
  */
 import { describe, it, expect } from 'vitest';
 
-import { gameConfig }                  from '../../src/config.js';
-import { gameConstants }               from '../../src/constants.js';
+import { gameConfig } from '../../src/config.js';
+import { gameConstants } from '../../src/constants.js';
 import { STATE_ACTIONS, ROUND_OUTCOME } from '../../src/store/constants.js';
 import { normalizeGuess, toLooseGuessKey } from '../../src/store/normalize.js';
-import { createCountryGuessLookup }    from '../../src/store/lookup.js';
+import { createCountryGuessLookup } from '../../src/store/lookup.js';
 import { resolveCountryGuess, getSuggestedCountryNames } from '../../src/store/query.js';
 import { dispatch, getCurrentState, state } from '../../src/store/reducer.js';
-import { getRoundState, canSubmitRound, startRound, revealRoundAnswer, requestRoundHint, submitRoundGuess } from '../../src/store/round.js';
-import { loadCountriesIntoState, setSelectedIndex, setTargetCountry, showFirstRound, incrementCorrect, incrementPlayed, incrementHintsUsed, resetScores, setSelectedContinent } from '../../src/store/actions.js';
-import { gameStore }                   from '../../src/store/index.js';
+import {
+  getRoundState,
+  canSubmitRound,
+  startRound,
+  revealRoundAnswer,
+  requestRoundHint,
+  submitRoundGuess,
+} from '../../src/store/round.js';
+import {
+  loadCountriesIntoState,
+  setSelectedIndex,
+  setTargetCountry,
+  showFirstRound,
+  incrementCorrect,
+  incrementPlayed,
+  incrementHintsUsed,
+  resetScores,
+  setSelectedContinent,
+} from '../../src/store/actions.js';
+import { gameStore } from '../../src/store/index.js';
 
 describe('Phase 1 — export smoke tests', () => {
-
   describe('src/config.js', () => {
     it('exports gameConfig as an object', () => {
       expect(gameConfig).toBeTypeOf('object');

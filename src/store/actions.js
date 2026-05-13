@@ -1,21 +1,25 @@
 /**
  * @fileoverview Named action dispatchers for all non-round state changes.
- *
- * Exposes thin `dispatch` wrappers on `window._gameStore`.
  */
 import { worldleLiteLogger as log } from '../app/logger.js';
-const _store = window._gameStore;
-const { dispatch, createCountryGuessLookup, STATE_ACTIONS } = _store;
+import { dispatch, getCurrentState } from './reducer.js';
+import { createCountryGuessLookup } from './lookup.js';
+import { STATE_ACTIONS } from './constants.js';
 
 /**
  * Populate the store with the normalised country data loaded from GeoJSON.
  * @param {{ countriesData: object[], countryNames: string[], countryByName: Map<string, object> }} loadedCountries
  */
 export function loadCountriesIntoState(loadedCountries) {
-  log.info('[actions] loadCountriesIntoState', { countries: loadedCountries?.countriesData?.length || 0 });
+  log.info('[actions] loadCountriesIntoState', {
+    countries: loadedCountries?.countriesData?.length || 0,
+  });
   // Populate the store with the provided country data.
   // (Any previous sentinel-based deduplication removed — bootstrap owns loading.)
-  const guessLookup = createCountryGuessLookup(loadedCountries.countriesData, loadedCountries.countryByName);
+  const guessLookup = createCountryGuessLookup(
+    loadedCountries.countriesData,
+    loadedCountries.countryByName
+  );
 
   dispatch({
     type: STATE_ACTIONS.loadCountries,
@@ -24,7 +28,7 @@ export function loadCountriesIntoState(loadedCountries) {
     countryByName: loadedCountries.countryByName,
     countryByGuess: guessLookup.countryByGuess,
     countryByLooseGuess: guessLookup.countryByLooseGuess,
-    countryLookupEntries: guessLookup.countryLookupEntries
+    countryLookupEntries: guessLookup.countryLookupEntries,
   });
 }
 
@@ -35,7 +39,8 @@ export function loadCountriesIntoState(loadedCountries) {
  */
 export function setSelectedIndex(selectedIndex) {
   log.debug('[actions] setSelectedIndex', selectedIndex);
-  if (_store.state && _store.state.selectedIndex === selectedIndex) {
+  const currentState = getCurrentState();
+  if (currentState && currentState.selectedIndex === selectedIndex) {
     // no-op: same index already set
     return;
   }
@@ -47,7 +52,10 @@ export function setSelectedIndex(selectedIndex) {
  * @param {object | null} targetCountry
  */
 export function setTargetCountry(targetCountry) {
-  log.info('[actions] setTargetCountry', targetCountry && (targetCountry.properties?.name || targetCountry));
+  log.info(
+    '[actions] setTargetCountry',
+    targetCountry && (targetCountry.properties?.name || targetCountry)
+  );
   dispatch({ type: STATE_ACTIONS.setTargetCountry, targetCountry });
 }
 
@@ -86,13 +94,3 @@ export function setSelectedContinent(selectedContinent) {
   dispatch({ type: STATE_ACTIONS.setSelectedContinent, selectedContinent });
 }
 
-// Backward-compat shims — remove once all callers use import
-window._gameStore.loadCountriesIntoState = loadCountriesIntoState;
-window._gameStore.setSelectedIndex = setSelectedIndex;
-window._gameStore.setTargetCountry = setTargetCountry;
-window._gameStore.showFirstRound = showFirstRound;
-window._gameStore.incrementCorrect = incrementCorrect;
-window._gameStore.incrementPlayed = incrementPlayed;
-window._gameStore.incrementHintsUsed = incrementHintsUsed;
-window._gameStore.resetScores = resetScores;
-window._gameStore.setSelectedContinent = setSelectedContinent;

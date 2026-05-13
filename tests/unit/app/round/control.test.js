@@ -258,7 +258,10 @@ describe('round/control', () => {
 
   describe('submitGuess — round not active', () => {
     it('does nothing when round outcome is not active', () => {
-      runtime.actions.getRoundState.mockReturnValue({ outcome: ROUND_OUTCOME.won, hintsRemaining: 0 });
+      runtime.actions.getRoundState.mockReturnValue({
+        outcome: ROUND_OUTCOME.won,
+        hintsRemaining: 0,
+      });
       runtime.dom.input.value = 'France';
       mod.submitGuess();
       expect(runtime.actions.submitRoundGuess).not.toHaveBeenCalled();
@@ -269,13 +272,19 @@ describe('round/control', () => {
 
   describe('revealAnswer', () => {
     it('calls setFeedback with reveal message', () => {
-      runtime.actions.revealRoundAnswer.mockReturnValue({ changed: true, outcome: ROUND_OUTCOME.revealed });
+      runtime.actions.revealRoundAnswer.mockReturnValue({
+        changed: true,
+        outcome: ROUND_OUTCOME.revealed,
+      });
       mod.revealAnswer();
       expect(runtime.roundUi.setFeedback).toHaveBeenCalledWith('The answer was shown.', 'failure');
     });
 
     it('does not play the win sound (correct)', () => {
-      runtime.actions.revealRoundAnswer.mockReturnValue({ changed: true, outcome: ROUND_OUTCOME.revealed });
+      runtime.actions.revealRoundAnswer.mockReturnValue({
+        changed: true,
+        outcome: ROUND_OUTCOME.revealed,
+      });
       mod.revealAnswer();
       expect(runtime.audioFeedback.correct).not.toHaveBeenCalled();
     });

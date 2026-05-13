@@ -2,8 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createTargetSelector } from '../../src/targetSelector.js';
 
 describe('targetSelector', () => {
-  const makePool = (names) =>
-    names.map((name) => ({ properties: { name } }));
+  const makePool = (names) => names.map((name) => ({ properties: { name } }));
 
   beforeEach(() => {
     localStorage.clear();

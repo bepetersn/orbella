@@ -2,7 +2,7 @@
 // ============================================================================
 
 export function safeId(name) {
-  return "c_" + name.replace(/[^a-zA-Z0-9]/g, "_");
+  return 'c_' + name.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
 export function getSvgDimensions(ctx) {
@@ -11,57 +11,58 @@ export function getSvgDimensions(ctx) {
 
   return {
     actualWidth: bounds.width || svgNode.clientWidth || ctx.width,
-    actualHeight: bounds.height || svgNode.clientHeight || ctx.height
+    actualHeight: bounds.height || svgNode.clientHeight || ctx.height,
   };
 }
 
 // Feature normalization, validation, and country querying
 // ============================================================================
 
-const flagDisplayNames = typeof Intl !== "undefined" && typeof Intl.DisplayNames === "function"
-  ? new Intl.DisplayNames(["en"], { type: "region" })
-  : null;
+const flagDisplayNames =
+  typeof Intl !== 'undefined' && typeof Intl.DisplayNames === 'function'
+    ? new Intl.DisplayNames(['en'], { type: 'region' })
+    : null;
 
 const isoCodeOverrides = new Map([
-  ["czech republic", "CZ"],
-  ["democratic republic of the congo", "CD"],
-  ["east timor", "TL"],
-  ["ivory coast", "CI"],
-  ["myanmar", "MM"],
-  ["palestine", "PS"],
-  ["people s republic of china", "CN"],
-  ["republic of the congo", "CG"],
-  ["saint kitts and nevis", "KN"],
-  ["saint lucia", "LC"],
-  ["saint vincent and the grenadines", "VC"],
-  ["the bahamas", "BS"],
-  ["the gambia", "GM"],
-  ["turkey", "TR"],
-  ["united states of america", "US"],
-  ["benin", "BJ"],
-  ["burkina faso", "BF"],
-  ["france", "FR"],
-  ["germany", "DE"],
-  ["russia", "RU"],
-  ["serbia", "RS"],
-  ["united kingdom", "GB"],
-  ["vanuatu", "VU"],
-  ["vietnam", "VN"],
-  ["yemen", "YE"],
-  ["zimbabwe", "ZW"]
+  ['czech republic', 'CZ'],
+  ['democratic republic of the congo', 'CD'],
+  ['east timor', 'TL'],
+  ['ivory coast', 'CI'],
+  ['myanmar', 'MM'],
+  ['palestine', 'PS'],
+  ['people s republic of china', 'CN'],
+  ['republic of the congo', 'CG'],
+  ['saint kitts and nevis', 'KN'],
+  ['saint lucia', 'LC'],
+  ['saint vincent and the grenadines', 'VC'],
+  ['the bahamas', 'BS'],
+  ['the gambia', 'GM'],
+  ['turkey', 'TR'],
+  ['united states of america', 'US'],
+  ['benin', 'BJ'],
+  ['burkina faso', 'BF'],
+  ['france', 'FR'],
+  ['germany', 'DE'],
+  ['russia', 'RU'],
+  ['serbia', 'RS'],
+  ['united kingdom', 'GB'],
+  ['vanuatu', 'VU'],
+  ['vietnam', 'VN'],
+  ['yemen', 'YE'],
+  ['zimbabwe', 'ZW'],
 ]);
 
 let regionNameToCodes = null;
 
 function normalizeCountryLookupName(value) {
-  return String(value ?? "")
+  return String(value ?? '')
     .trim()
-    .normalize("NFKD")
-    .replace(/\p{M}/gu, "")
-    .replace(/&/gu, " and ")
-    .replace(/[’'`´]/gu, " ")
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .replace(/\s+/g, " ")
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .replace(/&/gu, ' and ')
+    .replace(/[’'`´]/gu, ' ')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/\s+/g, ' ')
     .toLowerCase()
     .trim();
 }
@@ -110,7 +111,9 @@ function resolveIsoCode(countryName) {
 }
 
 function flagEmojiFromCountryCode(countryCode) {
-  const alpha2Code = String(countryCode ?? "").trim().toUpperCase();
+  const alpha2Code = String(countryCode ?? '')
+    .trim()
+    .toUpperCase();
 
   if (!/^[A-Z]{2}$/.test(alpha2Code)) {
     return null;
@@ -124,12 +127,14 @@ function flagEmojiFromCountryCode(countryCode) {
 export function normalizeCountryFeature(ctx, feature) {
   const normalizedName = feature?.properties?.[ctx.countryNameProperty];
   const sourceContinent = feature?.properties?.[ctx.countryContinentProperty];
-  const aliasNames = [...new Set(
-    (feature?.properties?.NAME_ALIASES || [])
-      .filter((aliasName) => typeof aliasName === "string")
-      .map((aliasName) => aliasName.trim())
-      .filter(Boolean)
-  )];
+  const aliasNames = [
+    ...new Set(
+      (feature?.properties?.NAME_ALIASES || [])
+        .filter((aliasName) => typeof aliasName === 'string')
+        .map((aliasName) => aliasName.trim())
+        .filter(Boolean)
+    ),
+  ];
 
   if (!normalizedName) {
     return feature;
@@ -137,10 +142,9 @@ export function normalizeCountryFeature(ctx, feature) {
 
   const overrideKey = normalizedName.trim().toLowerCase();
   const configuredMemberships = ctx.countryContinentMemberships.get(overrideKey) || [];
-  const normalizedMemberships = [...new Set([
-    sourceContinent,
-    ...configuredMemberships
-  ].filter(Boolean))];
+  const normalizedMemberships = [
+    ...new Set([sourceContinent, ...configuredMemberships].filter(Boolean)),
+  ];
   const normalizedContinent = normalizedMemberships[0] || sourceContinent;
   const isoCode = resolveIsoCode(normalizedName);
 
@@ -157,10 +161,11 @@ export function normalizeCountryFeature(ctx, feature) {
       isoCode,
       flagEmoji: flagEmojiFromCountryCode(isoCode),
       // `playable` flag: explicit property if present, otherwise infer from EXCLUDED
-      playable: typeof feature.properties?.playable === "boolean"
-        ? feature.properties.playable
-        : !Boolean(feature.properties?.EXCLUDED)
-    }
+      playable:
+        typeof feature.properties?.playable === 'boolean'
+          ? feature.properties.playable
+          : !Boolean(feature.properties?.EXCLUDED),
+    },
   };
 }
 
@@ -179,12 +184,13 @@ export function isCountryInContinent(country, continentName) {
 
 export function isPlayableCountry(feature) {
   const { name } = feature.properties ?? {};
-  return Boolean(name)
-    && !feature.properties?.EXCLUDED;
+  return Boolean(name) && !feature.properties?.EXCLUDED;
 }
 
 export function getCountryKey(feature) {
-  return String(feature?.properties?.name ?? "").trim().toLowerCase();
+  return String(feature?.properties?.name ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 export function getRenderableFeature(ctx, feature) {

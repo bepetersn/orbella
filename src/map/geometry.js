@@ -22,11 +22,11 @@ function getGeometryPolygonParts(feature) {
     return [];
   }
 
-  if (geometry.type === "Polygon") {
+  if (geometry.type === 'Polygon') {
     return [geometry.coordinates];
   }
 
-  if (geometry.type === "MultiPolygon") {
+  if (geometry.type === 'MultiPolygon') {
     return geometry.coordinates;
   }
 
@@ -35,12 +35,12 @@ function getGeometryPolygonParts(feature) {
 
 function createPolygonFeature(properties, polygonCoordinates) {
   return {
-    type: "Feature",
+    type: 'Feature',
     properties,
     geometry: {
-      type: "Polygon",
-      coordinates: polygonCoordinates
-    }
+      type: 'Polygon',
+      coordinates: polygonCoordinates,
+    },
   };
 }
 
@@ -48,27 +48,27 @@ function createPolygonFeature(properties, polygonCoordinates) {
 // Continent-Aware Geometry Filtering
 // ============================================================================
 
-
 function _getPartStats(deps, feature, partCoordinates) {
   const { d3, path, projection } = deps;
   const partFeature = createPolygonFeature(feature.properties, partCoordinates);
   const geoCentroid = d3.geoCentroid(partFeature);
   const projectedGeoCentroid = projection(geoCentroid);
-  const centroid = Array.isArray(projectedGeoCentroid)
-    && Number.isFinite(projectedGeoCentroid[0])
-    && Number.isFinite(projectedGeoCentroid[1])
-    ? projectedGeoCentroid
-    : path.centroid(partFeature);
+  const centroid =
+    Array.isArray(projectedGeoCentroid) &&
+    Number.isFinite(projectedGeoCentroid[0]) &&
+    Number.isFinite(projectedGeoCentroid[1])
+      ? projectedGeoCentroid
+      : path.centroid(partFeature);
   const safeCentroid = [
     Number.isFinite(centroid[0]) ? centroid[0] : 0,
-    Number.isFinite(centroid[1]) ? centroid[1] : 0
+    Number.isFinite(centroid[1]) ? centroid[1] : 0,
   ];
 
   return {
     coordinates: partCoordinates,
     area: d3.geoArea(partFeature),
     centroid: safeCentroid,
-    geoCentroid
+    geoCentroid,
   };
 }
 
@@ -84,18 +84,18 @@ function _buildFeatureFromParts(feature, parts) {
     return {
       ...feature,
       geometry: {
-        type: "Polygon",
-        coordinates: parts[0]
-      }
+        type: 'Polygon',
+        coordinates: parts[0],
+      },
     };
   }
 
   return {
     ...feature,
     geometry: {
-      type: "MultiPolygon",
-      coordinates: parts
-    }
+      type: 'MultiPolygon',
+      coordinates: parts,
+    },
   };
 }
 
@@ -168,17 +168,16 @@ function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
   const trimmedData = allCountriesData.map((country) => _applyExclusionBounds(deps, country));
 
   // 2. Build the base render map from exclusion-trimmed data.
-  const defaultMap = new Map(
-    trimmedData.map((country) => [getCountryKey(country), country])
-  );
+  const defaultMap = new Map(trimmedData.map((country) => [getCountryKey(country), country]));
 
   if (!continentName) {
     return defaultMap;
   }
 
   // 3. Narrow to countries that belong to the selected continent.
-  const countriesInContinent = trimmedData
-    .filter((country) => matchesContinent(country, continentName));
+  const countriesInContinent = trimmedData.filter((country) =>
+    matchesContinent(country, continentName)
+  );
 
   if (!countriesInContinent.length) {
     return defaultMap;
@@ -187,21 +186,22 @@ function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
   // 4. Compute per-country polygon-part stats (area + centroids).
   const countryStats = countriesInContinent
     .map((country) => {
-      const parts = getGeometryPolygonParts(country)
-        .map((partCoordinates) => _getPartStats(deps, country, partCoordinates));
+      const parts = getGeometryPolygonParts(country).map((partCoordinates) =>
+        _getPartStats(deps, country, partCoordinates)
+      );
 
       if (!parts.length) {
         return null;
       }
 
-      const primaryPart = parts.reduce((largest, current) => (
+      const primaryPart = parts.reduce((largest, current) =>
         current.area > largest.area ? current : largest
-      ));
+      );
 
       return {
         country,
         parts,
-        primaryPart
+        primaryPart,
       };
     })
     .filter(Boolean);
@@ -213,21 +213,24 @@ function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
   // 5. Keep only parts geographically close to each country's primary part.
   //    Retains contiguous outliers like Alaska (~42°) while trimming truly
   //    distant parts.
-  const MAX_PART_GEO_DISTANCE_RAD = 60 * Math.PI / 180;
+  const MAX_PART_GEO_DISTANCE_RAD = (60 * Math.PI) / 180;
 
   countryStats.forEach((entry) => {
     const primaryGeoCentroid = entry.primaryPart.geoCentroid;
 
-    const keptPartStats = entry.parts
-      .filter((part) =>
+    const keptPartStats = entry.parts.filter(
+      (part) =>
         part === entry.primaryPart ||
         deps.d3.geoDistance(part.geoCentroid, primaryGeoCentroid) <= MAX_PART_GEO_DISTANCE_RAD
-      );
+    );
 
     const keptParts = keptPartStats.map((part) => part.coordinates);
 
     if (!keptParts.length) {
-      defaultMap.set(getCountryKey(entry.country), _buildFeatureFromParts(entry.country, [entry.primaryPart.coordinates]));
+      defaultMap.set(
+        getCountryKey(entry.country),
+        _buildFeatureFromParts(entry.country, [entry.primaryPart.coordinates])
+      );
       return;
     }
 
@@ -249,10 +252,18 @@ function buildRenderableMapForContinent(deps, allCountriesData, continentName) {
  * @param {Function}  options.getCountryKey            `(feature) => string` lower-cased country key.
  * @returns {{ buildRenderableMapForContinent: Function }}
  */
-function createContinentGeometryFilter({ d3, path, projection, isCountryInContinent, getCountryKey, excludedPolygonBounds }) {
-  const matchesContinent = typeof isCountryInContinent === "function"
-    ? isCountryInContinent
-    : (country, continentName) => country?.properties?.continent === continentName;
+function createContinentGeometryFilter({
+  d3,
+  path,
+  projection,
+  isCountryInContinent,
+  getCountryKey,
+  excludedPolygonBounds,
+}) {
+  const matchesContinent =
+    typeof isCountryInContinent === 'function'
+      ? isCountryInContinent
+      : (country, continentName) => country?.properties?.continent === continentName;
 
   const deps = {
     d3,
@@ -260,11 +271,11 @@ function createContinentGeometryFilter({ d3, path, projection, isCountryInContin
     projection,
     getCountryKey,
     matchesContinent,
-    excludedPolygonBounds: excludedPolygonBounds instanceof Map ? excludedPolygonBounds : new Map()
+    excludedPolygonBounds: excludedPolygonBounds instanceof Map ? excludedPolygonBounds : new Map(),
   };
 
   return {
-    buildRenderableMapForContinent: buildRenderableMapForContinent.bind(null, deps)
+    buildRenderableMapForContinent: buildRenderableMapForContinent.bind(null, deps),
   };
 }
 
@@ -312,17 +323,22 @@ function compassBearing(centerA, centerB) {
     Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
     Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
   const bearing = (toDeg(Math.atan2(y, x)) + 360) % 360;
-  const arrows = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
+  const arrows = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
   const index = Math.round(bearing / 45) % 8;
   return arrows[index];
 }
 
-export { getGeometryPolygonParts, createPolygonFeature, buildRenderableMapForContinent, createContinentGeometryFilter, haversineDistanceKm, compassBearing };
+export {
+  getGeometryPolygonParts,
+  createPolygonFeature,
+  buildRenderableMapForContinent,
+  createContinentGeometryFilter,
+  haversineDistanceKm,
+  compassBearing,
+};
 
 export const continentGeometry = {
   createContinentGeometryFilter,
   haversineDistanceKm,
-  compassBearing
+  compassBearing,
 };
-
-

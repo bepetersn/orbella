@@ -26,10 +26,14 @@ function getCountryCentroidTop(country) {
     if (country && country.geometry) {
       let ring = null;
       if (country.geometry.type === 'MultiPolygon') {
-        let best = null, bestLen = -1;
+        let best = null,
+          bestLen = -1;
         for (const poly of country.geometry.coordinates) {
           const r = poly[0];
-          if (Array.isArray(r) && r.length > bestLen) { best = r; bestLen = r.length; }
+          if (Array.isArray(r) && r.length > bestLen) {
+            best = r;
+            bestLen = r.length;
+          }
         }
         ring = best;
       } else if (country.geometry.type === 'Polygon') {
@@ -37,16 +41,27 @@ function getCountryCentroidTop(country) {
       }
       const parts = ring;
       if (Array.isArray(parts) && parts.length) {
-        let sumLon = 0, sumLat = 0, count = 0;
+        let sumLon = 0,
+          sumLat = 0,
+          count = 0;
         for (const pt of parts) {
-          if (Array.isArray(pt) && pt.length >= 2 && Number.isFinite(pt[0]) && Number.isFinite(pt[1])) {
-            sumLon += pt[0]; sumLat += pt[1]; count += 1;
+          if (
+            Array.isArray(pt) &&
+            pt.length >= 2 &&
+            Number.isFinite(pt[0]) &&
+            Number.isFinite(pt[1])
+          ) {
+            sumLon += pt[0];
+            sumLat += pt[1];
+            count += 1;
           }
         }
         if (count > 0) return { lat: sumLat / count, lng: sumLon / count };
       }
     }
-  } catch (e) { /* ignore */ }
+  } catch (e) {
+    /* ignore */
+  }
   return null;
 }
 
@@ -56,20 +71,42 @@ const franceLike = {
     name: 'France',
     // These precomputed bounds/center are intentionally wrong (include French Guiana)
     // to verify we no longer rely on them.
-    geometryCenter: [-22.48, 26.60],
+    geometryCenter: [-22.48, 26.6],
     geometryBounds: [-54.52, 2.05, 9.56, 51.15],
   },
   geometry: {
     type: 'MultiPolygon',
     coordinates: [
       // Part 0: French Guiana — small ring, 4 points
-      [[[-54.5, 2.1], [-51.7, 2.1], [-51.7, 5.8], [-54.5, 2.1]]],
+      [
+        [
+          [-54.5, 2.1],
+          [-51.7, 2.1],
+          [-51.7, 5.8],
+          [-54.5, 2.1],
+        ],
+      ],
       // Part 1: Metropolitan France — larger ring, 6 points
-      [[[-4.6, 42.3], [8.1, 42.3], [8.1, 51.1], [2.0, 51.1], [-2.0, 48.0], [-4.6, 42.3]]],
+      [
+        [
+          [-4.6, 42.3],
+          [8.1, 42.3],
+          [8.1, 51.1],
+          [2.0, 51.1],
+          [-2.0, 48.0],
+          [-4.6, 42.3],
+        ],
+      ],
       // Part 2: Corsica — tiny ring, 3 points
-      [[[8.5, 41.4], [9.6, 43.0], [8.5, 43.0]]],
-    ]
-  }
+      [
+        [
+          [8.5, 41.4],
+          [9.6, 43.0],
+          [8.5, 43.0],
+        ],
+      ],
+    ],
+  },
 };
 
 describe('getCountryCentroidTop', () => {
@@ -78,7 +115,7 @@ describe('getCountryCentroidTop', () => {
     expect(centroid).not.toBeNull();
     // Should NOT be in the mid-Atlantic (the wrong geometryCenter value)
     expect(centroid.lng).not.toBeCloseTo(-22.48, 0);
-    expect(centroid.lat).not.toBeCloseTo(26.60, 0);
+    expect(centroid.lat).not.toBeCloseTo(26.6, 0);
   });
 
   it('picks the largest polygon part (metropolitan France, not French Guiana)', () => {
@@ -95,7 +132,18 @@ describe('getCountryCentroidTop', () => {
     // Ring: [0,0],[4,0],[4,4],[0,4],[0,0] — 5 points including closing point
     // avg lon = (0+4+4+0+0)/5 = 1.6, avg lat = (0+0+4+4+0)/5 = 1.6
     const simple = {
-      geometry: { type: 'Polygon', coordinates: [[[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]]] }
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [0, 0],
+            [4, 0],
+            [4, 4],
+            [0, 4],
+            [0, 0],
+          ],
+        ],
+      },
     };
     const centroid = getCountryCentroidTop(simple);
     expect(centroid).not.toBeNull();
@@ -106,7 +154,17 @@ describe('getCountryCentroidTop', () => {
   it('uses precomputed geometryCenter for simple Polygon features', () => {
     const withCenter = {
       properties: { geometryCenter: [10.0, 50.0] },
-      geometry: { type: 'Polygon', coordinates: [[[0, 0], [4, 0], [4, 4], [0, 0]]] }
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [0, 0],
+            [4, 0],
+            [4, 4],
+            [0, 0],
+          ],
+        ],
+      },
     };
     const centroid = getCountryCentroidTop(withCenter);
     expect(centroid).toEqual({ lat: 50.0, lng: 10.0 });
@@ -114,8 +172,8 @@ describe('getCountryCentroidTop', () => {
 
   it('ignores precomputed geometryCenter for MultiPolygon features', () => {
     const withCenter = {
-      properties: { geometryCenter: [-22.48, 26.60] },  // bad mid-Atlantic value
-      geometry: franceLike.geometry
+      properties: { geometryCenter: [-22.48, 26.6] }, // bad mid-Atlantic value
+      geometry: franceLike.geometry,
     };
     const centroid = getCountryCentroidTop(withCenter);
     expect(centroid).not.toBeNull();

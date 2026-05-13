@@ -5,23 +5,208 @@ import { describe, it, expect } from 'vitest';
  * Tests coordinate bounds and continent mapping
  */
 describe('Map / Constants & Utils', () => {
-  
   const continentMapping = {
-    'Africa': ['ZA', 'NG', 'EG', 'KE', 'ET', 'MA', 'TZ', 'UG', 'GH', 'SN', 'CI', 'CM', 'DZ', 'AO', 'BW', 'BJ', 'BF', 'BI', 'CV', 'CF', 'TD', 'KM', 'CG', 'CD', 'DJ', 'GM', 'GN', 'GW', 'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'MU', 'YT', 'MZ', 'NA', 'NE', 'RE', 'RW', 'SH', 'ST', 'SC', 'SL', 'SO', 'SS', 'SD', 'SZ', 'TG', 'TN', 'EH', 'ZM', 'ZW'],
-    'Europe': ['FR', 'GB', 'DE', 'IT', 'ES', 'SE', 'NO', 'NL', 'BE', 'CH', 'AT', 'CZ', 'DK', 'FI', 'GR', 'HU', 'IE', 'IS', 'LT', 'LU', 'LV', 'MT', 'PL', 'PT', 'RO', 'RU', 'SK', 'SI', 'BG', 'HR', 'CY', 'EE', 'AL', 'AD', 'BA', 'BY', 'GE', 'XK', 'MD', 'MC', 'MK', 'SM', 'RS', 'UA', 'VA'],
-    'Asia': ['CN', 'IN', 'JP', 'KR', 'TH', 'VN', 'ID', 'PH', 'MY', 'SG', 'AZ', 'BN', 'KH', 'KZ', 'KG', 'LA', 'MN', 'MM', 'NP', 'PK', 'TJ', 'TM', 'UZ', 'AF', 'BD', 'BT', 'IR', 'IQ', 'IL', 'JO', 'LB', 'OM', 'QA', 'SA', 'AE', 'YE', 'TR', 'SY', 'KW', 'BH', 'PS', 'HK', 'MO', 'TW', 'LK'],
-    'North America': ['US', 'CA', 'MX', 'BZ', 'CR', 'SV', 'GT', 'HN', 'NI', 'PA', 'AG', 'BS', 'BB', 'DM', 'DO', 'GD', 'HT', 'JM', 'KN', 'LC', 'VC', 'TT'],
-    'South America': ['BR', 'AR', 'CL', 'CO', 'PE', 'VE', 'BO', 'EC', 'GY', 'PY', 'SR', 'UY', 'FK', 'GF'],
-    'Oceania': ['AU', 'NZ', 'FJ', 'KI', 'MH', 'FM', 'NR', 'PW', 'PG', 'WS', 'SB', 'TO', 'TV', 'VU']
+    Africa: [
+      'ZA',
+      'NG',
+      'EG',
+      'KE',
+      'ET',
+      'MA',
+      'TZ',
+      'UG',
+      'GH',
+      'SN',
+      'CI',
+      'CM',
+      'DZ',
+      'AO',
+      'BW',
+      'BJ',
+      'BF',
+      'BI',
+      'CV',
+      'CF',
+      'TD',
+      'KM',
+      'CG',
+      'CD',
+      'DJ',
+      'GM',
+      'GN',
+      'GW',
+      'LS',
+      'LR',
+      'LY',
+      'MG',
+      'MW',
+      'ML',
+      'MR',
+      'MU',
+      'YT',
+      'MZ',
+      'NA',
+      'NE',
+      'RE',
+      'RW',
+      'SH',
+      'ST',
+      'SC',
+      'SL',
+      'SO',
+      'SS',
+      'SD',
+      'SZ',
+      'TG',
+      'TN',
+      'EH',
+      'ZM',
+      'ZW',
+    ],
+    Europe: [
+      'FR',
+      'GB',
+      'DE',
+      'IT',
+      'ES',
+      'SE',
+      'NO',
+      'NL',
+      'BE',
+      'CH',
+      'AT',
+      'CZ',
+      'DK',
+      'FI',
+      'GR',
+      'HU',
+      'IE',
+      'IS',
+      'LT',
+      'LU',
+      'LV',
+      'MT',
+      'PL',
+      'PT',
+      'RO',
+      'RU',
+      'SK',
+      'SI',
+      'BG',
+      'HR',
+      'CY',
+      'EE',
+      'AL',
+      'AD',
+      'BA',
+      'BY',
+      'GE',
+      'XK',
+      'MD',
+      'MC',
+      'MK',
+      'SM',
+      'RS',
+      'UA',
+      'VA',
+    ],
+    Asia: [
+      'CN',
+      'IN',
+      'JP',
+      'KR',
+      'TH',
+      'VN',
+      'ID',
+      'PH',
+      'MY',
+      'SG',
+      'AZ',
+      'BN',
+      'KH',
+      'KZ',
+      'KG',
+      'LA',
+      'MN',
+      'MM',
+      'NP',
+      'PK',
+      'TJ',
+      'TM',
+      'UZ',
+      'AF',
+      'BD',
+      'BT',
+      'IR',
+      'IQ',
+      'IL',
+      'JO',
+      'LB',
+      'OM',
+      'QA',
+      'SA',
+      'AE',
+      'YE',
+      'TR',
+      'SY',
+      'KW',
+      'BH',
+      'PS',
+      'HK',
+      'MO',
+      'TW',
+      'LK',
+    ],
+    'North America': [
+      'US',
+      'CA',
+      'MX',
+      'BZ',
+      'CR',
+      'SV',
+      'GT',
+      'HN',
+      'NI',
+      'PA',
+      'AG',
+      'BS',
+      'BB',
+      'DM',
+      'DO',
+      'GD',
+      'HT',
+      'JM',
+      'KN',
+      'LC',
+      'VC',
+      'TT',
+    ],
+    'South America': [
+      'BR',
+      'AR',
+      'CL',
+      'CO',
+      'PE',
+      'VE',
+      'BO',
+      'EC',
+      'GY',
+      'PY',
+      'SR',
+      'UY',
+      'FK',
+      'GF',
+    ],
+    Oceania: ['AU', 'NZ', 'FJ', 'KI', 'MH', 'FM', 'NR', 'PW', 'PG', 'WS', 'SB', 'TO', 'TV', 'VU'],
   };
 
   const coordinateBounds = {
-    'Africa': { minLat: -35, maxLat: 37, minLon: -18, maxLon: 52 },
-    'Europe': { minLat: 36, maxLat: 71, minLon: -25, maxLon: 45 },
-    'Asia': { minLat: -10, maxLat: 77, minLon: 60, maxLon: 150 },
+    Africa: { minLat: -35, maxLat: 37, minLon: -18, maxLon: 52 },
+    Europe: { minLat: 36, maxLat: 71, minLon: -25, maxLon: 45 },
+    Asia: { minLat: -10, maxLat: 77, minLon: 60, maxLon: 150 },
     'North America': { minLat: 15, maxLat: 84, minLon: -170, maxLon: -52 },
     'South America': { minLat: -56, maxLat: 13, minLon: -82, maxLon: -35 },
-    'Oceania': { minLat: -47, maxLat: -10, minLon: 113, maxLon: 180 }
+    Oceania: { minLat: -47, maxLat: -10, minLon: 113, maxLon: 180 },
   };
 
   describe('test_coordinateBounds_valid', () => {
@@ -42,7 +227,7 @@ describe('Map / Constants & Utils', () => {
 
     it('should not have overlapping bounds for continents', () => {
       const continents = Object.keys(coordinateBounds);
-      
+
       for (let i = 0; i < continents.length; i++) {
         for (let j = i + 1; j < continents.length; j++) {
           const bounds1 = coordinateBounds[continents[i]];
@@ -57,7 +242,7 @@ describe('Map / Constants & Utils', () => {
           }
         }
       }
-      
+
       expect(continents.length).toBeGreaterThan(0);
     });
   });
@@ -65,8 +250,8 @@ describe('Map / Constants & Utils', () => {
   describe('test_continentMapping_complete', () => {
     it('should have all countries assigned to a continent', () => {
       const allCountries = new Set();
-      Object.values(continentMapping).forEach(countries => {
-        countries.forEach(c => allCountries.add(c));
+      Object.values(continentMapping).forEach((countries) => {
+        countries.forEach((c) => allCountries.add(c));
       });
 
       expect(allCountries.size).toBeGreaterThan(100); // Should have many countries
@@ -74,9 +259,9 @@ describe('Map / Constants & Utils', () => {
 
     it('should not have duplicate country assignments', () => {
       const assignments = {};
-      
+
       Object.entries(continentMapping).forEach(([continent, countries]) => {
-        countries.forEach(country => {
+        countries.forEach((country) => {
           expect(assignments[country]).toBeUndefined();
           assignments[country] = continent;
         });
@@ -88,7 +273,7 @@ describe('Map / Constants & Utils', () => {
 
     it('should map major world regions', () => {
       const continents = Object.keys(continentMapping);
-      
+
       expect(continents).toContain('Africa');
       expect(continents).toContain('Europe');
       expect(continents).toContain('Asia');
@@ -136,7 +321,7 @@ describe('Map / Constants & Utils', () => {
       Object.entries(continentMapping).forEach(([continent, countries]) => {
         // Each continent should have at least 3 countries (even small ones)
         expect(countries.length).toBeGreaterThanOrEqual(3);
-        
+
         // Most continents have 10-50 countries
         expect(countries.length).toBeLessThanOrEqual(60);
       });

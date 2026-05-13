@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 /**
  * Unit Tests for pipeline/generate-world-countries.mjs
- * 
+ *
  * Tests the data preprocessing functions that normalize country features
  * including name normalization, flag code resolution, geometry validation,
  * and coordinate system conversions.
@@ -23,7 +23,9 @@ function normalizeLookupName(value) {
 }
 
 function flagEmojiFromCountryCode(countryCode) {
-  const alpha2Code = String(countryCode ?? '').trim().toUpperCase();
+  const alpha2Code = String(countryCode ?? '')
+    .trim()
+    .toUpperCase();
 
   if (!/^[A-Z]{2}$/.test(alpha2Code)) {
     return null;
@@ -41,12 +43,14 @@ function collectAliases(properties) {
     return [];
   }
 
-  return [...new Set(
-    aliases
-      .filter((aliasName) => typeof aliasName === 'string')
-      .map((aliasName) => aliasName.trim())
-      .filter(Boolean)
-  )];
+  return [
+    ...new Set(
+      aliases
+        .filter((aliasName) => typeof aliasName === 'string')
+        .map((aliasName) => aliasName.trim())
+        .filter(Boolean)
+    ),
+  ];
 }
 
 function collectContinents(properties) {
@@ -84,7 +88,7 @@ function getGeometryStats(geometry) {
     minLon: Number.POSITIVE_INFINITY,
     minLat: Number.POSITIVE_INFINITY,
     maxLon: Number.NEGATIVE_INFINITY,
-    maxLat: Number.NEGATIVE_INFINITY
+    maxLat: Number.NEGATIVE_INFINITY,
   };
   let pointCount = 0;
   let ringCount = 0;
@@ -116,7 +120,12 @@ function getGeometryStats(geometry) {
     return null;
   }
 
-  if (!Number.isFinite(bounds.minLon) || !Number.isFinite(bounds.minLat) || !Number.isFinite(bounds.maxLon) || !Number.isFinite(bounds.maxLat)) {
+  if (
+    !Number.isFinite(bounds.minLon) ||
+    !Number.isFinite(bounds.minLat) ||
+    !Number.isFinite(bounds.maxLon) ||
+    !Number.isFinite(bounds.maxLat)
+  ) {
     return null;
   }
 
@@ -132,12 +141,9 @@ function getGeometryStats(geometry) {
 
   return {
     bounds: [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat],
-    center: [
-      centerLon,
-      (bounds.minLat + bounds.maxLat) / 2
-    ],
+    center: [centerLon, (bounds.minLat + bounds.maxLat) / 2],
     pointCount,
-    ringCount
+    ringCount,
   };
 }
 
@@ -163,7 +169,7 @@ function webMercatorToLonLat([x, y]) {
   const R = 20037508.34;
   const lon = (x / R) * 180;
   let lat = (y / R) * 180;
-  lat = (180 / Math.PI) * (2 * Math.atan(Math.exp(lat * Math.PI / 180)) - Math.PI / 2);
+  lat = (180 / Math.PI) * (2 * Math.atan(Math.exp((lat * Math.PI) / 180)) - Math.PI / 2);
   return [Number(lon), Number(lat)];
 }
 
@@ -176,7 +182,7 @@ describe('Pipeline / Generate World Countries', () => {
 
     it('should remove accents and diacritics', () => {
       expect(normalizeLookupName('São Tomé')).toBe('sao tome');
-      expect(normalizeLookupName('Côte d\'Ivoire')).toBe('cote d ivoire');
+      expect(normalizeLookupName("Côte d'Ivoire")).toBe('cote d ivoire');
     });
 
     it('should handle ampersands', () => {
@@ -238,7 +244,7 @@ describe('Pipeline / Generate World Countries', () => {
   describe('collectAliases', () => {
     it('should collect and deduplicate aliases from properties', () => {
       const properties = {
-        NAME_ALIASES: ['Alias 1', 'Alias 2', 'Alias 1']
+        NAME_ALIASES: ['Alias 1', 'Alias 2', 'Alias 1'],
       };
       const aliases = collectAliases(properties);
       expect(aliases).toHaveLength(2);
@@ -248,7 +254,7 @@ describe('Pipeline / Generate World Countries', () => {
 
     it('should trim whitespace from aliases', () => {
       const properties = {
-        NAME_ALIASES: ['  Alias 1  ', 'Alias 2']
+        NAME_ALIASES: ['  Alias 1  ', 'Alias 2'],
       };
       const aliases = collectAliases(properties);
       expect(aliases[0]).toBe('Alias 1');
@@ -256,7 +262,7 @@ describe('Pipeline / Generate World Countries', () => {
 
     it('should filter out empty strings', () => {
       const properties = {
-        NAME_ALIASES: ['Alias 1', '', '  ', 'Alias 2']
+        NAME_ALIASES: ['Alias 1', '', '  ', 'Alias 2'],
       };
       const aliases = collectAliases(properties);
       expect(aliases).toHaveLength(2);
@@ -264,7 +270,7 @@ describe('Pipeline / Generate World Countries', () => {
 
     it('should filter out non-string values', () => {
       const properties = {
-        NAME_ALIASES: ['Alias 1', null, 123, 'Alias 2']
+        NAME_ALIASES: ['Alias 1', null, 123, 'Alias 2'],
       };
       const aliases = collectAliases(properties);
       expect(aliases).toHaveLength(2);
@@ -307,16 +313,16 @@ describe('Pipeline / Generate World Countries', () => {
     it('should deduplicate continents', () => {
       const properties = {
         CONTINENT: 'Europe',
-        continents: ['Europe', 'Asia']
+        continents: ['Europe', 'Asia'],
       };
       const continents = collectContinents(properties);
       expect(continents).toHaveLength(2);
-      expect(continents.filter(c => c === 'Europe')).toHaveLength(1);
+      expect(continents.filter((c) => c === 'Europe')).toHaveLength(1);
     });
 
     it('should filter out falsy values from continents array', () => {
       const properties = {
-        continents: ['Europe', null, undefined, '', 'Asia']
+        continents: ['Europe', null, undefined, '', 'Asia'],
       };
       const continents = collectContinents(properties);
       expect(continents).toEqual(['Europe', 'Asia']);
@@ -337,12 +343,12 @@ describe('Pipeline / Generate World Countries', () => {
             [10, 40],
             [10, 50],
             [-10, 50],
-            [-10, 40]
-          ]
-        ]
+            [-10, 40],
+          ],
+        ],
       };
       const stats = getGeometryStats(geometry);
-      
+
       expect(stats).not.toBeNull();
       expect(stats.bounds).toEqual([-10, 40, 10, 50]);
       expect(stats.pointCount).toBe(5);
@@ -358,12 +364,12 @@ describe('Pipeline / Generate World Countries', () => {
             [10, 0],
             [10, 10],
             [0, 10],
-            [0, 0]
-          ]
-        ]
+            [0, 0],
+          ],
+        ],
       };
       const stats = getGeometryStats(geometry);
-      
+
       expect(stats.center).toEqual([5, 5]);
     });
 
@@ -377,8 +383,8 @@ describe('Pipeline / Generate World Countries', () => {
               [5, 0],
               [5, 5],
               [0, 5],
-              [0, 0]
-            ]
+              [0, 0],
+            ],
           ],
           [
             [
@@ -386,13 +392,13 @@ describe('Pipeline / Generate World Countries', () => {
               [15, 10],
               [15, 15],
               [10, 15],
-              [10, 10]
-            ]
-          ]
-        ]
+              [10, 10],
+            ],
+          ],
+        ],
       };
       const stats = getGeometryStats(geometry);
-      
+
       expect(stats).not.toBeNull();
       expect(stats.bounds).toEqual([0, 0, 15, 15]);
       expect(stats.ringCount).toBe(2);
@@ -401,7 +407,7 @@ describe('Pipeline / Generate World Countries', () => {
     it('should return null for invalid geometry type', () => {
       const geometry = {
         type: 'Point',
-        coordinates: [0, 0]
+        coordinates: [0, 0],
       };
       const stats = getGeometryStats(geometry);
       expect(stats).toBeNull();
@@ -422,12 +428,12 @@ describe('Pipeline / Generate World Countries', () => {
             [-170, -10],
             [-170, 10],
             [170, 10],
-            [170, -10]
-          ]
-        ]
+            [170, -10],
+          ],
+        ],
       };
       const stats = getGeometryStats(geometry);
-      
+
       expect(stats).not.toBeNull();
       expect(stats.bounds[0]).toBeLessThan(stats.bounds[2]);
     });
@@ -441,18 +447,18 @@ describe('Pipeline / Generate World Countries', () => {
               [0, 0],
               [1, 1],
               [0, 1],
-              [0, 0]
-            ]
+              [0, 0],
+            ],
           ],
           [
             [
               [2, 2],
               [3, 3],
               [2, 3],
-              [2, 2]
-            ]
-          ]
-        ]
+              [2, 2],
+            ],
+          ],
+        ],
       };
       const stats = getGeometryStats(geometry);
       expect(stats).not.toBeNull();
@@ -469,13 +475,13 @@ describe('Pipeline / Generate World Countries', () => {
             [1, 2],
             [3, 4],
             [5, 6],
-            [1, 2]
-          ]
-        ]
+            [1, 2],
+          ],
+        ],
       };
-      
+
       const transformed = transformGeometryCoordinates(geometry, ([x, y]) => [x * 2, y * 2]);
-      
+
       expect(transformed.coordinates[0][0]).toEqual([2, 4]);
       expect(transformed.coordinates[0][1]).toEqual([6, 8]);
     });
@@ -488,14 +494,14 @@ describe('Pipeline / Generate World Countries', () => {
             [
               [1, 1],
               [2, 2],
-              [1, 1]
-            ]
-          ]
-        ]
+              [1, 1],
+            ],
+          ],
+        ],
       };
-      
+
       const transformed = transformGeometryCoordinates(geometry, ([x, y]) => [x + 10, y + 10]);
-      
+
       expect(transformed.coordinates[0][0][0]).toEqual([11, 11]);
       expect(transformed.coordinates[0][0][1]).toEqual([12, 12]);
     });
@@ -522,7 +528,7 @@ describe('Pipeline / Generate World Countries', () => {
     it('should convert positive Web Mercator coordinates', () => {
       const R = 20037508.34;
       const [lon, lat] = webMercatorToLonLat([R / 2, R / 2]);
-      
+
       expect(lon).toBeCloseTo(90, 0);
       expect(lat).toBeGreaterThan(0);
       expect(lat).toBeLessThan(90);
@@ -531,7 +537,7 @@ describe('Pipeline / Generate World Countries', () => {
     it('should convert negative Web Mercator coordinates', () => {
       const R = 20037508.34;
       const [lon, lat] = webMercatorToLonLat([-R / 2, -R / 2]);
-      
+
       expect(lon).toBeCloseTo(-90, 0);
       expect(lat).toBeLessThan(0);
       expect(lat).toBeGreaterThan(-90);
@@ -550,16 +556,16 @@ describe('Pipeline / Generate World Countries', () => {
       const coords = [
         [
           [1, 2],
-          [3, 4]
+          [3, 4],
         ],
         [
           [5, 6],
-          [7, 8]
-        ]
+          [7, 8],
+        ],
       ];
-      
+
       visitCoordinates(coords, visitor);
-      
+
       expect(visitor).toHaveBeenCalledTimes(4);
       expect(visitor).toHaveBeenCalledWith([1, 2]);
       expect(visitor).toHaveBeenCalledWith([3, 4]);
@@ -576,7 +582,13 @@ describe('Pipeline / Generate World Countries', () => {
 
     it('should not visit non-numeric coordinates', () => {
       const visitor = vi.fn();
-      visitCoordinates([[1, 2], [Number.NaN, 4]], visitor);
+      visitCoordinates(
+        [
+          [1, 2],
+          [Number.NaN, 4],
+        ],
+        visitor
+      );
       expect(visitor).toHaveBeenCalledOnce();
       expect(visitor).toHaveBeenCalledWith([1, 2]);
     });

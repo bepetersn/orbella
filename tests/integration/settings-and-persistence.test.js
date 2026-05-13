@@ -5,14 +5,19 @@ import { mockCountries } from '../fixtures/mock-countries.js';
  * Integration Tests - Settings and State Persistence
  */
 describe('Integration / Settings & State Persistence', () => {
-  
   const mockStorage = {};
-  
+
   const localStorageMock = {
     getItem: (key) => mockStorage[key] ?? null,
-    setItem: (key, value) => { mockStorage[key] = value.toString(); },
-    removeItem: (key) => { delete mockStorage[key]; },
-    clear: () => { Object.keys(mockStorage).forEach(key => delete mockStorage[key]); }
+    setItem: (key, value) => {
+      mockStorage[key] = value.toString();
+    },
+    removeItem: (key) => {
+      delete mockStorage[key];
+    },
+    clear: () => {
+      Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
+    },
   };
 
   beforeEach(() => {
@@ -25,7 +30,7 @@ describe('Integration / Settings & State Persistence', () => {
       const settings = {
         theme: 'dark',
         autoAdvance: true,
-        debugMode: true
+        debugMode: true,
       };
 
       // Save to localStorage
@@ -35,7 +40,7 @@ describe('Integration / Settings & State Persistence', () => {
 
       // Simulate page reload - settings should be restored
       const restoredSettings = {};
-      Object.keys(settings).forEach(key => {
+      Object.keys(settings).forEach((key) => {
         restoredSettings[key] = JSON.parse(localStorageMock.getItem(key));
       });
 
@@ -53,14 +58,14 @@ describe('Integration / Settings & State Persistence', () => {
           stats: {
             plays: 20,
             correct: 15,
-            hintsUsed: 12
-          }
+            hintsUsed: 12,
+          },
         },
         current: {
           targetCountry: mockCountries[0],
           guesses: ['France'],
-          missesUsed: 1
-        }
+          missesUsed: 1,
+        },
       };
 
       // User clicks "New Game"
@@ -70,14 +75,14 @@ describe('Integration / Settings & State Persistence', () => {
           stats: {
             plays: 0,
             correct: 0,
-            hintsUsed: 0
-          }
+            hintsUsed: 0,
+          },
         },
         current: {
           targetCountry: mockCountries[1], // New country
           guesses: [],
-          missesUsed: 0
-        }
+          missesUsed: 0,
+        },
       };
 
       expect(gameState.game.round).toBe(1);
@@ -91,7 +96,7 @@ describe('Integration / Settings & State Persistence', () => {
     it('should validate input before allowing submission', () => {
       const countryLookup = new Map([
         ['france', 'France'],
-        ['germany', 'Germany']
+        ['germany', 'Germany'],
       ]);
 
       const validateAndSubmit = (input, lookup) => {
@@ -137,20 +142,20 @@ describe('Integration / Settings & State Persistence', () => {
           // Simulate parsing error
           const invalidJson = '{invalid json}';
           const parsed = JSON.parse(invalidJson);
-          
+
           return { success: true, data: parsed };
         } catch (e) {
           return {
             success: false,
             error: e.message,
-            fallback: true
+            fallback: true,
           };
         }
       };
 
       const testCases = [
         { url: null, description: 'missing URL' },
-        { url: 'invalid', description: 'invalid JSON response' }
+        { url: 'invalid', description: 'invalid JSON response' },
       ];
 
       testCases.forEach(async (test) => {
@@ -164,9 +169,9 @@ describe('Integration / Settings & State Persistence', () => {
       const handleLoadError = (error) => {
         const messages = {
           'No URL provided': 'Unable to load country data. Please refresh the page.',
-          'SyntaxError': 'Country data is corrupted. Please refresh the page.',
-          'NetworkError': 'Network error. Please check your connection.',
-          'default': 'An error occurred. Please refresh the page.'
+          SyntaxError: 'Country data is corrupted. Please refresh the page.',
+          NetworkError: 'Network error. Please check your connection.',
+          default: 'An error occurred. Please refresh the page.',
         };
 
         const key = error.message || 'default';
@@ -206,14 +211,14 @@ describe('Integration / Settings & State Persistence', () => {
       let stats = {
         plays: 0,
         correct: 0,
-        hintsUsed: 0
+        hintsUsed: 0,
       };
 
       // Round 1: Correct guess
       stats = {
         plays: stats.plays + 1,
         correct: stats.correct + 1,
-        hintsUsed: stats.hintsUsed + 0
+        hintsUsed: stats.hintsUsed + 0,
       };
       expect(stats).toEqual({ plays: 1, correct: 1, hintsUsed: 0 });
 
@@ -221,7 +226,7 @@ describe('Integration / Settings & State Persistence', () => {
       stats = {
         plays: stats.plays + 1,
         correct: stats.correct,
-        hintsUsed: stats.hintsUsed + 2
+        hintsUsed: stats.hintsUsed + 2,
       };
       expect(stats).toEqual({ plays: 2, correct: 1, hintsUsed: 2 });
 
@@ -229,7 +234,7 @@ describe('Integration / Settings & State Persistence', () => {
       stats = {
         plays: stats.plays + 1,
         correct: stats.correct + 1,
-        hintsUsed: stats.hintsUsed + 1
+        hintsUsed: stats.hintsUsed + 1,
       };
       expect(stats).toEqual({ plays: 3, correct: 2, hintsUsed: 3 });
     });
@@ -238,19 +243,15 @@ describe('Integration / Settings & State Persistence', () => {
   describe('Test 14: Stats Display Calculation', () => {
     it('should calculate win percentage correctly', () => {
       const calculateStats = (stats) => {
-        const winPercentage = stats.plays > 0 
-          ? Math.round((stats.correct / stats.plays) * 100)
-          : 0;
-        
-        const avgHintsPerRound = stats.plays > 0
-          ? (stats.hintsUsed / stats.plays).toFixed(1)
-          : 0;
+        const winPercentage = stats.plays > 0 ? Math.round((stats.correct / stats.plays) * 100) : 0;
+
+        const avgHintsPerRound = stats.plays > 0 ? (stats.hintsUsed / stats.plays).toFixed(1) : 0;
 
         return {
           winPercentage,
           avgHintsPerRound,
           totalGames: stats.plays,
-          wins: stats.correct
+          wins: stats.correct,
         };
       };
 

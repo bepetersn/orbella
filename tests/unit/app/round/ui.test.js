@@ -26,7 +26,14 @@ describe('round/ui', () => {
     runtime.config.MAX_MISSES_PER_ROUND = 5;
     runtime.config.MAX_HINTS_PER_ROUND = 3;
     runtime.config.GUESS_PILL_CLASS = 'guess-pill';
-    runtime.config.COPY = { hints: { flag: 'Flag: {flag}', firstLetter: 'First: {letter}', letterCount: 'Letters: {count}', separator: ' | ' } };
+    runtime.config.COPY = {
+      hints: {
+        flag: 'Flag: {flag}',
+        firstLetter: 'First: {letter}',
+        letterCount: 'Letters: {count}',
+        separator: ' | ',
+      },
+    };
 
     mod = await import('../../../../src/app/round/ui.js');
   });

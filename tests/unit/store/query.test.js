@@ -6,7 +6,6 @@ import { mockCountries, getCountriesByContinent } from '../../fixtures/mock-coun
  * Tests country suggestion and lookup queries
  */
 describe('Store / Query', () => {
-  
   const normalizeGuess = (name) => {
     return String(name ?? '')
       .trim()
@@ -28,7 +27,7 @@ describe('Store / Query', () => {
 
     // Apply continent filter if provided
     if (continent) {
-      filtered = filtered.filter(c => c.continent === continent);
+      filtered = filtered.filter((c) => c.continent === continent);
     }
 
     const normalizedQuery = normalizeGuess(query);
@@ -36,7 +35,7 @@ describe('Store / Query', () => {
 
     // Score countries based on query match
     const scored = filtered
-      .map(country => {
+      .map((country) => {
         const name = country.name;
         const normalizedName = normalizeGuess(name);
         const looseName = toLooseGuessKey(name);
@@ -62,17 +61,17 @@ describe('Store / Query', () => {
 
         return { country, score };
       })
-      .filter(item => item.score > 0)
+      .filter((item) => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);
 
-    return scored.map(item => item.country.name);
+    return scored.map((item) => item.country.name);
   };
 
   describe('test_getSuggestedCountryNames_basic', () => {
     it('should return top 6 matching countries', () => {
       const suggestions = getSuggestedCountryNames('fr', mockCountries, null, 6);
-      
+
       expect(suggestions.length).toBeLessThanOrEqual(6);
       expect(suggestions).toContain('France');
     });
@@ -81,17 +80,17 @@ describe('Store / Query', () => {
   describe('test_getSuggestedCountryNames_continent_filter', () => {
     it('should only return countries in selected continent', () => {
       const suggestions = getSuggestedCountryNames('', mockCountries, 'Europe', 10);
-      
+
       const europeanCountries = ['France', 'United Kingdom', 'Netherlands'];
-      suggestions.forEach(country => {
-        const found = mockCountries.find(c => c.name === country);
+      suggestions.forEach((country) => {
+        const found = mockCountries.find((c) => c.name === country);
         expect(found.continent).toBe('Europe');
       });
     });
 
     it('should exclude countries from other continents', () => {
       const suggestions = getSuggestedCountryNames('united', mockCountries, 'Europe', 10);
-      
+
       // Should have United Kingdom but not United States
       if (suggestions.includes('United Kingdom')) {
         expect(suggestions).not.toContain('United States');
@@ -103,11 +102,11 @@ describe('Store / Query', () => {
     it('should match partial country names', () => {
       const suggestions = getSuggestedCountryNames('fr', mockCountries, null, 10);
       expect(suggestions).toContain('France');
-      
+
       const suggestions2 = getSuggestedCountryNames('united', mockCountries, null, 10);
       expect(suggestions2).toContain('United Kingdom');
       expect(suggestions2).toContain('United States');
-      
+
       const suggestions3 = getSuggestedCountryNames('cost', mockCountries, null, 10);
       expect(suggestions3).toContain('Costa Rica');
     });
@@ -131,7 +130,7 @@ describe('Store / Query', () => {
       const suggestions1 = getSuggestedCountryNames('FRANCE', mockCountries);
       const suggestions2 = getSuggestedCountryNames('france', mockCountries);
       const suggestions3 = getSuggestedCountryNames('France', mockCountries);
-      
+
       expect(suggestions1).toEqual(suggestions2);
       expect(suggestions2).toEqual(suggestions3);
     });

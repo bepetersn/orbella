@@ -11,116 +11,116 @@
 import { gameConfig } from './config.js';
 
 const { COPY, THEME_STORAGE_KEY } = gameConfig;
-  let themeToggleElement = null;
-  let _getGlobe = () => null;
+let themeToggleElement = null;
+let _getGlobe = () => null;
 
-  /**
-   * Return `"dark"` or `"light"` by reading `localStorage`, falling back to
-   * the OS `prefers-color-scheme` media query when no stored preference exists.
-   * @returns {"dark" | "light"}
-   */
+/**
+ * Return `"dark"` or `"light"` by reading `localStorage`, falling back to
+ * the OS `prefers-color-scheme` media query when no stored preference exists.
+ * @returns {"dark" | "light"}
+ */
 export function getInitialTheme() {
-    try {
-      const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-      if (storedTheme === "light" || storedTheme === "dark") {
-        return storedTheme;
-      }
-    } catch {
-      // Ignore storage access failures and fall back to system preference.
+  try {
+    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === 'light' || storedTheme === 'dark') {
+      return storedTheme;
     }
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  } catch {
+    // Ignore storage access failures and fall back to system preference.
   }
 
-  /**
-   * Update the toggle checkbox's checked state to reflect `theme`.
-   * Does nothing when no checkbox element has been registered.
-   * @param {"dark" | "light"} theme
-   */
-  function syncThemeToggle(theme) {
-    if (!themeToggleElement) {
-      return;
-    }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
 
-    const isDark = theme === "dark";
-    themeToggleElement.checked = isDark;
+/**
+ * Update the toggle checkbox's checked state to reflect `theme`.
+ * Does nothing when no checkbox element has been registered.
+ * @param {"dark" | "light"} theme
+ */
+function syncThemeToggle(theme) {
+  if (!themeToggleElement) {
+    return;
   }
 
-  /**
-   * Set `document.documentElement.dataset.theme` to `theme` and sync the
-   * toggle checkbox's state via {@link syncThemeToggle}.
-   * @param {"dark" | "light"} theme
-   */
+  const isDark = theme === 'dark';
+  themeToggleElement.checked = isDark;
+}
+
+/**
+ * Set `document.documentElement.dataset.theme` to `theme` and sync the
+ * toggle checkbox's state via {@link syncThemeToggle}.
+ * @param {"dark" | "light"} theme
+ */
 export function applyTheme(theme) {
-    document.documentElement.dataset.theme = theme;
-    syncThemeToggle(theme);
-  }
+  document.documentElement.dataset.theme = theme;
+  syncThemeToggle(theme);
+}
 
-  /**
-   * Update the globe texture and colors when theme changes.
-   * @param {"dark" | "light"} theme
-   */
-  function updateGlobeTexture(theme) {
-    try {
-      const globe = _getGlobe();
-      if (globe && typeof globe.globeImageUrl === 'function') {
-        const globeImg = theme === 'dark' ? 'img/earth-dark.jpg' : 'img/earth-light.jpg';
-        globe.globeImageUrl(globeImg);
-        
-        // Force polygon colors to update by re-setting the data
-        // This triggers the color callbacks with the new theme colors
-        try {
-          const currentData = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
-          if (currentData) {
-            globe.polygonsData(currentData);
-          }
-        } catch (e) {
-          // Ignore if polygonsData isn't available
+/**
+ * Update the globe texture and colors when theme changes.
+ * @param {"dark" | "light"} theme
+ */
+function updateGlobeTexture(theme) {
+  try {
+    const globe = _getGlobe();
+    if (globe && typeof globe.globeImageUrl === 'function') {
+      const globeImg = theme === 'dark' ? 'img/earth-dark.jpg' : 'img/earth-light.jpg';
+      globe.globeImageUrl(globeImg);
+
+      // Force polygon colors to update by re-setting the data
+      // This triggers the color callbacks with the new theme colors
+      try {
+        const currentData = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
+        if (currentData) {
+          globe.polygonsData(currentData);
         }
+      } catch (e) {
+        // Ignore if polygonsData isn't available
       }
-    } catch (e) {
-      // Ignore globe update failures; the theme CSS still updates
     }
+  } catch (e) {
+    // Ignore globe update failures; the theme CSS still updates
   }
+}
 
-  /**
-   * Flip the active theme between `"dark"` and `"light"`, persist the new
-   * value to `localStorage`, and apply it to the document and toggle checkbox.
-   */
+/**
+ * Flip the active theme between `"dark"` and `"light"`, persist the new
+ * value to `localStorage`, and apply it to the document and toggle checkbox.
+ */
 export function toggleTheme() {
-    const currentTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+  const currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+  const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-    } catch {
-      // Ignore storage failures; the theme still updates for this session.
-    }
-
-    applyTheme(nextTheme);
-    updateGlobeTexture(nextTheme);
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+  } catch {
+    // Ignore storage failures; the theme still updates for this session.
   }
 
-  /**
-   * Store a reference to `themeToggleElementArg`, apply the initial theme, and
-   * attach the change listener that calls {@link toggleTheme}.
-   * Safe to call with `null` when no toggle checkbox is present.
-   * @param {HTMLElement | null} themeToggleElementArg
-   */
+  applyTheme(nextTheme);
+  updateGlobeTexture(nextTheme);
+}
+
+/**
+ * Store a reference to `themeToggleElementArg`, apply the initial theme, and
+ * attach the change listener that calls {@link toggleTheme}.
+ * Safe to call with `null` when no toggle checkbox is present.
+ * @param {HTMLElement | null} themeToggleElementArg
+ */
 export function initializeTheme(themeToggleElementArg, { getGlobe = () => null } = {}) {
-    themeToggleElement = themeToggleElementArg || null;
-    _getGlobe = getGlobe;
-    applyTheme(getInitialTheme());
+  themeToggleElement = themeToggleElementArg || null;
+  _getGlobe = getGlobe;
+  applyTheme(getInitialTheme());
 
-    if (themeToggleElement) {
-      themeToggleElement.addEventListener("change", toggleTheme);
-    }
+  if (themeToggleElement) {
+    themeToggleElement.addEventListener('change', toggleTheme);
   }
+}
 
 // Backward-compat shim — remove once all callers use import
 window.themeSystem = {
   getInitialTheme,
   applyTheme,
   toggleTheme,
-  initializeTheme
+  initializeTheme,
 };

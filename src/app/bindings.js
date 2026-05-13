@@ -13,17 +13,17 @@
  * @type {Array<[string, string, string]>}
  */
 export const COPY_BINDINGS = [
-  ['heroEyebrow',      'hero',    'eyebrow'],
-  ['heroTitle',        'hero',    'title'],
-  ['heroSubtitle',     'hero',    'subtitle'],
-  ['ruleMisses',       'hero',    'misses'],
-  ['ruleAutocomplete', 'hero',    'autocomplete'],
-  ['ruleReveal',       'hero',    'reveal'],
-  ['revealBtn',        'buttons', 'showAnswer'],
-  ['nextRoundBtn',     'buttons', 'nextRound'],
-  ['hintBtn',          'buttons', 'hint'],
-  ['replayHaloBtn',    'buttons', 'replayHalo'],
-  ['resetBtn',         'buttons', 'reset'],
+  ['heroEyebrow', 'hero', 'eyebrow'],
+  ['heroTitle', 'hero', 'title'],
+  ['heroSubtitle', 'hero', 'subtitle'],
+  ['ruleMisses', 'hero', 'misses'],
+  ['ruleAutocomplete', 'hero', 'autocomplete'],
+  ['ruleReveal', 'hero', 'reveal'],
+  ['revealBtn', 'buttons', 'showAnswer'],
+  ['nextRoundBtn', 'buttons', 'nextRound'],
+  ['hintBtn', 'buttons', 'hint'],
+  ['replayHaloBtn', 'buttons', 'replayHalo'],
+  ['resetBtn', 'buttons', 'reset'],
 ];
 
 /**
@@ -34,8 +34,44 @@ export const COPY_BINDINGS = [
  * @type {Array<[string, string]>}
  */
 export const CLICK_BINDINGS = [
-  ['revealBtn',    'revealAnswer'],
-  ['hintBtn',      'showNextHint'],
+  ['revealBtn', 'revealAnswer'],
+  ['hintBtn', 'showNextHint'],
   ['nextRoundBtn', 'advanceToNextRound'],
-  ['resetBtn',     'startRound'],
+  ['resetBtn', 'startRound'],
 ];
+
+// Imported here to avoid circular deps — bindings.js is the natural home for
+// functions that apply these binding tables to live DOM/runtime objects.
+import { round } from './round/index.js';
+import { replayHalo } from './round/control.js';
+import { syncDebugToggleUi, bindDebugToggle } from './debug.js';
+import { worldleLiteLogger as log } from './logger.js';
+
+/**
+ * Applies COPY text to DOM elements listed in COPY_BINDINGS and syncs the
+ * debug-toggle UI.
+ */
+export function initializeCopy(dom, COPY, buildId) {
+  document.title = COPY.pageTitle || document.title;
+  if (dom.buildMarker) dom.buildMarker.textContent = `Build: ${buildId || ''}`;
+  for (const [domKey, section, prop] of COPY_BINDINGS) {
+    const el = dom[domKey];
+    const text = COPY[section]?.[prop];
+    if (el && text) el.textContent = text;
+  }
+  window.worldleLiteDebug?.syncDebugToggleUi?.();
+  syncDebugToggleUi();
+}
+
+/**
+ * Attaches all click and input event listeners declared in CLICK_BINDINGS.
+ */
+export function bindEventListeners(dom, runtime) {
+  log.debug('[bootstrap] bindEventListeners - btn refs:', { hint: !!dom.hintBtn, reveal: !!dom.revealBtn });
+  for (const [domKey, method] of CLICK_BINDINGS) {
+    dom[domKey]?.addEventListener('click', () => round[method]?.());
+  }
+  dom.replayHaloBtn?.addEventListener('click', () => replayHalo());
+  bindDebugToggle();
+  runtime.input?.bindInputHandlers?.();
+}

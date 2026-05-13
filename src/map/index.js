@@ -35,14 +35,17 @@ function createWorldMap({
   width,
   height,
   countriesGeoJsonUrl,
-  countryNameProperty = "name",
-  countryContinentProperty = "continent",
-  countryContinentMemberships = new Map()
+  countryNameProperty = 'name',
+  countryContinentProperty = 'continent',
+  countryContinentMemberships = new Map(),
 }) {
   const svg = d3.select(selector);
   const { actualWidth, actualHeight } = getSvgDimensions({ svg, width, height });
-  const g = svg.append("g");
-  const projection = d3.geoNaturalEarth1().scale(160).translate([actualWidth / 2, actualHeight / 2]);
+  const g = svg.append('g');
+  const projection = d3
+    .geoNaturalEarth1()
+    .scale(160)
+    .translate([actualWidth / 2, actualHeight / 2]);
   const path = d3.geoPath(projection);
 
   const ctx = {
@@ -61,13 +64,14 @@ function createWorldMap({
     allCountriesData: [],
     renderFeatureByName: new Map(),
     geometryFilter: null,
-    zoom: null
+    zoom: null,
   };
 
-  ctx.zoom = d3.zoom()
+  ctx.zoom = d3
+    .zoom()
     .scaleExtent([1, 50])
-    .on("zoom", (event) => {
-      ctx.g.attr("transform", event.transform.toString());
+    .on('zoom', (event) => {
+      ctx.g.attr('transform', event.transform.toString());
     });
 
   svg.call(ctx.zoom);
@@ -81,7 +85,7 @@ function createWorldMap({
     zoomToCountry: (country) => zoomToCountry(ctx, country),
     showLocationHalo: (country) => showLocationHalo(ctx, country),
     setRegionFilter: (regionName) => setRegionFilter(ctx, regionName),
-    safeId
+    safeId,
   };
 }
 
@@ -89,5 +93,5 @@ export { createWorldMap };
 
 // window shim — removed in Phase 5
 window.worldMap = {
-  createWorldMap
+  createWorldMap,
 };

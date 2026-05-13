@@ -1,18 +1,22 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockCountries } from '../fixtures/mock-countries.js';
-import { initialState, roundInProgressState, roundCompletedState, roundExhaustedState } from '../fixtures/mock-state.js';
+import {
+  initialState,
+  roundInProgressState,
+  roundCompletedState,
+  roundExhaustedState,
+} from '../fixtures/mock-state.js';
 
 /**
  * Integration Tests - End-to-End Round Flows
  * These tests verify that modules work together correctly
  */
 describe('Integration / Round Flows', () => {
-  
   const ROUND_OUTCOME = {
     active: 'active',
     won: 'won',
     missed: 'missed',
-    revealed: 'revealed'
+    revealed: 'revealed',
   };
 
   const normalizeGuess = (name) => {
@@ -31,8 +35,8 @@ describe('Integration / Round Flows', () => {
         current: {
           ...initialState.current,
           targetCountry: mockCountries[0],
-          targetName: mockCountries[0].name
-        }
+          targetName: mockCountries[0].name,
+        },
       };
 
       // Round is active
@@ -53,13 +57,13 @@ describe('Integration / Round Flows', () => {
             stats: {
               ...gameState.game.stats,
               plays: gameState.game.stats.plays + 1,
-              correct: gameState.game.stats.correct + 1
-            }
+              correct: gameState.game.stats.correct + 1,
+            },
           },
           current: {
             ...gameState.current,
-            guesses: [...gameState.current.guesses, userGuess]
-          }
+            guesses: [...gameState.current.guesses, userGuess],
+          },
         };
       }
 
@@ -79,21 +83,21 @@ describe('Integration / Round Flows', () => {
         current: {
           ...initialState.current,
           targetCountry: mockCountries[0], // France
-          targetName: mockCountries[0].name
-        }
+          targetName: mockCountries[0].name,
+        },
       };
 
       const wrongCountries = [mockCountries[1], mockCountries[2], mockCountries[3]]; // Not France
 
       // Submit 3 wrong guesses
-      wrongCountries.forEach(country => {
+      wrongCountries.forEach((country) => {
         gameState = {
           ...gameState,
           current: {
             ...gameState.current,
             missesUsed: gameState.current.missesUsed + 1,
-            guesses: [...gameState.current.guesses, country.name]
-          }
+            guesses: [...gameState.current.guesses, country.name],
+          },
         };
       });
 
@@ -106,9 +110,9 @@ describe('Integration / Round Flows', () => {
             outcome: ROUND_OUTCOME.exhausted,
             stats: {
               ...gameState.game.stats,
-              plays: gameState.game.stats.plays + 1
-            }
-          }
+              plays: gameState.game.stats.plays + 1,
+            },
+          },
         };
       }
 
@@ -121,7 +125,7 @@ describe('Integration / Round Flows', () => {
 
   describe('Test 3: Alias Matching in Autocomplete', () => {
     it('should match alias names and resolve to correct country', () => {
-      const targetCountry = mockCountries.find(c => c.aliases.length > 0);
+      const targetCountry = mockCountries.find((c) => c.aliases.length > 0);
       if (!targetCountry) {
         expect(true).toBe(true); // Skip if no aliases
         return;
@@ -133,13 +137,13 @@ describe('Integration / Round Flows', () => {
 
       // Alias should normalize to same as canonical name (approximately)
       // depending on accent handling
-      
+
       let gameState = {
         current: {
           targetCountry,
           targetName: targetCountry.name,
-          guesses: [alias]
-        }
+          guesses: [alias],
+        },
       };
 
       // Resolution should work with alias
@@ -151,9 +155,9 @@ describe('Integration / Round Flows', () => {
   describe('Test 4: Continent Filter Reduces Suggestions', () => {
     it('should filter suggestions by selected continent', () => {
       const selectedContinent = 'Europe';
-      
-      const europeanCountries = mockCountries.filter(c => c.continent === selectedContinent);
-      const otherCountries = mockCountries.filter(c => c.continent !== selectedContinent);
+
+      const europeanCountries = mockCountries.filter((c) => c.continent === selectedContinent);
+      const otherCountries = mockCountries.filter((c) => c.continent !== selectedContinent);
 
       expect(europeanCountries.length).toBeGreaterThan(0);
       expect(otherCountries.length).toBeGreaterThan(0);
@@ -162,8 +166,8 @@ describe('Integration / Round Flows', () => {
       let gameState = {
         current: {
           selectedContinent,
-          targetCountry: europeanCountries[0]
-        }
+          targetCountry: europeanCountries[0],
+        },
       };
 
       // Non-European countries should not be valid guesses
@@ -178,8 +182,8 @@ describe('Integration / Round Flows', () => {
         ...roundInProgressState,
         current: {
           ...roundInProgressState.current,
-          hintsRemaining: 3
-        }
+          hintsRemaining: 3,
+        },
       };
 
       expect(gameState.game.outcome).toBe('active');
@@ -189,8 +193,8 @@ describe('Integration / Round Flows', () => {
         ...gameState,
         game: {
           ...gameState.game,
-          outcome: ROUND_OUTCOME.revealed
-        }
+          outcome: ROUND_OUTCOME.revealed,
+        },
       };
 
       // Round should be locked from further guesses
@@ -206,8 +210,8 @@ describe('Integration / Round Flows', () => {
         current: {
           ...roundInProgressState.current,
           hints: [],
-          hintsRemaining: 3
-        }
+          hintsRemaining: 3,
+        },
       };
 
       // Request hints
@@ -217,8 +221,8 @@ describe('Integration / Round Flows', () => {
           current: {
             ...gameState.current,
             hints: [...gameState.current.hints, `hint_${i + 1}`],
-            hintsRemaining: gameState.current.hintsRemaining - 1
-          }
+            hintsRemaining: gameState.current.hintsRemaining - 1,
+          },
         };
       }
 
@@ -232,8 +236,8 @@ describe('Integration / Round Flows', () => {
           ...gameState,
           current: {
             ...gameState.current,
-            hints: [...gameState.current.hints, 'hint_4']
-          }
+            hints: [...gameState.current.hints, 'hint_4'],
+          },
         };
       }
 
@@ -246,7 +250,7 @@ describe('Integration / Round Flows', () => {
       const autoAdvanceEnabled = true;
       let gameState = {
         ...roundCompletedState,
-        game: { ...roundCompletedState.game, outcome: ROUND_OUTCOME.won }
+        game: { ...roundCompletedState.game, outcome: ROUND_OUTCOME.won },
       };
 
       expect(gameState.game.outcome).toBe(ROUND_OUTCOME.won);
@@ -259,7 +263,7 @@ describe('Integration / Round Flows', () => {
           game: {
             ...gameState.game,
             round: gameState.game.round + 1,
-            outcome: 'active'
+            outcome: 'active',
           },
           current: {
             targetCountry: mockCountries[1], // New country
@@ -267,8 +271,8 @@ describe('Integration / Round Flows', () => {
             guesses: [],
             missesUsed: 0,
             hints: [],
-            hintsRemaining: 3
-          }
+            hintsRemaining: 3,
+          },
         };
       }
 
@@ -282,7 +286,7 @@ describe('Integration / Round Flows', () => {
       const autoAdvanceEnabled = false;
       let gameState = {
         ...roundCompletedState,
-        game: { ...roundCompletedState.game, outcome: ROUND_OUTCOME.won }
+        game: { ...roundCompletedState.game, outcome: ROUND_OUTCOME.won },
       };
 
       // User clicks "Next Round" button
@@ -291,7 +295,7 @@ describe('Integration / Round Flows', () => {
         game: {
           ...gameState.game,
           round: gameState.game.round + 1,
-          outcome: 'active'
+          outcome: 'active',
         },
         current: {
           targetCountry: mockCountries[1],
@@ -299,8 +303,8 @@ describe('Integration / Round Flows', () => {
           guesses: [],
           missesUsed: 0,
           hints: [],
-          hintsRemaining: 3
-        }
+          hintsRemaining: 3,
+        },
       };
 
       expect(gameState.game.round).toBe(2);

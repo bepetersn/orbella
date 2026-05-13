@@ -1,23 +1,23 @@
 /**
  * @fileoverview Round-state actions: start, hint, guess submission, and reveal.
- *
- * Exposes `getRoundState`, `canSubmitRound`, `startRound`, `revealRoundAnswer`,
- * `requestRoundHint`, and `submitRoundGuess` on `window._gameStore`.
  */
 import { worldleLiteLogger as log } from '../app/logger.js';
-const _store = window._gameStore;
-const { dispatch, getCurrentState, normalizeGuess, resolveCountryGuess, ROUND_OUTCOME, STATE_ACTIONS } = _store;
+import { dispatch, getCurrentState } from './reducer.js';
+import { normalizeGuess } from './normalize.js';
+import { resolveCountryGuess } from './query.js';
+import { ROUND_OUTCOME, STATE_ACTIONS } from './constants.js';
+import { incrementHintsUsed } from './actions.js';
 const MAX_HINTS_PER_ROUND = window.gameConfig?.MAX_HINTS_PER_ROUND ?? 3;
 
 const letterOnlyPattern = /\p{L}/gu;
 
 function getFirstLetter(targetName) {
-  const matchedLetters = String(targetName ?? "").match(letterOnlyPattern);
-  return matchedLetters?.[0] ?? "";
+  const matchedLetters = String(targetName ?? '').match(letterOnlyPattern);
+  return matchedLetters?.[0] ?? '';
 }
 
 function getLetterCount(targetName) {
-  const matchedLetters = String(targetName ?? "").match(letterOnlyPattern);
+  const matchedLetters = String(targetName ?? '').match(letterOnlyPattern);
   return matchedLetters?.length ?? 0;
 }
 
@@ -31,7 +31,7 @@ export function getRoundState(maxMissesPerRound = 3, maxHintsPerRound = MAX_HINT
     maxMissesPerRound,
     hintLevel: roundState.hintLevel,
     revealedHints: [...roundState.revealedHints],
-    hintsRemaining: Math.max(0, maxHintsPerRound - roundState.hintLevel)
+    hintsRemaining: Math.max(0, maxHintsPerRound - roundState.hintLevel),
   };
 }
 
@@ -47,7 +47,7 @@ export function startRound(targetName) {
     missesUsed: 0,
     guesses: [],
     hintLevel: 0,
-    revealedHints: []
+    revealedHints: [],
   };
 
   dispatch({ type: STATE_ACTIONS.setRoundState, round: nextRoundState });
@@ -63,7 +63,7 @@ export function revealRoundAnswer() {
 
   const nextRoundState = {
     ...roundState,
-    outcome: ROUND_OUTCOME.revealed
+    outcome: ROUND_OUTCOME.revealed,
   };
 
   dispatch({ type: STATE_ACTIONS.setRoundState, round: nextRoundState });
@@ -73,54 +73,65 @@ export function revealRoundAnswer() {
 export function requestRoundHint(maxHintsPerRound = MAX_HINTS_PER_ROUND) {
   const roundState = getCurrentState().round;
   const targetCountry = getCurrentState().targetCountry;
-  
-  log.debug('[store] requestRoundHint called', { 
-    canSubmit: canSubmitRound(), 
-    targetName: roundState.targetName, 
+
+  log.debug('[store] requestRoundHint called', {
+    canSubmit: canSubmitRound(),
+    targetName: roundState.targetName,
     hintLevel: roundState.hintLevel,
     targetCountryName: targetCountry?.properties?.name,
-    maxHintsPerRound
+    maxHintsPerRound,
   });
 
   if (!canSubmitRound() || !roundState.targetName) {
-    log.warn('[store] requestRoundHint early exit', { canSubmit: canSubmitRound(), hasTargetName: !!roundState.targetName });
+    log.warn('[store] requestRoundHint early exit', {
+      canSubmit: canSubmitRound(),
+      hasTargetName: !!roundState.targetName,
+    });
     return {
       changed: false,
       outcome: roundState.outcome,
       hintLevel: roundState.hintLevel,
       revealedHints: [...roundState.revealedHints],
-      hintsRemaining: Math.max(0, maxHintsPerRound - roundState.hintLevel)
+      hintsRemaining: Math.max(0, maxHintsPerRound - roundState.hintLevel),
     };
   }
 
   if (roundState.hintLevel >= maxHintsPerRound) {
-    log.warn('[store] requestRoundHint - max hints reached', { hintLevel: roundState.hintLevel, maxHintsPerRound });
+    log.warn('[store] requestRoundHint - max hints reached', {
+      hintLevel: roundState.hintLevel,
+      maxHintsPerRound,
+    });
     return {
       changed: false,
       outcome: roundState.outcome,
       hintLevel: roundState.hintLevel,
       revealedHints: [...roundState.revealedHints],
-      hintsRemaining: 0
+      hintsRemaining: 0,
     };
   }
 
   const nextHintLevel = roundState.hintLevel + 1;
-  const nextHint = nextHintLevel === 1
-    ? { type: "flag", value: targetCountry?.properties?.flagEmoji ?? "" }
-    : nextHintLevel === 2
-      ? { type: "first-letter", value: getFirstLetter(roundState.targetName) }
-      : { type: "letter-count", value: getLetterCount(roundState.targetName) };
-  
-  log.debug('[store] generated new hint', { nextHintLevel, nextHint, targetName: roundState.targetName });
-  
+  const nextHint =
+    nextHintLevel === 1
+      ? { type: 'flag', value: targetCountry?.properties?.flagEmoji ?? '' }
+      : nextHintLevel === 2
+        ? { type: 'first-letter', value: getFirstLetter(roundState.targetName) }
+        : { type: 'letter-count', value: getLetterCount(roundState.targetName) };
+
+  log.debug('[store] generated new hint', {
+    nextHintLevel,
+    nextHint,
+    targetName: roundState.targetName,
+  });
+
   const nextRoundState = {
     ...roundState,
     hintLevel: nextHintLevel,
-    revealedHints: [...roundState.revealedHints, nextHint]
+    revealedHints: [...roundState.revealedHints, nextHint],
   };
 
   dispatch({ type: STATE_ACTIONS.setRoundState, round: nextRoundState });
-  _store.incrementHintsUsed?.();
+  incrementHintsUsed();
 
   const result = {
     changed: true,
@@ -128,9 +139,9 @@ export function requestRoundHint(maxHintsPerRound = MAX_HINTS_PER_ROUND) {
     hintLevel: nextRoundState.hintLevel,
     hint: nextHint,
     revealedHints: [...nextRoundState.revealedHints],
-    hintsRemaining: Math.max(0, maxHintsPerRound - nextRoundState.hintLevel)
+    hintsRemaining: Math.max(0, maxHintsPerRound - nextRoundState.hintLevel),
   };
-  
+
   log.debug('[store] requestRoundHint returning', { result });
   return result;
 }
@@ -140,42 +151,44 @@ export function submitRoundGuess(guessName, maxMissesPerRound = 3) {
   const roundState = getCurrentState().round;
 
   if (!canSubmitRound()) {
-    return { status: "locked", outcome: roundState.outcome };
+    return { status: 'locked', outcome: roundState.outcome };
   }
 
   if (!guessName) {
-    return { status: "invalid", outcome: roundState.outcome };
+    return { status: 'invalid', outcome: roundState.outcome };
   }
 
   // 2. Normalize and check for a correct guess.
   const matchedCountry = resolveCountryGuess(guessName);
   if (!matchedCountry) {
-    return { status: "invalid", outcome: roundState.outcome };
+    return { status: 'invalid', outcome: roundState.outcome };
   }
 
   const normalizedGuess = normalizeGuess(matchedCountry?.properties?.name ?? guessName);
-  const normalizedTarget = normalizeGuess(getCurrentState().targetCountry?.properties?.name ?? roundState.targetName);
+  const normalizedTarget = normalizeGuess(
+    getCurrentState().targetCountry?.properties?.name ?? roundState.targetName
+  );
 
   if (normalizedGuess === normalizedTarget) {
     const nextRoundState = {
       ...roundState,
-      outcome: ROUND_OUTCOME.won
+      outcome: ROUND_OUTCOME.won,
     };
 
     dispatch({ type: STATE_ACTIONS.setRoundState, round: nextRoundState });
     return {
-      status: "correct",
+      status: 'correct',
       outcome: nextRoundState.outcome,
-      targetName: nextRoundState.targetName
+      targetName: nextRoundState.targetName,
     };
   }
 
   // 3. Ignore repeated guesses.
   if (roundState.guesses.includes(normalizedGuess)) {
     return {
-      status: "duplicate",
+      status: 'duplicate',
       outcome: roundState.outcome,
-      remaining: maxMissesPerRound - roundState.missesUsed
+      remaining: maxMissesPerRound - roundState.missesUsed,
     };
   }
 
@@ -188,38 +201,31 @@ export function submitRoundGuess(guessName, maxMissesPerRound = 3) {
       ...roundState,
       missesUsed: nextMissesUsed,
       guesses: nextGuesses,
-      outcome: ROUND_OUTCOME.missed
+      outcome: ROUND_OUTCOME.missed,
     };
 
     dispatch({ type: STATE_ACTIONS.setRoundState, round: nextRoundState });
     return {
-      status: "missed",
+      status: 'missed',
       outcome: nextRoundState.outcome,
       remaining: 0,
-      targetName: nextRoundState.targetName
+      targetName: nextRoundState.targetName,
     };
   }
 
   const nextRoundState = {
     ...roundState,
     missesUsed: nextMissesUsed,
-    guesses: nextGuesses
+    guesses: nextGuesses,
   };
 
   dispatch({ type: STATE_ACTIONS.setRoundState, round: nextRoundState });
 
   return {
-    status: "guess",
+    status: 'guess',
     outcome: nextRoundState.outcome,
     remaining: maxMissesPerRound - nextRoundState.missesUsed,
-    guessName: normalizedGuess
+    guessName: normalizedGuess,
   };
 }
 
-// Backward-compat shims — remove once all callers use import
-window._gameStore.getRoundState = getRoundState;
-window._gameStore.canSubmitRound = canSubmitRound;
-window._gameStore.startRound = startRound;
-window._gameStore.revealRoundAnswer = revealRoundAnswer;
-window._gameStore.requestRoundHint = requestRoundHint;
-window._gameStore.submitRoundGuess = submitRoundGuess;

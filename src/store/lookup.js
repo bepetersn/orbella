@@ -2,12 +2,18 @@
  * @fileoverview Builds the country-guess lookup tables from loaded GeoJSON data.
  *
  * Pure functions only – no direct access to live state.
- * Exposes `createCountryGuessLookup` on `window._gameStore`.
  */
-const _store = window._gameStore;
-const { normalizeGuess, toLooseGuessKey } = _store;
+import { normalizeGuess, toLooseGuessKey } from './normalize.js';
 
-function addLookupEntry(lookup, looseLookup, entries, seenEntryKeys, key, country, source = "canonical") {
+function addLookupEntry(
+  lookup,
+  looseLookup,
+  entries,
+  seenEntryKeys,
+  key,
+  country,
+  source = 'canonical'
+) {
   const normalizedKey = normalizeGuess(key);
   if (!normalizedKey || !country) {
     return;
@@ -22,7 +28,7 @@ function addLookupEntry(lookup, looseLookup, entries, seenEntryKeys, key, countr
     looseLookup.set(looseKey, country);
   }
 
-  const entryKey = `${normalizedKey}::${country.properties?.name ?? ""}`;
+  const entryKey = `${normalizedKey}::${country.properties?.name ?? ''}`;
   if (!seenEntryKeys.has(entryKey)) {
     seenEntryKeys.add(entryKey);
     entries.push({ key: normalizedKey, country, source });
@@ -41,15 +47,28 @@ export function createCountryGuessLookup(countriesData, countryByName) {
       return;
     }
 
-    addLookupEntry(lookup, looseLookup, entries, seenEntryKeys, displayName, country, "canonical");
+    addLookupEntry(lookup, looseLookup, entries, seenEntryKeys, displayName, country, 'canonical');
 
-    if (displayName.startsWith("The ")) {
-      addLookupEntry(lookup, looseLookup, entries, seenEntryKeys, displayName.slice(4), country, "canonical");
+    if (displayName.startsWith('The ')) {
+      addLookupEntry(
+        lookup,
+        looseLookup,
+        entries,
+        seenEntryKeys,
+        displayName.slice(4),
+        country,
+        'canonical'
+      );
     }
 
-    const aliases = country?.properties?.aliases ?? country?.properties?.synonyms ?? country?.properties?.NAME_ALIASES;
+    const aliases =
+      country?.properties?.aliases ??
+      country?.properties?.synonyms ??
+      country?.properties?.NAME_ALIASES;
     if (Array.isArray(aliases)) {
-      aliases.forEach((aliasName) => addLookupEntry(lookup, looseLookup, entries, seenEntryKeys, aliasName, country, "alias"));
+      aliases.forEach((aliasName) =>
+        addLookupEntry(lookup, looseLookup, entries, seenEntryKeys, aliasName, country, 'alias')
+      );
     }
   });
 
@@ -62,9 +81,7 @@ export function createCountryGuessLookup(countriesData, countryByName) {
   return {
     countryByGuess: lookup,
     countryByLooseGuess: looseLookup,
-    countryLookupEntries: entries
+    countryLookupEntries: entries,
   };
 }
 
-// Backward-compat shims — remove once all callers use import
-window._gameStore.createCountryGuessLookup = createCountryGuessLookup;

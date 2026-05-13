@@ -31,13 +31,6 @@ import './map/globe.js';
 import './targetSelector.js';
 
 // Store
-import './store/constants.js';
-import './store/normalize.js';
-import './store/lookup.js';
-import './store/reducer.js';
-import './store/query.js';
-import './store/round.js';
-import './store/actions.js';
 import './store/index.js';
 
 // App modules

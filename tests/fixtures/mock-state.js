@@ -6,8 +6,8 @@ export const initialState = {
     stats: {
       plays: 0,
       correct: 0,
-      hintsUsed: 0
-    }
+      hintsUsed: 0,
+    },
   },
   current: {
     targetCountry: null,
@@ -16,8 +16,8 @@ export const initialState = {
     hintsRemaining: 3,
     guesses: [],
     hints: [],
-    selectedContinent: null
-  }
+    selectedContinent: null,
+  },
 };
 
 export const roundInProgressState = {
@@ -27,8 +27,8 @@ export const roundInProgressState = {
     stats: {
       plays: 0,
       correct: 0,
-      hintsUsed: 0
-    }
+      hintsUsed: 0,
+    },
   },
   current: {
     targetCountry: { id: 'FR', name: 'France' },
@@ -37,8 +37,8 @@ export const roundInProgressState = {
     hintsRemaining: 3,
     guesses: [],
     hints: [],
-    selectedContinent: null
-  }
+    selectedContinent: null,
+  },
 };
 
 export const roundWithWrongGuessesState = {
@@ -48,8 +48,8 @@ export const roundWithWrongGuessesState = {
     stats: {
       plays: 0,
       correct: 0,
-      hintsUsed: 0
-    }
+      hintsUsed: 0,
+    },
   },
   current: {
     targetCountry: { id: 'FR', name: 'France' },
@@ -58,8 +58,8 @@ export const roundWithWrongGuessesState = {
     hintsRemaining: 1,
     guesses: ['Germany', 'Italy'],
     hints: ['Europe'],
-    selectedContinent: null
-  }
+    selectedContinent: null,
+  },
 };
 
 export const roundCompletedState = {
@@ -69,8 +69,8 @@ export const roundCompletedState = {
     stats: {
       plays: 1,
       correct: 1,
-      hintsUsed: 1
-    }
+      hintsUsed: 1,
+    },
   },
   current: {
     targetCountry: { id: 'FR', name: 'France' },
@@ -79,8 +79,8 @@ export const roundCompletedState = {
     hintsRemaining: 3,
     guesses: ['France'],
     hints: ['Europe'],
-    selectedContinent: null
-  }
+    selectedContinent: null,
+  },
 };
 
 export const roundExhaustedState = {
@@ -90,8 +90,8 @@ export const roundExhaustedState = {
     stats: {
       plays: 1,
       correct: 0,
-      hintsUsed: 0
-    }
+      hintsUsed: 0,
+    },
   },
   current: {
     targetCountry: { id: 'FR', name: 'France' },
@@ -100,8 +100,8 @@ export const roundExhaustedState = {
     hintsRemaining: 0,
     guesses: ['Germany', 'Italy', 'Spain'],
     hints: [],
-    selectedContinent: null
-  }
+    selectedContinent: null,
+  },
 };
 
 export const stateWithContinentFilter = {
@@ -111,8 +111,8 @@ export const stateWithContinentFilter = {
     stats: {
       plays: 0,
       correct: 0,
-      hintsUsed: 0
-    }
+      hintsUsed: 0,
+    },
   },
   current: {
     targetCountry: { id: 'FR', name: 'France' },
@@ -121,15 +121,15 @@ export const stateWithContinentFilter = {
     hintsRemaining: 3,
     guesses: [],
     hints: [],
-    selectedContinent: 'Europe'
-  }
+    selectedContinent: 'Europe',
+  },
 };
 
 export const createStateWithStats = (plays, correct, hintsUsed) => ({
   game: {
     outcome: 'active',
     round: plays + 1,
-    stats: { plays, correct, hintsUsed }
+    stats: { plays, correct, hintsUsed },
   },
   current: {
     targetCountry: null,
@@ -138,6 +138,6 @@ export const createStateWithStats = (plays, correct, hintsUsed) => ({
     hintsRemaining: 3,
     guesses: [],
     hints: [],
-    selectedContinent: null
-  }
+    selectedContinent: null,
+  },
 });

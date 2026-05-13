@@ -6,22 +6,21 @@ import { mockCountries, createMockCountryLookup } from '../../fixtures/mock-coun
  * Tests country lookup table construction
  */
 describe('Store / Lookup', () => {
-  
   let lookup;
   let mockCountryData;
 
   beforeEach(() => {
     // Simulate the structure of real country data
-    mockCountryData = mockCountries.map(c => ({
+    mockCountryData = mockCountries.map((c) => ({
       properties: {
         id: c.id,
         name: c.name,
         displayName: c.name,
         aliases: c.aliases,
-        continent: c.continent
-      }
+        continent: c.continent,
+      },
     }));
-    
+
     lookup = createMockCountryLookup();
   });
 
@@ -38,10 +37,10 @@ describe('Store / Lookup', () => {
       // UK aliases
       expect(lookup['uk']).toBeDefined();
       expect(lookup['uk'].id).toBe('GB');
-      
+
       expect(lookup['britain']).toBeDefined();
       expect(lookup['britain'].id).toBe('GB');
-      
+
       // Should all point to same country
       expect(lookup['uk'].country).toBe('United Kingdom');
       expect(lookup['britain'].country).toBe('United Kingdom');
@@ -53,7 +52,7 @@ describe('Store / Lookup', () => {
       // Netherlands can be accessed with or without "The"
       expect(lookup['netherlands']).toBeDefined();
       expect(lookup['netherlands'].id).toBe('NL');
-      
+
       expect(lookup['the netherlands']).toBeDefined();
       expect(lookup['the netherlands'].id).toBe('NL');
     });
@@ -63,13 +62,13 @@ describe('Store / Lookup', () => {
     it('should correctly match multi-word country names', () => {
       expect(lookup['united kingdom']).toBeDefined();
       expect(lookup['united kingdom'].id).toBe('GB');
-      
+
       expect(lookup['united states']).toBeDefined();
       expect(lookup['united states'].id).toBe('US');
-      
+
       expect(lookup['costa rica']).toBeDefined();
       expect(lookup['costa rica'].id).toBe('CR');
-      
+
       expect(lookup['côte d ivoire']).toBeDefined();
       expect(lookup['côte d ivoire'].id).toBe('CI');
     });
@@ -79,10 +78,10 @@ describe('Store / Lookup', () => {
     it('should not create duplicate entries for same country', () => {
       // The lookup is a Map, so keys are unique
       // France appears only once even though it could be accessed multiple ways
-      const frKeys = Object.keys(lookup).filter(k => lookup[k].id === 'FR');
-      
+      const frKeys = Object.keys(lookup).filter((k) => lookup[k].id === 'FR');
+
       // Should have canonical and possibly alias variations, but all point to same country
-      frKeys.forEach(key => {
+      frKeys.forEach((key) => {
         expect(lookup[key].id).toBe('FR');
         expect(lookup[key].country).toBe('France');
       });
@@ -96,12 +95,12 @@ describe('Store / Lookup', () => {
         { properties: {} },
         { properties: { name: null } },
         {},
-        null
+        null,
       ];
 
       // Test that empty/null handling doesn't throw
       expect(() => {
-        invalidCountries.forEach(country => {
+        invalidCountries.forEach((country) => {
           if (!country || !country.properties || !country.properties.name) {
             return; // Skip processing
           }

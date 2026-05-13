@@ -1,12 +1,10 @@
 /**
  * @fileoverview Country-guess resolution and autocomplete query helpers.
  *
- * Reads from live state via `_store.getCurrentState()`.
- * Exposes `resolveCountryGuess` and `getSuggestedCountryNames` on
- * `window._gameStore`.
+ * Reads from live state via `getCurrentState()`.
  */
-const _store = window._gameStore;
-const { normalizeGuess, toLooseGuessKey, getCurrentState } = _store;
+import { normalizeGuess, toLooseGuessKey } from './normalize.js';
+import { getCurrentState } from './reducer.js';
 
 const fuzzyDistanceLimit = 2;
 const minFuzzyQueryLength = 3;
@@ -38,7 +36,7 @@ function getCountrySuggestionGroups(state) {
         country,
         countryName,
         displayName: countryName,
-        entries: []
+        entries: [],
       });
     }
 
@@ -51,15 +49,19 @@ function getCountrySuggestionGroups(state) {
 }
 
 function getTokenSet(key) {
-  return new Set(String(key ?? "").split(" ").filter(Boolean));
+  return new Set(
+    String(key ?? '')
+      .split(' ')
+      .filter(Boolean)
+  );
 }
 
 function getAcronymKey(key) {
-  return String(key ?? "")
-    .split(" ")
+  return String(key ?? '')
+    .split(' ')
     .filter(Boolean)
     .map((token) => token[0])
-    .join("");
+    .join('');
 }
 
 function getEditDistance(left, right) {
@@ -81,11 +83,13 @@ function getEditDistance(left, right) {
 
     for (let shorterIndex = 1; shorterIndex <= shorter.length; shorterIndex += 1) {
       const substitutionCost = shorter[shorterIndex - 1] === longerChar ? 0 : 1;
-      currentRow.push(Math.min(
-        previousRow[shorterIndex] + 1,
-        currentRow[shorterIndex - 1] + 1,
-        previousRow[shorterIndex - 1] + substitutionCost
-      ));
+      currentRow.push(
+        Math.min(
+          previousRow[shorterIndex] + 1,
+          currentRow[shorterIndex - 1] + 1,
+          previousRow[shorterIndex - 1] + substitutionCost
+        )
+      );
     }
 
     previousRow = currentRow;
@@ -119,7 +123,11 @@ function scoreFuzzyCountryMatch(queryKey, candidateKey) {
 
   const queryTokens = getTokenSet(queryKey);
   const candidateTokens = getTokenSet(candidateKey);
-  if (allowSubstringMatching && queryTokens.size > 0 && [...queryTokens].every((token) => candidateTokens.has(token))) {
+  if (
+    allowSubstringMatching &&
+    queryTokens.size > 0 &&
+    [...queryTokens].every((token) => candidateTokens.has(token))
+  ) {
     return { score: 4, distance: 0 };
   }
 
@@ -149,7 +157,10 @@ function getBestFuzzyCountryMatch(state, queryKey) {
         continue;
       }
 
-      if (candidateMatch.score < bestMatch.score || (candidateMatch.score === bestMatch.score && candidateMatch.distance < bestMatch.distance)) {
+      if (
+        candidateMatch.score < bestMatch.score ||
+        (candidateMatch.score === bestMatch.score && candidateMatch.distance < bestMatch.distance)
+      ) {
         bestMatch = candidateMatch;
       }
     }
@@ -176,7 +187,9 @@ function getBestFuzzyCountryMatch(state, queryKey) {
   });
 
   const bestMatch = matches[0];
-  const tiedMatches = matches.filter((match) => match.score === bestMatch.score && match.distance === bestMatch.distance);
+  const tiedMatches = matches.filter(
+    (match) => match.score === bestMatch.score && match.distance === bestMatch.distance
+  );
 
   return tiedMatches.length === 1 ? bestMatch.country : null;
 }
@@ -191,7 +204,8 @@ export function resolveCountryGuess(guessName) {
   const strictMatch = state.countryByGuess.get(normalizedGuess);
   const looseGuess = toLooseGuessKey(normalizedGuess);
   const looseMatch = looseGuess ? state.countryByLooseGuess.get(looseGuess) : null;
-  const fuzzyMatch = strictMatch || looseMatch ? null : getBestFuzzyCountryMatch(state, normalizedGuess);
+  const fuzzyMatch =
+    strictMatch || looseMatch ? null : getBestFuzzyCountryMatch(state, normalizedGuess);
   const match = strictMatch || looseMatch || fuzzyMatch || null;
 
   if (!match) {
@@ -218,7 +232,9 @@ export function getSuggestedCountryNames(query, limit = 8) {
   }
 
   if (prefixMatches.length > 0) {
-    return [...new Set(prefixMatches)].sort((left, right) => left.localeCompare(right)).slice(0, limit);
+    return [...new Set(prefixMatches)]
+      .sort((left, right) => left.localeCompare(right))
+      .slice(0, limit);
   }
 
   if (normalizedQuery.length < minFuzzyQueryLength) {
@@ -237,7 +253,11 @@ export function getSuggestedCountryNames(query, limit = 8) {
       }
 
       const candidateMatch = { key, ...matchScore };
-      if (!bestMatch || candidateMatch.score < bestMatch.score || (candidateMatch.score === bestMatch.score && candidateMatch.distance < bestMatch.distance)) {
+      if (
+        !bestMatch ||
+        candidateMatch.score < bestMatch.score ||
+        (candidateMatch.score === bestMatch.score && candidateMatch.distance < bestMatch.distance)
+      ) {
         bestMatch = candidateMatch;
       }
     }
@@ -249,7 +269,7 @@ export function getSuggestedCountryNames(query, limit = 8) {
     fuzzyMatches.push({
       countryName: group.displayName ?? group.countryName,
       key: bestMatch.key,
-      ...bestMatch
+      ...bestMatch,
     });
   }
 
@@ -269,6 +289,3 @@ export function getSuggestedCountryNames(query, limit = 8) {
     .slice(0, limit);
 }
 
-// Backward-compat shims — remove once all callers use import
-window._gameStore.resolveCountryGuess = resolveCountryGuess;
-window._gameStore.getSuggestedCountryNames = getSuggestedCountryNames;

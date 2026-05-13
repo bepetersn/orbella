@@ -15,10 +15,26 @@ function _isDebugEnabled() {
 }
 
 export const worldleLiteLogger = {
-  debug: (...args) => { if (_isDebugEnabled()) { (console.debug || console.log).apply(console, args); } },
-  info:  (...args) => { if (_isDebugEnabled()) { (console.info  || console.log).apply(console, args); } },
-  warn:  (...args) => { (console.warn  || console.log).apply(console, args); },
-  error: (...args) => { (console.error || console.log).apply(console, args); },
-  group:    (...args) => { if (_isDebugEnabled() && console.group)    console.group(...args); },
-  groupEnd: ()       => { if (_isDebugEnabled() && console.groupEnd) console.groupEnd(); }
+  debug: (...args) => {
+    if (_isDebugEnabled()) {
+      (console.debug || console.log).apply(console, args);
+    }
+  },
+  info: (...args) => {
+    if (_isDebugEnabled()) {
+      (console.info || console.log).apply(console, args);
+    }
+  },
+  warn: (...args) => {
+    (console.warn || console.log).apply(console, args);
+  },
+  error: (...args) => {
+    (console.error || console.log).apply(console, args);
+  },
+  group: (...args) => {
+    if (_isDebugEnabled() && console.group) console.group(...args);
+  },
+  groupEnd: () => {
+    if (_isDebugEnabled() && console.groupEnd) console.groupEnd();
+  },
 };
