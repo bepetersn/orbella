@@ -93,9 +93,4 @@ describe('round/ui', () => {
       expect(runtime.dom.guessList.children[0].classList.contains('empty')).toBe(true);
     });
   });
-
-  it('runtime.roundUi shim is written', () => {
-    expect(typeof runtime.roundUi.setFeedback).toBe('function');
-    expect(typeof runtime.roundUi.updateStats).toBe('function');
-  });
 });

@@ -530,6 +530,8 @@ export function resetAll() {
   getRuntime().roundTransitions.clearRoundTransition();
   getRuntime().roundUi.clearCelebration();
   getActions().resetScores();
+  solvedCountriesByRegion.clear();
+  celebratedRegions.clear();
   startRound();
 }
 

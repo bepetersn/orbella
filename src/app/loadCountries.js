@@ -28,9 +28,7 @@ export async function loadAndInitCountries({ config, runtime, _rt, startup }) {
   const url = cacheBust ? baseUrl + (baseUrl.includes('?') ? '&' : '?') + cacheBust : baseUrl;
   startup?.step('loading countries dataset', { url, cacheBust: cacheBust ?? 'none' });
   try {
-    const data = runtime.d3?.json
-      ? await runtime.d3.json(url)
-      : await fetch(url).then((r) => r.json());
+    const data = await fetch(url).then((r) => r.json());
     const features = Array.isArray(data?.features) ? data.features : [];
     startup?.step('countries dataset loaded', { url, features: features.length });
     const countryNames = features

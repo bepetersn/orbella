@@ -18,21 +18,6 @@ const getConfig = () => getRuntime().config ?? {};
 const getActions = () => getRuntime().actions ?? {};
 let lastAppliedContinent = null;
 
-// Guard: only register the shim when the runtime is already installed
-// (i.e. in tests).  Production wires runtime.input in bootstrap.js.
-if (typeof window !== 'undefined' && window.worldleLiteRuntime) {
-  window.worldleLiteRuntime.input = {
-    validateInput,
-    clearForm,
-    clearSuggestions,
-    syncGuessButtonState,
-    isCountryInSelectedContinent,
-    renderSuggestions,
-    bindInputHandlers,
-    populateContinentFilter,
-  };
-}
-
 export function clearSuggestions() {
   getDom().suggestionsBox.innerHTML = '';
   getDom().suggestionsBox.style.display = 'none';

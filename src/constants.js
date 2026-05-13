@@ -3,8 +3,8 @@
  *
  * Fixed UI values, strings, colors, and other non-configurable constants.
  *
- * Exposed globally as {@link window.gameConstants}.
  */
+
 export const gameConstants = {
   // DOM selectors and CSS classes
   MAP_SELECTOR: '#globeViz',
@@ -99,9 +99,6 @@ export const gameConstants = {
     },
   },
 };
-
-// Backward-compat shim — remove once all callers use import
-window.gameConstants = gameConstants;
 
 /** Named export for the COPY block so callers can import it directly. */
 export const COPY = gameConstants.COPY;

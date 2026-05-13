@@ -9,6 +9,7 @@
  * Exported as {@link window.themeSystem}.
  */
 import { gameConfig } from './config.js';
+import { gameConstants } from './constants.js';
 
 const { COPY, THEME_STORAGE_KEY } = gameConfig;
 let themeToggleElement = null;
@@ -69,7 +70,7 @@ function updateGlobeTexture(theme) {
 
       // Update the canvas background color for the new theme
       try {
-        const backgrounds = window.gameConstants?.GLOBE_BACKGROUND;
+        const backgrounds = gameConstants.GLOBE_BACKGROUND;
         if (backgrounds && typeof globe.backgroundColor === 'function') {
           globe.backgroundColor(backgrounds[theme] || backgrounds.light);
         }

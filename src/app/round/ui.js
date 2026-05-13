@@ -25,28 +25,6 @@ const confettiColors = [
   '#f97316',
 ];
 
-// In tests, buildRuntime() sets window.worldleLiteRuntime before importing
-// this module, so we can write the shim immediately.  In production the
-// bootstrap module wires runtime.roundUi itself before calling setRuntime(),
-// so the guard keeps this from throwing during the initial import chain.
-if (typeof window !== 'undefined' && window.worldleLiteRuntime) {
-  window.worldleLiteRuntime.roundUi = {
-    setFeedback,
-    clearFeedback,
-    updateStats,
-    updateHintUsage,
-    setHints,
-    clearHints,
-    shakeInput,
-    renderGuessPlaceholders,
-    fillNextGuessPill,
-    showCelebration,
-    clearCelebration,
-    renderLinkedCountryName,
-    buildWikipediaUrl,
-  };
-}
-
 export function clearCelebration() {
   getTimers()?.cancel('celebration');
 

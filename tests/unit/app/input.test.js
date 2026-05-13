@@ -82,11 +82,4 @@ describe('input', () => {
       expect(runtime.dom.suggestionsBox.style.display).toBe('none');
     });
   });
-
-  it('runtime.input shim is written', () => {
-    expect(typeof runtime.input.validateInput).toBe('function');
-    expect(typeof runtime.input.clearForm).toBe('function');
-    expect(typeof runtime.input.isCountryInSelectedContinent).toBe('function');
-    expect(typeof runtime.input.syncGuessButtonState).toBe('function');
-  });
 });

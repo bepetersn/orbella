@@ -1,10 +1,10 @@
-// Lightweight Globe.gl initializer — deliberately simple and maintainable.
 // Responsibility: render a globe into #globeViz using provided GeoJSON.
 // Bootstrap loads the GeoJSON and calls `createWorldleGlobe(geojson)`.
 
 import { createHaloManager } from './globe-halo.js';
 import { installDebugHelpers } from '../app/debug.js';
 import { worldleLiteLogger } from '../app/logger.js';
+import { gameConstants } from '../constants.js';
 // Top-level helpers pulled out of the `createWorldleGlobe` closure so they
 // can be inspected and tested independently. They accept explicit
 // parameters (including logger functions) instead of relying on closure
@@ -21,45 +21,16 @@ const HALO_CONFIG = {
 };
 const noop = (..._args) => {};
 
-// Fallback globe background colors when window.gameConstants is not yet available.
-// Mirror gameConstants.GLOBE_BACKGROUND in src/constants.js.
-const FALLBACK_GLOBE_BACKGROUND = {
-  light: 'rgba(210, 225, 240, 1.0)',
-  dark: 'rgba(10, 18, 36, 1.0)',
-};
-
-// Fallback colors used when window.gameConstants is not yet available.
-// These values mirror gameConstants.COUNTRY_COLORS in src/constants.js.
-// If the palette changes there, update here too.
-const FALLBACK_COUNTRY_COLORS = {
-  light: {
-    fill: '#e8eef5',
-    stroke: 'rgba(71, 85, 105, 0.85)',
-    correct: '#58b48a',
-    wrong: '#ffd4a3',
-    wrongStroke: '#ff8c42',
-    target: '#dc2626',
-  },
-  dark: {
-    fill: '#3a557d',
-    stroke: 'rgba(236, 242, 248, 0.96)',
-    correct: '#2f8f6b',
-    wrong: '#ffb366',
-    wrongStroke: '#ff9500',
-    target: '#ef4444',
-  },
-};
-
 // Top-level: get country colors based on current theme from constants
 // Returns the appropriate color set for light or dark theme
 const getCountryColorsTop = ({ theme = 'light' } = {}) => {
-  const constants = window.gameConstants?.COUNTRY_COLORS ?? FALLBACK_COUNTRY_COLORS;
-  return constants[theme] || constants.light;
+  const colors = gameConstants.COUNTRY_COLORS;
+  return colors[theme] || colors.light;
 };
 
 // Top-level: get globe canvas background color for the given theme
 const getGlobeBackground = ({ theme = 'light' } = {}) => {
-  const backgrounds = window.gameConstants?.GLOBE_BACKGROUND ?? FALLBACK_GLOBE_BACKGROUND;
+  const backgrounds = gameConstants.GLOBE_BACKGROUND;
   return backgrounds[theme] || backgrounds.light;
 };
 

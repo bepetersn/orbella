@@ -53,7 +53,7 @@ npm test -- --watch
 ## Test Suite Overview
 
 ### Statistics
-- **Total Tests**: 91 test cases
+- **Total Tests**: 335 test cases
 - **Unit Tests**: 75 tests across 11 files
 - **Integration Tests**: 16 tests across 2 files
 - **Test Files**: 13 files
@@ -755,7 +755,7 @@ A: Use `it.only()` to run only that test.
 ## Summary
 
 This comprehensive test suite provides:
-- ✅ **91 test cases** covering all core game logic
+- ✅ **335 test cases** covering all core game logic
 - ✅ **Pure function testing** with no DOM dependencies
 - ✅ **Realistic mock data** for accurate scenario testing
 - ✅ **Clear documentation** with examples and patterns
@@ -768,4 +768,4 @@ This comprehensive test suite provides:
 
 *Last updated: May 3, 2026*  
 *Test Suite Version: 1.0*  
-*Total Tests: 91 • Coverage Target: >70%*
+*Total Tests: 335 • Coverage Target: >70%*

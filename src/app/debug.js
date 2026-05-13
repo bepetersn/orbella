@@ -5,13 +5,10 @@
  * exposed on `window` for map inspection/testing.
  */
 import { worldleLiteLogger as log } from './logger.js';
+import { getRuntime } from './runtime.js';
 log.debug('[debug] debug.js loaded');
 let debugTooltipEl = null;
 let debugHelpersInstalled = false;
-
-function getRuntime() {
-  return window.worldleLiteRuntime;
-}
 
 function getD3() {
   return getRuntime()?.d3 || null;

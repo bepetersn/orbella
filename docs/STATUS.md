@@ -1,6 +1,6 @@
 # Project Status — Worldle Lite
 
-*Last updated: May 12, 2026 (review 2)*
+*Last updated: May 12, 2026 (review 2 — fixes applied)*
 
 ---
 
@@ -23,7 +23,7 @@ Worldle Lite is a single-page geography guessing game. Each round zooms a 3D glo
 
 ### Tests
 
-All **337 tests pass** across **26 test files** as of the last run.
+All **335 tests pass** across **26 test files** as of the last run.
 
 | Scope | Files | Tests |
 |---|---|---|
@@ -39,14 +39,9 @@ Coverage is **75.38% overall** — above the >70% target. `src/store/` sits at *
 
 ### Recent Work (last 3 commits)
 
+- **Code review 2 fixes applied:** Fixed the `solvedCountriesByRegion`/`celebratedRegions` new-game bug in `control.js`; replaced `debug.js`'s private `getRuntime()` with a proper import; removed the duplicate `syncDebugToggleUi` call in `bindings.js`; replaced `globe.js` fallback color constants with a direct `gameConstants` import and removed the `window.gameConstants` global shim from `constants.js`; deleted the `d3.json` fetch path from `loadCountries.js`; removed self-registration shims from `ui.js` and `input.js`; test count dropped to 335 (2 shim-testing tests deleted).
 - **Second code review written:** Produced `docs/reviews/code-review-2026-05-12.md`; identified new issues including module-level unresettable state in `control.js`, `debug.js` bypassing `getRuntime()`, double `syncDebugToggleUi` call in `bindings.js`, color-palette duplication between `globe.js` and `constants.js`, import-time self-registration shims in `ui.js`/`input.js`, and parameter mutation in `loadCountries.js`.
-- **README.md module map updated:** Expanded the "What Lives Where" section to list all current source modules (`globe-halo.js`, `animations.js`, `rendering.js`, `loader.js`, `state.js`, `utils.js`, `map/constants.js`, `loadCountries.js`, `bindings.js`, `dom.js`, `logger.js`, `constants.js`, `targetSelector.js`); removed the collapsed multi-module line for `src/app/`.
 - **Coverage milestone:** Overall coverage crossed the >70% target at **75.38%**; `src/store/` reached 93.22%, `src/map/geometry.js` reached 91.56%, and `src/store/actions.js` reached 96.84%; test count grew to 337 across 26 files.
-- **Cyclomatic complexity audit:** Measured CC for all `src/` modules using acorn; identified `createWorldleGlobe` (CC=77) and `createHaloManager` (CC=60) as critical; documented targeted per-function refactor recommendations in STATUS.md.
-- **D3 usage audit:** D3 is needed only for geo-math (`geoCentroid`, `geoArea`, `geoDistance` in `geometry.js`) and zoom helpers (`zoomIdentity`, `zoomTransform`, `easeCircleOut` in `animations.js`); the two `d3.json()` fetch calls could be replaced with plain `fetch()`; all `d3.select*` / projection usage lives in the dead `src/map/index.js` and would disappear with it.
-- **Store coverage boost:** Added four new test files (`reducer`, `lookup`, `round`, `query`) that import and exercise the real store modules; overall coverage rose from 55.2% → 67.61% and `src/store/` rose from 27.91% → 79.58% (308 tests, 28 files).
-- **AI-assisted dev setup:** Added `jsconfig.json` (`checkJs: true`) and `CLAUDE.md` (Claude Code context file) so both Copilot and Claude sessions have grounded project context; `jsconfig.json` covers all source, test, and pipeline files while excluding vendor and dist.
-- **Prettier formatting pass:** Normalised code style across all test files (`store/`, `pipeline/`, `targetSelector`, `theme`) and `vite.config.js`. No logic changes — trailing commas, single quotes, arrow-function parens, and line-width wrapping brought into line with project style.
 
 ---
 
@@ -54,14 +49,13 @@ Coverage is **75.38% overall** — above the >70% target. `src/store/` sits at *
 
 | # | Issue | Severity |
 |---|---|---|
-| 1 | `main.js` is still all side-effect imports in a load-bearing order. Multiple modules write globals (`window.gameConstants`, `window.worldMap`, `window.audioFeedback`, `window.themeSystem`, `window.targetSelector`, `window.worldleLiteSettings`) during import. This is the last remnant of the pre-Vite `<script>` tag architecture. | 🔥 High |
+| 1 | `main.js` is still all side-effect imports in a load-bearing order. Multiple modules write globals (`window.worldMap`, `window.audioFeedback`, `window.themeSystem`, `window.targetSelector`, `window.worldleLiteSettings`) during import. This is the last remnant of the pre-Vite `<script>` tag architecture. | 🔥 High |
 | 2 | `src/map/index.js` is almost certainly dead code. It defines a D3 SVG `createWorldMap` that is imported as a side effect in `main.js` (registering `window.worldMap`) but `createWorldMap` is never called anywhere in the codebase. The app uses `worldMapInst` (Globe.gl) exclusively. | 🔥 High |
 | 3 | Coverage is **75.38% overall** — above the >70% target. `src/store/` is at 93.22%, `src/map/geometry.js` is at 91.56%. Remaining gaps: `src/app/round/ui.js` (41.51%), `src/app/input.js` (40.3%), `src/app/debug.js` (13.89%). | Low |
-| 4 | `tests/README.md` is severely outdated — it claims 91 tests (reality: 337) and marks the store modules as "✅ Complete" with stale coverage numbers. | Medium |
-| 5 | `runtime.js` falls back to `window.worldleLiteRuntime` when `_runtime` is null so test-reset module state survives `vi.resetModules()`. This is a test-architecture smell — don't replicate. | Medium |
-| 6 | `src/store/normalize.js` has a stale JSDoc on line 4 claiming it "Exposes `normalizeGuess` and `toLooseGuessKey` on `window._gameStore`" — it does no such thing; the `window._gameStore` bus has been removed from the code. | Low |
-| 7 | Every function body in `src/app/debug.js` is indented two extra spaces at module scope, as if an outer wrapper was removed without re-indenting. | Low |
-| 8 | `src/map/globe.js` and `src/map/globe-halo.js` have severe cyclomatic complexity — `createWorldleGlobe` (CC=77), `createHaloManager` (CC=60), `createRuntimeStubTop` (CC=37). See recommendations below. | 🔥 High |
+| 4 | `runtime.js` falls back to `window.worldleLiteRuntime` when `_runtime` is null so test-reset module state survives `vi.resetModules()`. This is a test-architecture smell — don't replicate. | Medium |
+| 5 | `src/store/normalize.js` has a stale JSDoc on line 4 claiming it "Exposes `normalizeGuess` and `toLooseGuessKey` on `window._gameStore`" — it does no such thing; the `window._gameStore` bus has been removed from the code. | Low |
+| 6 | `src/map/globe.js` and `src/map/globe-halo.js` have severe cyclomatic complexity — `createWorldleGlobe` (CC=77), `createHaloManager` (CC=60), `createRuntimeStubTop` (CC=37). See recommendations below. | 🔥 High |
+| 7 | `loadCountries.js` still mutates the `runtime` parameter directly (`runtime.worldMapInst = worldMapInst`). The function should return `worldMapInst` and let the caller assign it. | Medium |
 
 ---
 

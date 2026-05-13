@@ -59,7 +59,6 @@ export function initializeCopy(dom, COPY, buildId) {
     const text = COPY[section]?.[prop];
     if (el && text) el.textContent = text;
   }
-  window.worldleLiteDebug?.syncDebugToggleUi?.();
   syncDebugToggleUi();
 }
 
