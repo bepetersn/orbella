@@ -1,96 +1,75 @@
-import { describe, it, expect } from 'vitest';
-
 /**
- * Unit Tests for src/store/normalize.js
- * Tests country name normalization logic
+ * Tests for src/store/normalize.js — imports and exercises the REAL module.
  */
-describe('Store / Normalize', () => {
-  // Pure implementation of normalize for testing
-  const combiningMarkPattern = /\p{M}/gu;
-  const apostropheLikePattern = /[''`´]/gu;
-  const ampersandPattern = /&/gu;
-  const looseKeyNonAlphaNumericPattern = /[^\p{L}\p{N}]/gu;
+import { describe, it, expect } from 'vitest';
+import { normalizeGuess, toLooseGuessKey } from '../../../src/store/normalize.js';
 
-  function normalizeGuess(guessName) {
-    return String(guessName ?? '')
-      .trim()
-      .normalize('NFKD')
-      .replace(combiningMarkPattern, '')
-      .replace(ampersandPattern, ' and ')
-      .replace(apostropheLikePattern, ' ')
-      .replace(/[^\p{L}\p{N}]+/gu, ' ')
-      .replace(/\s+/g, ' ')
-      .toLowerCase()
-      .trim();
-  }
-
-  function toLooseGuessKey(guessName) {
-    const normalized = normalizeGuess(guessName);
-    return normalized
-      .split(/\s+/)
-      .filter((word) => word.length > 1)
-      .join('');
-  }
-
-  describe('test_normalizeGuess_caseInsensitive', () => {
-    it('should treat different cases as equivalent', () => {
+describe('Store / Normalize (real)', () => {
+  describe('normalizeGuess', () => {
+    it('treats different cases as equivalent', () => {
       expect(normalizeGuess('France')).toBe(normalizeGuess('FRANCE'));
       expect(normalizeGuess('France')).toBe(normalizeGuess('france'));
       expect(normalizeGuess('FRANCE')).toBe('france');
     });
-  });
 
-  describe('test_normalizeGuess_whitespace', () => {
-    it('should trim and collapse whitespace', () => {
+    it('trims and collapses whitespace', () => {
       expect(normalizeGuess('  france  ')).toBe('france');
       expect(normalizeGuess('united  kingdom')).toBe('united kingdom');
       expect(normalizeGuess('  costa   rica  ')).toBe('costa rica');
       expect(normalizeGuess('\tfrance\n')).toBe('france');
     });
-  });
 
-  describe('test_normalizeGuess_diacritics', () => {
-    it('should normalize diacritics for matching', () => {
-      const normalized1 = normalizeGuess("Côte d'Ivoire");
-      const normalized2 = normalizeGuess('Cote d Ivoire');
-      // Both should normalize to same form
-      expect(normalized1).toBe(normalized2);
+    it('strips diacritics so accented and plain forms match', () => {
+      expect(normalizeGuess("Côte d'Ivoire")).toBe(normalizeGuess('Cote d Ivoire'));
+      expect(normalizeGuess('café')).toBe('cafe');
+      expect(normalizeGuess('España')).toBe('espana');
+    });
 
-      // Accents removed
-      const frenchAccent = normalizeGuess('café');
-      expect(frenchAccent).toBe('cafe');
+    it('converts & to "and"', () => {
+      expect(normalizeGuess('Trinidad & Tobago')).toBe('trinidad and tobago');
+    });
 
-      const spanishN = normalizeGuess('España');
-      expect(spanishN).toBe('espana');
+    it('replaces hyphens and straight/curly apostrophes with spaces', () => {
+      expect(normalizeGuess('Bosnia-Herzegovina')).toBe('bosnia herzegovina');
+      expect(normalizeGuess("Côte d'Ivoire")).toBe(normalizeGuess("Côte d'Ivoire"));
+    });
+
+    it('returns empty string for null and undefined', () => {
+      expect(normalizeGuess(null)).toBe('');
+      expect(normalizeGuess(undefined)).toBe('');
+    });
+
+    it('returns empty string for whitespace-only input', () => {
+      expect(normalizeGuess('   ')).toBe('');
     });
   });
 
-  describe('test_normalizeGuess_specialCharacters', () => {
-    it('should handle quotes, hyphens consistently', () => {
-      const withQuote1 = normalizeGuess("Côte d'Ivoire");
-      const withQuote2 = normalizeGuess("Côte d'Ivoire");
-      expect(withQuote1).toBe(withQuote2);
-
-      const withHyphen = normalizeGuess('Bosnia-Herzegovina');
-      expect(withHyphen).toBe('bosnia herzegovina');
-
-      const withAnd = normalizeGuess('Trinidad & Tobago');
-      expect(withAnd).toBe('trinidad and tobago');
+  describe('toLooseGuessKey', () => {
+    it('strips spaces and produces a single lowercase token', () => {
+      expect(toLooseGuessKey('United Kingdom')).toBe('unitedkingdom');
+      expect(toLooseGuessKey('France')).toBe('france');
     });
-  });
 
-  describe('test_looseGuessKey', () => {
-    it('should return fuzzy-match-friendly format without spaces', () => {
-      const looseKey = toLooseGuessKey('United Kingdom');
-      expect(looseKey).toBe('unitedkingdom');
+    it('handles diacritics the same way as normalizeGuess', () => {
+      const key = toLooseGuessKey("Côte d'Ivoire");
+      expect(key).toBe('coteivoire');
+      expect(key).not.toContain(' ');
+    });
 
-      const looseFrance = toLooseGuessKey('France');
-      expect(looseFrance).toBe('france');
+    it('filters out single-character words', () => {
+      // "d" in "Côte d Ivoire" is 1 char and should be dropped
+      expect(toLooseGuessKey("Côte d'Ivoire")).not.toContain('d');
+    });
 
-      const looseComplex = toLooseGuessKey("Côte d'Ivoire");
-      // Should be alphanumeric only, no spaces
-      expect(looseComplex).toBe('coteivoire');
-      expect(looseComplex).not.toContain(' ');
+    it('returns empty string for empty input', () => {
+      expect(toLooseGuessKey('')).toBe('');
+      expect(toLooseGuessKey(null)).toBe('');
+    });
+
+    it('two equivalent display names produce the same loose key', () => {
+      expect(toLooseGuessKey('United States of America')).toBe(
+        toLooseGuessKey('United States of America')
+      );
     });
   });
 });

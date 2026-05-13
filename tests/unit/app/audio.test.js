@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('audio', () => {
   let audioMod;
 
   beforeEach(async () => {
+    vi.useFakeTimers();
     vi.resetModules();
 
     const mockOscillator = {
@@ -32,6 +33,10 @@ describe('audio', () => {
     delete window.webkitAudioContext;
 
     audioMod = await import('../../../src/audio.js');
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('primeAudio is idempotent — calling multiple times does not throw', () => {
