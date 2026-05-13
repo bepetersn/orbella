@@ -14,7 +14,7 @@ Worldle Lite is a lightweight, single-page geography guessing game. Each round z
 - `pipeline/` owns preprocessing scripts that derive browser-ready data from the canonical GeoJSON source.
 - `src/app/runtime.js` builds the shared runtime context, `src/app/input.js` handles autocomplete and input, `src/app/round/` contains round UI/transition/flow modules, and `src/app/bootstrap.js` starts the app.
 - `styles.css` contains all visual styling for the game shell and states.
-- `diagrams/` holds the architecture and round lifecycle diagrams.
+- `docs/diagrams/` holds the architecture and round lifecycle diagrams.
 
 ## Features
 
@@ -69,11 +69,21 @@ npm test
 - `CONTINENT` becomes the app’s normalized continent fields, while the source ids (`ADM0_A3`, `ISO_A3`, `ISO_A2`, `WB_A2`, `WB_A3`, `ISO_N3`, `WIKIDATAID`) are preserved as metadata.
 - The generated dataset keeps the raw geometry plus normalized lookup fields so the browser stays simple while the data shape remains reusable.
 - Audio and vibration require browser support and user interaction before they will activate.
-- Round state and transitions live in `src/store/`; `src/app/round/control.js` handles round flow, `src/app/round/ui.js` handles round UI rendering, and `src/map/worldMap.js` handles the map visuals and source-specific normalization.
+- Round state and transitions live in `src/store/`; `src/app/round/control.js` handles round flow, `src/app/round/ui.js` handles round UI rendering, and `src/map/globe.js` handles the 3D globe visuals and country rendering.
 
 ## Architecture
 
-- [Architecture diagram](diagrams/architecture.mmd)
-- [Round lifecycle diagram](diagrams/round-lifecycle.mmd)
+- [Architecture diagram](docs/diagrams/architecture.mmd)
+- [Round lifecycle diagram](docs/diagrams/round-lifecycle.mmd)
 
 The architecture diagram shows the browser entrypoint, shared store, controller, and static assets. The round lifecycle diagram focuses on the hot path from guess submission to the end of a round.
+
+## Documentation
+
+| File | Purpose |
+|---|---|
+| [docs/STATUS.md](docs/STATUS.md) | Current project health: test results, coverage, recent work, and prioritised tech-debt backlog. |
+| [docs/reviews/code-review-2026-05-07.md](docs/reviews/code-review-2026-05-07.md) | Detailed code-review notes covering architecture problems, naming issues, and copy-paste archaeology. |
+| [.github/copilot-instructions.md](.github/copilot-instructions.md) | AI-assistant instructions: layer map, known tech debt, code style, test conventions, and commands. |
+| [tests/README.md](tests/README.md) | Test suite overview, fixture guide, patterns, and CI integration notes. |
+| [pipeline/README.md](pipeline/README.md) | Data pipeline: how to regenerate the GeoJSON render file. |

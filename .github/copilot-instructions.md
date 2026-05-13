@@ -2,6 +2,26 @@
 
 Worldle Lite is a single-page geography guessing game (Vite + Vitest, vanilla ES modules, Globe.gl + D3). Each round zooms a 3D globe to a highlighted country; the player names it before exhausting three distinct misses.
 
+**Key documentation:**
+- [README.md](../README.md) — project overview, features, how to run, module map.
+- [docs/STATUS.md](../docs/STATUS.md) — current test results, coverage numbers, recent work, and the prioritised tech-debt backlog.
+- [docs/reviews/code-review-2026-05-07.md](../docs/reviews/code-review-2026-05-07.md) — detailed review notes on architecture problems and code quality.
+- [tests/README.md](../tests/README.md) — test suite structure, fixture guide, and patterns.
+- [diagrams/architecture.mmd](../docs/diagrams/architecture.mmd) · [diagrams/round-lifecycle.mmd](../docs/diagrams/round-lifecycle.mmd) — visual architecture and round flow.
+
+---
+
+## ⚠️ Always update `docs/STATUS.md` after making changes
+
+After completing any task that affects the codebase, **you must update [docs/STATUS.md](../docs/STATUS.md)**. This is not optional. Specifically:
+
+- **Tests:** If you add, remove, or fix tests, update the test count and per-scope table.
+- **Coverage:** If coverage numbers change, update the overall percentage and the per-module breakdown.
+- **Recent Work:** Prepend a bullet to the "Recent Work" section describing what was just done (one concise sentence per logical change). Keep the section to the 3 most recent items.
+- **Known Issues / Tech Debt:** If you fix an item in the debt table, remove it. If you introduce new debt or discover an existing issue, add it with an appropriate severity.
+- **Next Priorities:** Re-order or revise the list to reflect the current state after your changes.
+- **Last updated date:** Update the date at the top of the file to today's date.
+
 ---
 
 ## Architecture — four layers
@@ -52,16 +72,13 @@ d3 → config → constants → theme → audio → settings → map/geometry
 
 The runtime singleton is backed by `window.worldleLiteRuntime` so it survives Vitest's module reset between tests. This is a test-architecture smell, not a feature. Don't replicate this pattern elsewhere.
 
-### 4. Two `vite.config.js` files exist (🔥 High)
+### 4. `docs/diagrams/architecture.mmd` and `README.md` reference `worldMap.js` (Medium)
 
-`/vite.config.js` (root) is the one Vite actually uses. `/src/vite.config.js` is a stale duplicate. Until it is deleted, do not edit the one under `src/`.
+Both `docs/diagrams/architecture.mmd` and the "Notes" section of `README.md` reference `src/map/worldMap.js`, which no longer exists. The actual module is `src/map/globe.js`. Do not add new references to `worldMap.js` anywhere.
 
-### 5. Other tracked issues
+### 5. `src/app/debug.js` — extra indentation at module scope (Low)
 
-- `diagrams/architecture.mmd` references `src/map/worldMap.js` which no longer exists (replaced by `src/map/globe.js`). The diagram is stale.
-- `src/app/bootstrap.js` calls `bindDebugToggle` twice — once through the global, once directly. Only the direct call is correct.
-- `tests/unit/app/input.test.js.bak` is committed to the repo and should be deleted.
-- `src/app/bootstrap.js` contains an anonymous IIFE that should be extracted as a named function (`buildRuntimeFromDeps`).
+Every function body in `debug.js` is indented two extra spaces at the module level, as if an outer wrapper was removed without re-indenting. This is cosmetic but makes the file confusing to read.
 
 ---
 
