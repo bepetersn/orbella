@@ -38,9 +38,9 @@ Coverage is **55.2% overall** — well below the >70% target. The top-level `src
 
 ### Recent Work (last 3 commits)
 
-- **Prettier formatting pass:** Normalised code style across all test files (`store/`, `pipeline/`, `targetSelector`, `theme`) and `vite.config.js`. No logic changes — trailing commas, single quotes, arrow-function parens, and line-length wrapping brought into line with project style.
-- **GeoJSON content-hash cache-busting:** `vite.config.js` now computes a short SHA-256 hash of `pipeline/data/generated/world-countries.render.json` at build time and exposes it as `__GEOJSON_HASH__`. The browser re-fetches the data file only when the file actually changes, not on every build. Falls back to `__BUILD_ID__` when the pipeline hasn't run yet.
-- **Bootstrap + auto-advance cleanup:** Reduced `bootstrap.js` substantially, extracted `loadCountries.js`, fixed the double `bindDebugToggle` call, tightened `autoAdvance.js`, and added more `config.test.js` coverage.
+- **AI-assisted dev setup:** Added `jsconfig.json` (`checkJs: true`) and `CLAUDE.md` (Claude Code context file) so both Copilot and Claude sessions have grounded project context; `jsconfig.json` covers all source, test, and pipeline files while excluding vendor and dist.
+- **Prettier formatting pass:** Normalised code style across all test files (`store/`, `pipeline/`, `targetSelector`, `theme`) and `vite.config.js`. No logic changes — trailing commas, single quotes, arrow-function parens, and line-width wrapping brought into line with project style.
+- **GeoJSON content-hash cache-busting:** `vite.config.js` now computes a short SHA-256 hash of `pipeline/data/generated/world-countries.render.json` at build time and exposes it as `__GEOJSON_HASH__`. Falls back to `__BUILD_ID__` when the pipeline hasn't run yet.
 
 ---
 

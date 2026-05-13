@@ -1,6 +1,9 @@
 # Build output
 dist/
 
+# Test coverage reports
+coverage/
+
 # Dependencies
 node_modules/
 

@@ -16,7 +16,8 @@
     "test:e2e": "playwright test",
     "test:all": "vitest --run && playwright test",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\" \"pipeline/**/*.js\" \"scripts/**/*.mjs\"",
-    "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\" \"pipeline/**/*.js\" \"scripts/**/*.mjs\""
+    "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\" \"pipeline/**/*.js\" \"scripts/**/*.mjs\"",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
@@ -24,6 +25,7 @@
     "@vitest/ui": "^0.34.0",
     "d3": "7.9.0",
     "globe.gl": "2.45.3",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "prettier": "^3.8.3",
     "vite": "^8.0.10",

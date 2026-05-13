@@ -40,6 +40,21 @@ To run the test suite:
 npm test
 ```
 
+## Automated checks
+
+### Pre-commit (runs automatically on `git commit`)
+
+The `husky` pre-commit hook (`.husky/pre-commit`) runs two steps and blocks the commit if either fails:
+
+1. `npm run format:check` — verifies all source, test, and pipeline files are Prettier-formatted.
+2. `npm test` — runs the full Vitest suite.
+
+The hook is installed automatically when you run `npm install` (via the `prepare` script).
+
+### Pre-build (runs automatically on `npm run build`)
+
+The `prebuild` npm lifecycle script runs `npm run vendor:verify` before every production build. This checks the SHA-256 hashes of the vendored `d3` and `globe.gl` files in `src/vendor/` against known-good values and aborts the build if they have changed.
+
 ## Structure
 
 - **Build tooling:** [Vite](https://vitejs.dev/) is the bundler and dev server (`vite.config.js`). `package.json` lists all runtime and development dependencies. Tests are run with [Vitest](https://vitest.dev/) (`vitest.config.js`).
