@@ -106,6 +106,65 @@ const computeGeoStats = (features) => {
   return stats;
 };
 
+const getGlobeMeshRadiusTop = (mesh) => {
+  if (!mesh?.geometry) return null;
+
+  if (!mesh.geometry.boundingSphere) {
+    mesh.geometry.computeBoundingSphere();
+  }
+
+  return mesh.geometry.boundingSphere && mesh.geometry.boundingSphere.radius * (mesh.scale?.x || 1);
+};
+
+const readGlobeDebugSnapshotTop = (globe) => {
+  const pov = typeof globe.pointOfView === 'function' ? globe.pointOfView() : null;
+  const cam = typeof globe.camera === 'function' ? globe.camera() : globe.camera;
+  const scene = globe.scene && globe.scene();
+  const mesh = scene?.children?.find((child) => child.type === 'Mesh');
+  const radius = getGlobeMeshRadiusTop(mesh);
+  const dist = cam?.position
+    ? Math.hypot(cam.position.x || 0, cam.position.y || 0, cam.position.z || 0)
+    : null;
+
+  return {
+    pov,
+    cam,
+    radius,
+    ratio: radius && dist ? dist / radius : null,
+  };
+};
+
+const formatGlobeDebugLinesTop = ({ pov, cam, radius, ratio }) => {
+  const lines = [];
+
+  lines.push(
+    'pov: ' +
+      (pov
+        ? `lat=${pov.lat.toFixed(3)},lng=${pov.lng.toFixed(3)},alt=${Number(pov.altitude).toFixed(3)}`
+        : 'n/a')
+  );
+
+  if (cam?.position) {
+    lines.push('cam.z: ' + Number(cam.position.z).toFixed(2) + ' fov:' + (cam.fov || 'n/a'));
+  }
+
+  lines.push('mesh radius: ' + (radius ? Number(radius).toFixed(2) : 'n/a'));
+  lines.push('dist/radius: ' + (ratio ? Number(ratio).toFixed(2) : 'n/a'));
+
+  return lines.join('\n');
+};
+
+const runDebugRafTop = (globe, dbgText, scheduleNext) => {
+  try {
+    const snapshot = readGlobeDebugSnapshotTop(globe);
+    dbgText.textContent = formatGlobeDebugLinesTop(snapshot);
+  } catch (e) {
+    /* ignore */
+  }
+
+  scheduleNext();
+};
+
 const createDebugPanelTop = (globe, { appendTo = document.body } = {}) => {
   try {
     const dbg = document.createElement('div');
@@ -136,39 +195,9 @@ const createDebugPanelTop = (globe, { appendTo = document.body } = {}) => {
 
     let rafId = null;
     const updateDebug = () => {
-      try {
-        const pov = typeof globe.pointOfView === 'function' ? globe.pointOfView() : null;
-        const cam = typeof globe.camera === 'function' ? globe.camera() : globe.camera;
-        const scene = globe.scene && globe.scene();
-        const mesh = scene && scene.children && scene.children.find((c) => c.type === 'Mesh');
-        let radius = null;
-        if (mesh && mesh.geometry) {
-          if (!mesh.geometry.boundingSphere) mesh.geometry.computeBoundingSphere();
-          radius =
-            mesh.geometry.boundingSphere &&
-            mesh.geometry.boundingSphere.radius * (mesh.scale?.x || 1);
-        }
-        const dist =
-          cam && cam.position
-            ? Math.hypot(cam.position.x || 0, cam.position.y || 0, cam.position.z || 0)
-            : null;
-        const ratio = radius && dist ? dist / radius : null;
-        const lines = [];
-        lines.push(
-          'pov: ' +
-            (pov
-              ? `lat=${pov.lat.toFixed(3)},lng=${pov.lng.toFixed(3)},alt=${Number(pov.altitude).toFixed(3)}`
-              : 'n/a')
-        );
-        if (cam && cam.position)
-          lines.push('cam.z: ' + Number(cam.position.z).toFixed(2) + ' fov:' + (cam.fov || 'n/a'));
-        lines.push('mesh radius: ' + (radius ? Number(radius).toFixed(2) : 'n/a'));
-        lines.push('dist/radius: ' + (ratio ? Number(ratio).toFixed(2) : 'n/a'));
-        dbgText.textContent = lines.join('\n');
-      } catch (e) {
-        /* ignore */
-      }
-      rafId = requestAnimationFrame(updateDebug);
+      runDebugRafTop(globe, dbgText, () => {
+        rafId = requestAnimationFrame(updateDebug);
+      });
     };
 
     const start = () => {
@@ -218,6 +247,182 @@ const findFeatureByNameTop = (data, country) => {
   return data.find((f) => normalizeCountryNameTop(f) === name) || null;
 };
 
+const shouldRenderFeatureTop = (feature, hideAntarctica = HIDE_ANTARCTICA_DEFAULT) => {
+  try {
+    const name =
+      feature?.properties?.name || feature?.properties?.NAME || feature?.properties?.ADMIN;
+    const excluded = feature?.properties?.EXCLUDED;
+
+    if (hideAntarctica && String(name).toLowerCase() === 'antarctica') {
+      return false;
+    }
+
+    return !excluded;
+  } catch (e) {
+    return true;
+  }
+};
+
+const applyGlobeExclusionsTop = (feature, excludedBounds) => {
+  if (!excludedBounds || excludedBounds.size === 0) return feature;
+
+  const key = String(feature?.properties?.name || feature?.properties?.NAME_EN || '')
+    .trim()
+    .toLowerCase();
+  const boxes = excludedBounds.get(key);
+
+  if (!boxes || !boxes.length || feature?.geometry?.type !== 'MultiPolygon') {
+    return feature;
+  }
+
+  const parts = feature.geometry.coordinates;
+  if (!Array.isArray(parts) || parts.length <= 1) return feature;
+
+  const kept = parts.filter((poly) => {
+    const ring = poly[0];
+    if (!Array.isArray(ring) || !ring.length) return true;
+
+    let sumLon = 0;
+    let sumLat = 0;
+
+    for (const pt of ring) {
+      sumLon += pt[0];
+      sumLat += pt[1];
+    }
+
+    const cLon = sumLon / ring.length;
+    const cLat = sumLat / ring.length;
+
+    return !boxes.some(
+      ([minLon, minLat, maxLon, maxLat]) =>
+        cLon >= minLon && cLon <= maxLon && cLat >= minLat && cLat <= maxLat
+    );
+  });
+
+  if (kept.length === parts.length) return feature;
+
+  const finalParts = kept.length > 0 ? kept : [parts[0]];
+
+  return {
+    ...feature,
+    geometry: {
+      type: finalParts.length === 1 ? 'Polygon' : 'MultiPolygon',
+      coordinates: finalParts.length === 1 ? finalParts[0] : finalParts,
+    },
+  };
+};
+
+const cloneAndFlipCoordinatesTop = (obj) => {
+  if (Array.isArray(obj)) {
+    if (obj.length >= 2 && typeof obj[0] === 'number' && typeof obj[1] === 'number') {
+      const rest = obj.slice(2);
+      return [-Number(obj[0]), Number(obj[1]), ...rest];
+    }
+
+    return obj.map(cloneAndFlipCoordinatesTop);
+  }
+
+  if (obj && typeof obj === 'object') {
+    const out = {};
+
+    for (const key of Object.keys(obj)) {
+      out[key] = cloneAndFlipCoordinatesTop(obj[key]);
+    }
+
+    return out;
+  }
+
+  return obj;
+};
+
+const buildProcessedFeaturesTop = (renderFeatures, flipped) => {
+  if (!flipped) return renderFeatures;
+
+  try {
+    return renderFeatures.map((feature) => {
+      try {
+        if (!feature?.geometry) return feature;
+
+        return {
+          ...feature,
+          geometry: cloneAndFlipCoordinatesTop(feature.geometry),
+        };
+      } catch (e) {
+        return feature;
+      }
+    });
+  } catch (e) {
+    return renderFeatures;
+  }
+};
+
+const centroidFromPropertiesTop = (properties, isMultiPolygon) => {
+  if (isMultiPolygon || !properties) return null;
+
+  if (Array.isArray(properties.geometryCenter) && properties.geometryCenter.length >= 2) {
+    return {
+      lat: properties.geometryCenter[1],
+      lng: properties.geometryCenter[0],
+    };
+  }
+
+  if (Array.isArray(properties.geometryBounds) && properties.geometryBounds.length >= 4) {
+    const [minLon, minLat, maxLon, maxLat] = properties.geometryBounds;
+    return {
+      lat: (minLat + maxLat) / 2,
+      lng: (minLon + maxLon) / 2,
+    };
+  }
+
+  return null;
+};
+
+const largestGeometryRingTop = (geometry) => {
+  if (geometry?.type === 'Polygon') {
+    return geometry.coordinates?.[0] || null;
+  }
+
+  if (geometry?.type !== 'MultiPolygon') {
+    return null;
+  }
+
+  let best = null;
+  let bestLen = -1;
+
+  for (const poly of geometry.coordinates) {
+    const ring = poly[0];
+    if (Array.isArray(ring) && ring.length > bestLen) {
+      best = ring;
+      bestLen = ring.length;
+    }
+  }
+
+  return best;
+};
+
+const centroidFromRingTop = (ring) => {
+  if (!Array.isArray(ring) || !ring.length) return null;
+
+  let sumLon = 0;
+  let sumLat = 0;
+  let count = 0;
+
+  for (const pt of ring) {
+    if (Array.isArray(pt) && pt.length >= 2 && Number.isFinite(pt[0]) && Number.isFinite(pt[1])) {
+      sumLon += pt[0];
+      sumLat += pt[1];
+      count += 1;
+    }
+  }
+
+  if (count === 0) return null;
+
+  return {
+    lat: sumLat / count,
+    lng: sumLon / count,
+  };
+};
+
 // Top-level: compute a { lat, lng } centroid from a country feature.
 // Returns null when no centroid can be determined.
 // NOTE: For MultiPolygon features we intentionally ignore precomputed
@@ -228,55 +433,11 @@ const findFeatureByNameTop = (data, country) => {
 const getCountryCentroidTop = (country) => {
   try {
     const isMulti = country?.geometry?.type === 'MultiPolygon';
-    const p = country && country.properties;
-    if (!isMulti) {
-      if (p && Array.isArray(p.geometryCenter) && p.geometryCenter.length >= 2) {
-        return { lat: p.geometryCenter[1], lng: p.geometryCenter[0] };
-      }
-      if (p && Array.isArray(p.geometryBounds) && p.geometryBounds.length >= 4) {
-        const [minLon, minLat, maxLon, maxLat] = p.geometryBounds;
-        return { lat: (minLat + maxLat) / 2, lng: (minLon + maxLon) / 2 };
-      }
-    }
-    if (country && country.geometry) {
-      // For MultiPolygon, pick the largest ring (by coordinate count) so that
-      // a small overseas territory listed first (e.g. French Guiana in France's
-      // data) doesn't pull the centroid to the wrong location.
-      let ring = null;
-      if (country.geometry.type === 'MultiPolygon') {
-        let best = null,
-          bestLen = -1;
-        for (const poly of country.geometry.coordinates) {
-          const r = poly[0];
-          if (Array.isArray(r) && r.length > bestLen) {
-            best = r;
-            bestLen = r.length;
-          }
-        }
-        ring = best;
-      } else if (country.geometry.type === 'Polygon') {
-        ring = country.geometry.coordinates[0];
-      }
-      const parts = ring;
-      if (Array.isArray(parts) && parts.length) {
-        let sumLon = 0,
-          sumLat = 0,
-          count = 0;
-        for (const pt of parts) {
-          if (
-            Array.isArray(pt) &&
-            pt.length >= 2 &&
-            Number.isFinite(pt[0]) &&
-            Number.isFinite(pt[1])
-          ) {
-            sumLon += pt[0];
-            sumLat += pt[1];
-            count += 1;
-          }
-        }
-        if (count > 0) return { lat: sumLat / count, lng: sumLon / count };
-      }
-    }
+    const propertyCentroid = centroidFromPropertiesTop(country?.properties, isMulti);
+    if (propertyCentroid) return propertyCentroid;
+
+    const ring = largestGeometryRingTop(country?.geometry);
+    return centroidFromRingTop(ring);
   } catch (e) {
     /* ignore */
   }
@@ -309,6 +470,140 @@ const applyPolygonStateTop = (globe, country, patch, { warn = (..._args) => {} }
   }
 };
 
+const resetRoundStateTop = (globe) => {
+  try {
+    const data = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
+    if (!Array.isArray(data)) return;
+
+    for (const feature of data) {
+      try {
+        if (feature?.properties) {
+          feature.properties._target = false;
+          feature.properties._solved = false;
+          feature.properties._wrong = false;
+        }
+      } catch (e) {
+        /* ignore per-feature errors */
+      }
+    }
+
+    try {
+      globe.polygonsData(data);
+    } catch (e) {
+      /* ignore */
+    }
+  } catch (e) {
+    /* ignore */
+  }
+};
+
+const markTargetTop = (
+  globe,
+  country,
+  { log = (..._args) => {}, warn = (..._args) => {} } = {}
+) => {
+  try {
+    log('[globe] markTarget', country?.properties?.name ?? country);
+
+    const data = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
+    if (Array.isArray(data)) {
+      for (const feature of data) {
+        try {
+          if (feature?.properties) {
+            feature.properties._target = false;
+          }
+        } catch (e) {
+          /* ignore per-feature errors */
+        }
+      }
+
+      const target = findFeatureByNameTop(data, country);
+      if (target?.properties) {
+        try {
+          target.properties._target = true;
+        } catch (e) {
+          /* ignore */
+        }
+
+        try {
+          globe.polygonsData(data);
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+
+    const centroidFeature =
+      findFeatureByNameTop(
+        typeof globe.polygonsData === 'function' ? globe.polygonsData() : null,
+        country
+      ) || country;
+    const centroid = getCountryCentroidTop(centroidFeature);
+
+    if (centroid) {
+      try {
+        globe.pointOfView({ lat: centroid.lat, lng: centroid.lng, altitude: 1.8 }, 600);
+      } catch (e) {
+        /* ignore */
+      }
+    }
+  } catch (e) {
+    warn('stub.markTarget failed', e);
+  }
+};
+
+const zoomToCountryTop = (globe, country) => {
+  try {
+    const centroid = getCountryCentroidTop(country);
+    if (centroid) {
+      globe.pointOfView({ lat: centroid.lat, lng: centroid.lng, altitude: 1.8 }, 600);
+    }
+  } catch (e) {
+    /* ignore */
+  }
+};
+
+const setRegionFilterTop = (globe, allFeatures, regionName, { info = noop, warn = noop } = {}) => {
+  try {
+    const activeContinentFilter = regionName ? String(regionName).trim() : null;
+    const filteredFeatures = activeContinentFilter
+      ? allFeatures.filter((feature) => isCountryInContinentTop(feature, activeContinentFilter))
+      : allFeatures;
+    globe.polygonsData(filteredFeatures);
+    info('setRegionFilter applied', {
+      region: activeContinentFilter,
+      renderCount: filteredFeatures.length,
+      totalCount: allFeatures.length,
+    });
+  } catch (e) {
+    warn('setRegionFilter failed', e);
+  }
+};
+
+const buildCountryLoadResultTop = (features) => ({
+  countriesData: features,
+  countryNames: features
+    .map((feature) => feature.properties?.name)
+    .filter(Boolean)
+    .sort(),
+  countryByName: new Map(
+    features.map((feature) => [String(feature.properties?.name || '').toLowerCase(), feature])
+  ),
+});
+
+const toggleAntarcticaDisplayTop = (globe, features, show, { info = noop, warn = noop } = {}) => {
+  try {
+    const shouldShow = typeof show === 'boolean' ? show : true;
+    const newList = shouldShow
+      ? features.filter((feature) => !feature?.properties?.EXCLUDED)
+      : features.filter((feature) => shouldRenderFeatureTop(feature, true));
+    globe.polygonsData(newList);
+    info('toggleAntarcticaDisplay', { show: shouldShow, renderCount: newList.length });
+  } catch (e) {
+    warn('toggleAntarcticaDisplay failed', e);
+  }
+};
+
 // Top-level: create a minimal runtime stub expected by the app.
 // Extracted from `createWorldleGlobe` so it can be tested and kept small.
 const createRuntimeStubTop = (
@@ -318,105 +613,14 @@ const createRuntimeStubTop = (
 ) => {
   try {
     let allFeatures = Array.isArray(features) ? features : [];
-    let activeContinentFilter = null;
 
     const stub = {
-      resetRoundState: () => {
-        try {
-          const data = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
-          if (Array.isArray(data)) {
-            for (const f of data) {
-              try {
-                if (f && f.properties) {
-                  f.properties._target = false;
-                  f.properties._solved = false;
-                  f.properties._wrong = false;
-                }
-              } catch (e) {
-                /* ignore per-feature errors */
-              }
-            }
-            try {
-              globe.polygonsData(data);
-            } catch (e) {
-              /* ignore */
-            }
-          }
-        } catch (e) {
-          /* ignore */
-        }
-      },
-      markTarget: (country) => {
-        try {
-          log('[globe] markTarget', country?.properties?.name ?? country);
-          const data = typeof globe.polygonsData === 'function' ? globe.polygonsData() : null;
-          if (Array.isArray(data)) {
-            for (const f of data) {
-              try {
-                if (f && f.properties) f.properties._target = false;
-              } catch (e) {
-                /* ignore */
-              }
-            }
-            const target = findFeatureByNameTop(data, country);
-            if (target) {
-              try {
-                target.properties._target = true;
-              } catch (e) {
-                /* ignore */
-              }
-              try {
-                globe.polygonsData(data);
-              } catch (e) {
-                /* ignore */
-              }
-            }
-          }
-          // Use the rendered feature (exclusion-applied geometry) for centroid so
-          // that stripped parts (e.g. French Guiana) don't pull the camera off.
-          const centroidFeature =
-            findFeatureByNameTop(
-              typeof globe.polygonsData === 'function' ? globe.polygonsData() : null,
-              country
-            ) || country;
-          const centroid = getCountryCentroidTop(centroidFeature);
-          if (centroid) {
-            try {
-              globe.pointOfView({ lat: centroid.lat, lng: centroid.lng, altitude: 1.8 }, 600);
-            } catch (e) {
-              /* ignore */
-            }
-          }
-        } catch (e) {
-          warn('stub.markTarget failed', e);
-        }
-      },
-      zoomToCountry: (country) => {
-        try {
-          const centroid = getCountryCentroidTop(country);
-          if (centroid)
-            globe.pointOfView({ lat: centroid.lat, lng: centroid.lng, altitude: 1.8 }, 600);
-        } catch (e) {
-          /* ignore */
-        }
-      },
+      resetRoundState: () => resetRoundStateTop(globe),
+      markTarget: (country) => markTargetTop(globe, country, { log, warn }),
+      zoomToCountry: (country) => zoomToCountryTop(globe, country),
       showLocationHalo: () => {}, // will be wired by createWorldleGlobe
-      setRegionFilter: (regionName) => {
-        try {
-          activeContinentFilter = regionName ? String(regionName).trim() : null;
-          const filteredFeatures = activeContinentFilter
-            ? allFeatures.filter((f) => isCountryInContinentTop(f, activeContinentFilter))
-            : allFeatures;
-          globe.polygonsData(filteredFeatures);
-          info('setRegionFilter applied', {
-            region: activeContinentFilter,
-            renderCount: filteredFeatures.length,
-            totalCount: allFeatures.length,
-          });
-        } catch (e) {
-          warn('setRegionFilter failed', e);
-        }
-      },
+      setRegionFilter: (regionName) =>
+        setRegionFilterTop(globe, allFeatures, regionName, { info, warn }),
       markSolved: (country) => {
         applyPolygonStateTop(
           globe,
@@ -433,35 +637,12 @@ const createRuntimeStubTop = (
           { warn }
         );
       },
-      loadCountries: () =>
-        Promise.resolve({
-          countriesData: features,
-          countryNames: features
-            .map((f) => f.properties?.name)
-            .filter(Boolean)
-            .sort(),
-          countryByName: new Map(
-            features.map((f) => [String(f.properties?.name || '').toLowerCase(), f])
-          ),
-        }),
+      loadCountries: () => Promise.resolve(buildCountryLoadResultTop(features)),
       globe: null, // will be set after globe instance is created
     };
 
-    const toggleAntarcticaDisplay = (show) => {
-      try {
-        const shouldShow = typeof show === 'boolean' ? show : true;
-        const newList = shouldShow
-          ? features.filter((f) => !f?.properties?.EXCLUDED)
-          : features.filter((f) => {
-              const name = f?.properties?.name || f?.properties?.NAME || f?.properties?.ADMIN;
-              return String(name).toLowerCase() !== 'antarctica' && !f?.properties?.EXCLUDED;
-            });
-        globe.polygonsData(newList);
-        info('toggleAntarcticaDisplay', { show: shouldShow, renderCount: newList.length });
-      } catch (e) {
-        warn('toggleAntarcticaDisplay failed', e);
-      }
-    };
+    const toggleAntarcticaDisplay = (show) =>
+      toggleAntarcticaDisplayTop(globe, features, show, { info, warn });
 
     return { stub, toggleAntarcticaDisplay };
   } catch (e) {
@@ -604,6 +785,149 @@ const configureControlsTop = (globe, { info = (..._args) => {} } = {}) => {
   }
 };
 
+const exposeGeoStatsTop = (features, { info = noop, warn = noop } = {}) => {
+  try {
+    const geoStats = computeGeoStats(features);
+    info('geoStats', {
+      features: geoStats.features,
+      totalCoords: geoStats.totalCoords,
+      minLon: geoStats.minLon,
+      maxLon: geoStats.maxLon,
+      minLat: geoStats.minLat,
+      maxLat: geoStats.maxLat,
+      maxAbs: geoStats.maxAbs,
+      topOffenders: geoStats.topOffenders,
+    });
+    window.worldleLiteGeoStats = geoStats;
+  } catch (e) {
+    warn('computeGeoStats failed', e);
+  }
+};
+
+const getGlobeImageTop = () => {
+  const themePref = document.documentElement?.dataset?.theme || 'light';
+  return themePref === 'dark' ? 'img/earth-dark.jpg' : 'img/earth-light.jpg';
+};
+
+const buildRenderFeaturesTop = (
+  features,
+  excludedBounds,
+  hideAntarctica = HIDE_ANTARCTICA_DEFAULT
+) =>
+  Array.isArray(features)
+    ? features
+        .filter((feature) => shouldRenderFeatureTop(feature, hideAntarctica))
+        .map((feature) => applyGlobeExclusionsTop(feature, excludedBounds))
+    : [];
+
+const exposeGlobeDiagnosticsTop = ({ info = noop, warn = noop } = {}) => {
+  try {
+    const globeScript = Array.from(document.querySelectorAll('script')).find((script) =>
+      (script.src || '').includes('globe.gl')
+    );
+    const globeVersion =
+      typeof Globe !== 'undefined' && Globe.version
+        ? Globe.version
+        : typeof Globe !== 'undefined'
+          ? 'defined-no-version'
+          : 'undefined';
+    info('globe:init', { scriptSrc: globeScript ? globeScript.src : null, version: globeVersion });
+    window.globeLibInfo = {
+      scriptSrc: globeScript ? globeScript.src : null,
+      version: globeVersion,
+    };
+  } catch (e) {
+    warn('globe:init diagnostics failed', e);
+  }
+};
+
+const sizeGlobeToContainerTop = (globe, container) => {
+  try {
+    const cw = container.clientWidth || container.offsetWidth || null;
+    const ch = container.clientHeight || container.offsetHeight || null;
+    if (cw && ch && typeof globe.width === 'function' && typeof globe.height === 'function') {
+      globe.width(cw).height(ch);
+    }
+  } catch (e) {
+    /* ignore sizing */
+  }
+};
+
+const installLonFlipControlsTop = (globe, renderFeatures, { info = noop, warn = noop } = {}) => {
+  try {
+    window.setLonFlip = function (enable) {
+      try {
+        window.worldleFlipLon = Boolean(enable);
+        const newList = buildProcessedFeaturesTop(renderFeatures, window.worldleFlipLon);
+        globe.polygonsData(newList);
+        info('setLonFlip', { enabled: window.worldleFlipLon, renderCount: newList.length });
+      } catch (e) {
+        warn('setLonFlip failed', e);
+      }
+    };
+    window.toggleLonFlip = function () {
+      window.setLonFlip(!Boolean(window.worldleFlipLon));
+    };
+    window.setLonNormalize = window.setLonFlip;
+    window.toggleLonNormalize = window.toggleLonFlip;
+  } catch (e) {
+    /* ignore */
+  }
+};
+
+const attachHaloManagerTop = (stub, globe, haloFactory, { info = noop, warn = noop } = {}) => {
+  try {
+    if (typeof haloFactory !== 'function') {
+      warn('halo manager not available');
+      return;
+    }
+
+    const haloMgr = haloFactory(globe, HALO_CONFIG);
+    info('halo manager created', HALO_CONFIG);
+
+    stub.showLocationHalo = (country, opts = {}) => {
+      info('showLocationHalo called for', country?.properties?.name);
+      try {
+        haloMgr.showHaloForCountry(country, opts);
+      } catch (e) {
+        warn('showLocationHalo failed', e);
+      }
+    };
+
+    const origResetRoundState = stub.resetRoundState;
+    stub.resetRoundState = function () {
+      try {
+        origResetRoundState();
+      } catch (e) {
+        /* ignore */
+      }
+      try {
+        haloMgr.reset();
+      } catch (e) {
+        /* ignore */
+      }
+    };
+  } catch (e) {
+    warn('halo manager setup failed', e);
+  }
+};
+
+const installDebugPolygonClickTop = (globe, worldMapInst) => {
+  try {
+    globe.onPolygonClick((d) => {
+      if (!d) return;
+      if (!window.__WORLDLE_DEBUG__) return;
+      try {
+        worldMapInst?.markTarget(d);
+      } catch (e) {
+        /* ignore */
+      }
+    });
+  } catch (e) {
+    /* ignore */
+  }
+};
+
 export function createWorldleGlobe(geojson) {
   if (typeof Globe === 'undefined') {
     worldleLiteLogger.warn('Globe.gl not available; skipping globe initialization');
@@ -622,27 +946,10 @@ export function createWorldleGlobe(geojson) {
   const warn = noop;
   const error = noop;
 
-  try {
-    const geoStats = computeGeoStats(features);
-    info('geoStats', {
-      features: geoStats.features,
-      totalCoords: geoStats.totalCoords,
-      minLon: geoStats.minLon,
-      maxLon: geoStats.maxLon,
-      minLat: geoStats.minLat,
-      maxLat: geoStats.maxLat,
-      maxAbs: geoStats.maxAbs,
-      topOffenders: geoStats.topOffenders,
-    });
-    // expose for debugging in console
-    window.worldleLiteGeoStats = geoStats;
-  } catch (e) {
-    warn('computeGeoStats failed', e);
-  }
+  exposeGeoStatsTop(features, { info, warn });
   info('createWorldleGlobe: initializing', { countries: features.length });
 
-  const themePref = document.documentElement?.dataset?.theme || 'light';
-  const globeImg = themePref === 'dark' ? 'img/earth-dark.jpg' : 'img/earth-light.jpg';
+  const globeImg = getGlobeImageTop();
 
   // Temporarily filter out Antarctica for rendering to avoid oversized mesh issues.
   // This does not remove the feature from the app state; it's only for the globe layer.
@@ -650,58 +957,8 @@ export function createWorldleGlobe(geojson) {
   // Strip explicitly excluded polygon parts (e.g. French Guiana from France)
   // using the bounding-box exceptions configured in gameConfig.
   const excludedBounds = gameConfig.COUNTRY_EXCLUDED_POLYGON_BOUNDS;
-  const _applyGlobeExclusions = (feature) => {
-    if (!excludedBounds || excludedBounds.size === 0) return feature;
-    const key = String(feature?.properties?.name || feature?.properties?.NAME_EN || '')
-      .trim()
-      .toLowerCase();
-    const boxes = /** @type {any[]} */ (excludedBounds.get(key));
-    if (!boxes || !boxes.length) return feature;
-    if (feature.geometry?.type !== 'MultiPolygon') return feature;
-    const parts = feature.geometry.coordinates;
-    if (parts.length <= 1) return feature;
-    const kept = parts.filter((poly) => {
-      const ring = poly[0];
-      if (!Array.isArray(ring) || !ring.length) return true;
-      let sumLon = 0,
-        sumLat = 0;
-      for (const pt of ring) {
-        sumLon += pt[0];
-        sumLat += pt[1];
-      }
-      const cLon = sumLon / ring.length;
-      const cLat = sumLat / ring.length;
-      return !boxes.some(
-        ([minLon, minLat, maxLon, maxLat]) =>
-          cLon >= minLon && cLon <= maxLon && cLat >= minLat && cLat <= maxLat
-      );
-    });
-    if (kept.length === parts.length) return feature;
-    const finalParts = kept.length > 0 ? kept : [parts[0]];
-    return {
-      ...feature,
-      geometry: {
-        type: finalParts.length === 1 ? 'Polygon' : 'MultiPolygon',
-        coordinates: finalParts.length === 1 ? finalParts[0] : finalParts,
-      },
-    };
-  };
 
-  const renderFeatures = Array.isArray(features)
-    ? features
-        .filter((f) => {
-          try {
-            const name = f?.properties?.name || f?.properties?.NAME || f?.properties?.ADMIN;
-            const excluded = f?.properties?.EXCLUDED;
-            if (SHOULD_HIDE_ANTARCTICA && String(name).toLowerCase() === 'antarctica') return false;
-            if (excluded) return false;
-            return true;
-          } catch (e) {
-            return true;
-          }
-        })
-        .map(_applyGlobeExclusions)
-    : [];
+  const renderFeatures = buildRenderFeaturesTop(features, excludedBounds, SHOULD_HIDE_ANTARCTICA);
 
   info('globe: rendering features', {
     total: features.length,
@@ -711,71 +968,19 @@ export function createWorldleGlobe(geojson) {
 
   // Helper: produce the features passed to Globe.gl, optionally flipping
   // longitudes when `flipped` is truthy.
-  const buildProcessedFeatures = (flipped) => {
-    if (!flipped) return renderFeatures;
-    const cloneAndFlip = (obj) => {
-      if (Array.isArray(obj)) {
-        if (obj.length >= 2 && typeof obj[0] === 'number' && typeof obj[1] === 'number') {
-          const rest = obj.slice(2);
-          return [-Number(obj[0]), Number(obj[1]), ...rest];
-        }
-        return obj.map(cloneAndFlip);
-      } else if (obj && typeof obj === 'object') {
-        const out = {};
-        for (const k of Object.keys(obj)) {
-          out[k] = cloneAndFlip(obj[k]);
-        }
-        return out;
-      }
-      return obj;
-    };
-    try {
-      return renderFeatures.map((f) => {
-        try {
-          if (!f || !f.geometry) return f;
-          const nf = Object.assign({}, f);
-          nf.geometry = cloneAndFlip(f.geometry);
-          return nf;
-        } catch (e) {
-          return f;
-        }
-      });
-    } catch (e) {
-      return renderFeatures;
-    }
-  };
-
   const initialFlip = Boolean(window.worldleFlipLon);
   const globe = createGlobeInstanceTop(
     container,
     globeImg,
     renderFeatures,
     initialFlip,
-    buildProcessedFeatures
+    (flipped) => buildProcessedFeaturesTop(renderFeatures, flipped)
   );
 
   // Startup diagnostics: record which Globe.gl script was loaded and any
   // available `Globe.version`. This helps quickly determine whether a
   // vendored or CDN build is in use when oversized meshes appear.
-  try {
-    const globeScript = Array.from(document.querySelectorAll('script')).find((s) =>
-      (s.src || '').includes('globe.gl')
-    );
-    const globeVersion =
-      typeof Globe !== 'undefined' && Globe.version
-        ? Globe.version
-        : typeof Globe !== 'undefined'
-          ? 'defined-no-version'
-          : 'undefined';
-    info('globe:init', { scriptSrc: globeScript ? globeScript.src : null, version: globeVersion });
-    // expose for quick inspection in console
-    window.globeLibInfo = {
-      scriptSrc: globeScript ? globeScript.src : null,
-      version: globeVersion,
-    };
-  } catch (e) {
-    warn('globe:init diagnostics failed', e);
-  }
+  exposeGlobeDiagnosticsTop({ info, warn });
 
   // Note: mesh normalization was intentionally removed to keep all
   // coordinate scaling deterministic at build time. Ensure the input
@@ -785,15 +990,7 @@ export function createWorldleGlobe(geojson) {
   const initialView = { lat: 0, lng: 0, altitude: DEFAULT_DESIRED_CAMERA_DISTANCE };
   // Ensure the internal canvas matches the container size so the globe
   // appears centered and occupies the expected layout area.
-  try {
-    const cw = container.clientWidth || container.offsetWidth || null;
-    const ch = container.clientHeight || container.offsetHeight || null;
-    if (cw && ch && typeof globe.width === 'function' && typeof globe.height === 'function') {
-      globe.width(cw).height(ch);
-    }
-  } catch (e) {
-    /* ignore sizing */
-  }
+  sizeGlobeToContainerTop(globe, container);
 
   try {
     globe.pointOfView(initialView, 0);
@@ -809,27 +1006,7 @@ export function createWorldleGlobe(geojson) {
   }
 
   // Expose runtime controls for testing only
-  try {
-    window.setLonFlip = function (enable) {
-      try {
-        window.worldleFlipLon = Boolean(enable);
-        const newList = buildProcessedFeatures(window.worldleFlipLon);
-        globe.polygonsData(newList);
-        info('setLonFlip', { enabled: window.worldleFlipLon, renderCount: newList.length });
-      } catch (e) {
-        warn('setLonFlip failed', e);
-      }
-    };
-    window.toggleLonFlip = function () {
-      window.setLonFlip(!Boolean(window.worldleFlipLon));
-    };
-    // Backwards-compatible alias retaining previous API name but now
-    // performs longitude normalization (no negation).
-    window.setLonNormalize = window.setLonFlip;
-    window.toggleLonNormalize = window.toggleLonFlip;
-  } catch (e) {
-    /* ignore */
-  }
+  installLonFlipControlsTop(globe, renderFeatures, { info, warn });
 
   // Configure orbit controls using top-level helper
   try {
@@ -856,40 +1033,7 @@ export function createWorldleGlobe(geojson) {
     });
     stub.globe = globe; // store globe reference for theme system
 
-    // Wire halo manager for target country halos
-    try {
-      if (typeof createHaloManager === 'function') {
-        const haloMgr = createHaloManager(globe, HALO_CONFIG);
-        info('halo manager created', HALO_CONFIG);
-
-        stub.showLocationHalo = (country, opts = {}) => {
-          info('showLocationHalo called for', country?.properties?.name);
-          try {
-            haloMgr.showHaloForCountry(country, opts);
-          } catch (e) {
-            warn('showLocationHalo failed', e);
-          }
-        };
-
-        const origResetRoundState = stub.resetRoundState;
-        stub.resetRoundState = function () {
-          try {
-            origResetRoundState();
-          } catch (e) {
-            /* ignore */
-          }
-          try {
-            haloMgr.reset();
-          } catch (e) {
-            /* ignore */
-          }
-        };
-      } else {
-        warn('halo manager not available');
-      }
-    } catch (e) {
-      warn('halo manager setup failed', e);
-    }
+    attachHaloManagerTop(stub, globe, createHaloManager, { info, warn });
 
     // expose a toggle helper for runtime testing
     window.toggleAntarcticaDisplay = toggleAntarcticaDisplay;
@@ -907,19 +1051,19 @@ export function createWorldleGlobe(geojson) {
 
   // Wire polygon click to worldMapInst.markTarget for convenient debugging
   // Only enabled when debug mode is on
-  try {
-    globe.onPolygonClick((d) => {
-      if (!d) return;
-      if (!window.__WORLDLE_DEBUG__) return;
-      try {
-        worldMapInst?.markTarget(d);
-      } catch (e) {
-        /* ignore */
-      }
-    });
-  } catch (e) {
-    /* ignore */
-  }
+  installDebugPolygonClickTop(globe, worldMapInst);
 
   return worldMapInst;
 }
+
+export {
+  applyGlobeExclusionsTop,
+  buildProcessedFeaturesTop,
+  centroidFromPropertiesTop,
+  centroidFromRingTop,
+  formatGlobeDebugLinesTop,
+  getCountryCentroidTop,
+  largestGeometryRingTop,
+  markTargetTop,
+  readGlobeDebugSnapshotTop,
+};

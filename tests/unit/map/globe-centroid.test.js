@@ -1,69 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-/**
- * Unit tests for getCountryCentroidTop logic in globe.js.
- *
- * We extract and test the centroid algorithm directly here to guard against
- * regressions where precomputed properties (geometryCenter / geometryBounds)
- * include excluded polygon parts and pull the centroid to the wrong location.
- */
+vi.mock('globe.gl', () => ({
+  default: class GlobeMock {},
+}));
 
-// Inline the function under test (mirrors the implementation in globe.js).
-// When the implementation changes, update here too.
-function getCountryCentroidTop(country) {
-  try {
-    const isMulti = country?.geometry?.type === 'MultiPolygon';
-    const p = country && country.properties;
-    if (!isMulti) {
-      if (p && Array.isArray(p.geometryCenter) && p.geometryCenter.length >= 2) {
-        return { lat: p.geometryCenter[1], lng: p.geometryCenter[0] };
-      }
-      if (p && Array.isArray(p.geometryBounds) && p.geometryBounds.length >= 4) {
-        const [minLon, minLat, maxLon, maxLat] = p.geometryBounds;
-        return { lat: (minLat + maxLat) / 2, lng: (minLon + maxLon) / 2 };
-      }
-    }
-    if (country && country.geometry) {
-      let ring = null;
-      if (country.geometry.type === 'MultiPolygon') {
-        let best = null,
-          bestLen = -1;
-        for (const poly of country.geometry.coordinates) {
-          const r = poly[0];
-          if (Array.isArray(r) && r.length > bestLen) {
-            best = r;
-            bestLen = r.length;
-          }
-        }
-        ring = best;
-      } else if (country.geometry.type === 'Polygon') {
-        ring = country.geometry.coordinates[0];
-      }
-      const parts = ring;
-      if (Array.isArray(parts) && parts.length) {
-        let sumLon = 0,
-          sumLat = 0,
-          count = 0;
-        for (const pt of parts) {
-          if (
-            Array.isArray(pt) &&
-            pt.length >= 2 &&
-            Number.isFinite(pt[0]) &&
-            Number.isFinite(pt[1])
-          ) {
-            sumLon += pt[0];
-            sumLat += pt[1];
-            count += 1;
-          }
-        }
-        if (count > 0) return { lat: sumLat / count, lng: sumLon / count };
-      }
-    }
-  } catch (e) {
-    /* ignore */
-  }
-  return null;
-}
+import {
+  applyGlobeExclusionsTop,
+  buildProcessedFeaturesTop,
+  centroidFromPropertiesTop,
+  centroidFromRingTop,
+  formatGlobeDebugLinesTop,
+  getCountryCentroidTop,
+  largestGeometryRingTop,
+  markTargetTop,
+  readGlobeDebugSnapshotTop,
+} from '../../../src/map/globe.js';
 
 // France-like fixture: small part first (French Guiana), large part second (metropolitan France).
 const franceLike = {
@@ -183,5 +134,202 @@ describe('getCountryCentroidTop', () => {
   it('returns null for a feature with no geometry', () => {
     expect(getCountryCentroidTop({ properties: {} })).toBeNull();
     expect(getCountryCentroidTop(null)).toBeNull();
+  });
+});
+
+describe('centroid helper splits', () => {
+  it('uses precomputed property centroid only for non-multipolygons', () => {
+    expect(centroidFromPropertiesTop({ geometryCenter: [12, 34] }, false)).toEqual({
+      lat: 34,
+      lng: 12,
+    });
+    expect(centroidFromPropertiesTop({ geometryCenter: [12, 34] }, true)).toBeNull();
+  });
+
+  it('selects the largest ring for multipolygon geometry', () => {
+    expect(largestGeometryRingTop(franceLike.geometry)).toEqual(
+      franceLike.geometry.coordinates[1][0]
+    );
+  });
+
+  it('computes a centroid from a ring and ignores invalid points', () => {
+    const centroid = centroidFromRingTop([
+      [0, 0],
+      [4, 0],
+      ['bad', 1],
+      [4, 4],
+      [0, 4],
+      [0, 0],
+    ]);
+
+    expect(centroid).toEqual({ lat: 1.6, lng: 1.6 });
+  });
+});
+
+describe('debug helper splits', () => {
+  it('reads a debug snapshot from the globe', () => {
+    const computeBoundingSphere = vi.fn();
+    const globe = {
+      pointOfView: () => ({ lat: 1, lng: 2, altitude: 3 }),
+      camera: () => ({ position: { x: 3, y: 4, z: 12 }, fov: 45 }),
+      scene: () => ({
+        children: [
+          {
+            type: 'Mesh',
+            geometry: {
+              boundingSphere: { radius: 2 },
+              computeBoundingSphere,
+            },
+            scale: { x: 1.5 },
+          },
+        ],
+      }),
+    };
+
+    const snapshot = readGlobeDebugSnapshotTop(globe);
+
+    expect(snapshot.pov).toEqual({ lat: 1, lng: 2, altitude: 3 });
+    expect(snapshot.radius).toBe(3);
+    expect(snapshot.ratio).toBeCloseTo(13 / 3, 6);
+    expect(computeBoundingSphere).not.toHaveBeenCalled();
+  });
+
+  it('formats the debug snapshot into the panel text', () => {
+    expect(
+      formatGlobeDebugLinesTop({
+        pov: { lat: 1.2345, lng: 2.3456, altitude: 1.8 },
+        cam: { position: { z: 8 }, fov: 40 },
+        radius: 2,
+        ratio: 4,
+      })
+    ).toContain('lat=1.234,lng=2.346,alt=1.800');
+  });
+});
+
+describe('applyGlobeExclusionsTop', () => {
+  it('removes excluded multipolygon parts and collapses to Polygon when one remains', () => {
+    const feature = {
+      properties: { name: 'France' },
+      geometry: {
+        type: 'MultiPolygon',
+        coordinates: franceLike.geometry.coordinates,
+      },
+    };
+    const excludedBounds = new Map([
+      [
+        'france',
+        [
+          [-60, 0, -40, 10],
+          [8, 41, 10, 44],
+        ],
+      ],
+    ]);
+
+    const result = applyGlobeExclusionsTop(feature, excludedBounds);
+
+    expect(result.geometry.type).toBe('Polygon');
+    expect(result.geometry.coordinates).toEqual(franceLike.geometry.coordinates[1]);
+  });
+
+  it('returns the original feature when no bounds match', () => {
+    const feature = {
+      properties: { name: 'France' },
+      geometry: franceLike.geometry,
+    };
+
+    expect(applyGlobeExclusionsTop(feature, new Map())).toBe(feature);
+  });
+});
+
+describe('buildProcessedFeaturesTop', () => {
+  it('returns the original array when flipping is disabled', () => {
+    const features = [{ properties: { name: 'Test' }, geometry: { type: 'Point' } }];
+
+    expect(buildProcessedFeaturesTop(features, false)).toBe(features);
+  });
+
+  it('flips longitudes recursively without mutating the source features', () => {
+    const features = [
+      {
+        properties: { name: 'Flip Me' },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [10, 20],
+              [30, 40],
+              [10, 20],
+            ],
+          ],
+        },
+      },
+    ];
+
+    const result = buildProcessedFeaturesTop(features, true);
+
+    expect(result).not.toBe(features);
+    expect(result[0].geometry.coordinates[0][0]).toEqual([-10, 20]);
+    expect(result[0].geometry.coordinates[0][1]).toEqual([-30, 40]);
+    expect(features[0].geometry.coordinates[0][0]).toEqual([10, 20]);
+  });
+});
+
+describe('markTargetTop', () => {
+  let globe;
+  let data;
+
+  beforeEach(() => {
+    data = [
+      {
+        properties: { name: 'France', _target: true },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [0, 0],
+              [4, 0],
+              [4, 4],
+              [0, 0],
+            ],
+          ],
+        },
+      },
+      {
+        properties: { name: 'Spain', _target: false },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [-4, 40],
+              [0, 40],
+              [0, 44],
+              [-4, 40],
+            ],
+          ],
+        },
+      },
+    ];
+
+    globe = {
+      polygonsData: vi.fn((next) => {
+        if (next) {
+          data = next;
+        }
+        return data;
+      }),
+      pointOfView: vi.fn(),
+    };
+  });
+
+  it('clears existing targets, marks the new one, and pans to its centroid', () => {
+    markTargetTop(globe, { properties: { name: 'Spain' } });
+
+    expect(data[0].properties._target).toBe(false);
+    expect(data[1].properties._target).toBe(true);
+    expect(globe.polygonsData).toHaveBeenCalledWith(data);
+    expect(globe.pointOfView).toHaveBeenCalledWith(
+      expect.objectContaining({ lat: expect.any(Number), lng: expect.any(Number), altitude: 1.8 }),
+      600
+    );
   });
 });

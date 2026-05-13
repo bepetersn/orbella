@@ -9,7 +9,7 @@ export const gameConfig = {
   W: 960,
   H: 500,
   MAP_PROJECTION_MODE: 'rounded',
-  DEBUG: false,
+  DEBUG: true, // set to false to disable debug logging and UI elements
   // Injected at build/dev time by Vite (vite.config.js define.__BUILD_ID__).
   // Falls back to empty string in test environments where Vite is not involved.
   BUILD_ID: typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : '', // eslint-disable-line no-undef

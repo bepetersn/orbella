@@ -90,11 +90,11 @@ export async function bootstrap(runtimeOverride) {
   const runtime = buildRuntime(_rt, { dom, config, timers, startup });
   log.debug('[bootstrap] runtime exists?', !!runtime.dom);
 
-  window.__WORLDLE_DEBUG__ = resolveDebugMode() ?? Boolean(config.DEBUG);
   setRuntime(runtime);
   // Expose runtime on window for debug/test helpers, but app modules should
   // resolve it via getRuntime() so initialization order stays explicit.
   window.worldleLiteRuntime = runtime;
+  window.__WORLDLE_DEBUG__ = resolveDebugMode() ?? Boolean(config.DEBUG);
 
   startup?.step('app initialization started', {
     buildId: runtime.BUILD_ID,

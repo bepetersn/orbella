@@ -12,54 +12,199 @@
  */
 
 import { worldleLiteLogger as log } from '../app/logger.js';
+import { lonLatTo3D } from './utils.js';
+
+const DEFAULT_HALO_CONFIG = {
+  color: '#f5c518',
+  duration: 1800,
+  maxRadius: 40,
+  easing: 'circleOut',
+};
+
+const createEmptyHaloManager = () => ({
+  showHalo: () => {},
+  showHaloForCountry: () => {},
+  reset: () => {},
+  destroy: () => {},
+});
+
+const getHaloConfig = (config = {}) => ({
+  color: config.color || DEFAULT_HALO_CONFIG.color,
+  duration: config.duration !== undefined ? config.duration : DEFAULT_HALO_CONFIG.duration,
+  maxRadius: config.maxRadius !== undefined ? config.maxRadius : DEFAULT_HALO_CONFIG.maxRadius,
+  easing: config.easing || DEFAULT_HALO_CONFIG.easing,
+});
+
+const project3DToScreen = (globe, canvas, pos3d) => {
+  try {
+    const scene = globe.scene && globe.scene();
+    const camera =
+      globe.camera && (typeof globe.camera === 'function' ? globe.camera() : globe.camera);
+
+    if (!scene || !camera) {
+      console.warn('[halo] cannot access globe scene or camera');
+      return null;
+    }
+
+    const renderer =
+      globe.renderer && (typeof globe.renderer === 'function' ? globe.renderer() : globe.renderer);
+    if (!renderer || !renderer.domElement) {
+      console.warn('[halo] cannot access globe renderer or dom element');
+      return null;
+    }
+
+    const THREE = window.THREE;
+    if (!THREE || !THREE.Vector3) {
+      console.warn('[halo] Three.js Vector3 not available');
+      return null;
+    }
+
+    const vec3d = new THREE.Vector3(pos3d.x, pos3d.y, pos3d.z);
+    vec3d.project(camera);
+
+    const screenX = ((vec3d.x + 1) * canvas.width) / 2;
+    const screenY = ((1 - vec3d.y) * canvas.height) / 2;
+
+    if (vec3d.z > 1 || vec3d.z < 0) {
+      console.warn('[halo] point outside camera frustum', { z: vec3d.z });
+      return null;
+    }
+
+    if (
+      screenX < -100 ||
+      screenX > canvas.width + 100 ||
+      screenY < -100 ||
+      screenY > canvas.height + 100
+    ) {
+      console.warn('[halo] projected coordinates way off-screen', {
+        screenX,
+        screenY,
+      });
+      return null;
+    }
+
+    return { x: screenX, y: screenY };
+  } catch (e) {
+    console.warn('[halo] projection failed', e);
+    return null;
+  }
+};
+
+const drawHaloFrame = (ctx, halos, now, getEasing, { canvas, debug = () => {} } = {}) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = halos.length - 1; i >= 0; i--) {
+    const halo = halos[i];
+    const elapsed = now - halo.startTime;
+    const progress = Math.min(1, elapsed / halo.duration);
+
+    if (progress >= 1) {
+      halos.splice(i, 1);
+      continue;
+    }
+
+    const eased = getEasing(halo.easing)(progress);
+    const radius = eased * halo.maxRadius;
+    const opacity = 1 - progress;
+
+    if (!Number.isFinite(halo.screenX) || !Number.isFinite(halo.screenY)) {
+      console.warn('[halo] invalid screen coordinates', {
+        screenX: halo.screenX,
+        screenY: halo.screenY,
+      });
+      halos.splice(i, 1);
+      continue;
+    }
+
+    ctx.strokeStyle = halo.color;
+    ctx.globalAlpha = opacity * 0.8;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(halo.screenX, halo.screenY, radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (progress < 0.05) {
+      debug('[halo] frame', {
+        progress: progress.toFixed(3),
+        radius: radius.toFixed(1),
+        pos: [halo.screenX.toFixed(0), halo.screenY.toFixed(0)],
+        canvasSize: [canvas.width, canvas.height],
+        opacity: opacity.toFixed(2),
+      });
+    }
+
+    if (progress < 0.3) {
+      ctx.fillStyle = halo.color;
+      ctx.globalAlpha = opacity * 0.3 * (1 - progress / 0.3);
+      ctx.beginPath();
+      ctx.arc(halo.screenX, halo.screenY, radius * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.globalAlpha = 1;
+};
+
+const centroidFromProperties = (properties) => {
+  if (
+    properties &&
+    Array.isArray(properties.geometryCenter) &&
+    properties.geometryCenter.length >= 2
+  ) {
+    return { lat: properties.geometryCenter[1], lng: properties.geometryCenter[0] };
+  }
+
+  if (
+    properties &&
+    Array.isArray(properties.geometryBounds) &&
+    properties.geometryBounds.length >= 4
+  ) {
+    const [minLon, minLat, maxLon, maxLat] = properties.geometryBounds;
+    return { lat: (minLat + maxLat) / 2, lng: (minLon + maxLon) / 2 };
+  }
+
+  return null;
+};
+
+const firstGeometryRing = (geometry) => {
+  if (geometry?.type === 'MultiPolygon') return geometry.coordinates?.[0]?.[0] || null;
+  if (geometry?.type === 'Polygon') return geometry.coordinates?.[0] || null;
+  return null;
+};
+
+const centroidFromRing = (parts) => {
+  if (!Array.isArray(parts) || !parts.length) return null;
+
+  let sumLon = 0;
+  let sumLat = 0;
+  let count = 0;
+
+  for (const pt of parts) {
+    if (Array.isArray(pt) && pt.length >= 2 && Number.isFinite(pt[0]) && Number.isFinite(pt[1])) {
+      sumLon += pt[0];
+      sumLat += pt[1];
+      count += 1;
+    }
+  }
+
+  if (count > 0) {
+    return { lat: sumLat / count, lng: sumLon / count };
+  }
+
+  return null;
+};
 
 // Helper: resolve country centroid from feature properties or geometry
 const resolveCentroid = (country) => {
   if (!country) return null;
 
-  const p = country.properties;
-
-  // Try pre-computed centroid in properties
-  if (p && Array.isArray(p.geometryCenter) && p.geometryCenter.length >= 2) {
-    return { lat: p.geometryCenter[1], lng: p.geometryCenter[0] };
-  }
-
-  // Try bounds in properties
-  if (p && Array.isArray(p.geometryBounds) && p.geometryBounds.length >= 4) {
-    const [minLon, minLat, maxLon, maxLat] = p.geometryBounds;
-    return { lat: (minLat + maxLat) / 2, lng: (minLon + maxLon) / 2 };
-  }
+  const propertyCentroid = centroidFromProperties(country.properties);
+  if (propertyCentroid) return propertyCentroid;
 
   // Compute from geometry (first polygon)
   if (country.geometry) {
     try {
-      const parts =
-        country.geometry.type === 'MultiPolygon'
-          ? country.geometry.coordinates[0][0]
-          : country.geometry.type === 'Polygon'
-            ? country.geometry.coordinates[0]
-            : null;
-
-      if (Array.isArray(parts) && parts.length) {
-        let sumLon = 0,
-          sumLat = 0,
-          count = 0;
-        for (const pt of parts) {
-          if (
-            Array.isArray(pt) &&
-            pt.length >= 2 &&
-            Number.isFinite(pt[0]) &&
-            Number.isFinite(pt[1])
-          ) {
-            sumLon += pt[0];
-            sumLat += pt[1];
-            count += 1;
-          }
-        }
-        if (count > 0) {
-          return { lat: sumLat / count, lng: sumLon / count };
-        }
-      }
+      return centroidFromRing(firstGeometryRing(country.geometry));
     } catch (e) {
       // ignore geometry parsing errors
     }
@@ -68,45 +213,24 @@ const resolveCentroid = (country) => {
   return null;
 };
 
-const createHaloManager = (globe, config = {}) => {
-  if (!globe || typeof globe.scene !== 'function') {
-    console.error('[halo] globe object required');
-    return {
-      showHalo: () => {},
-      showHaloForCountry: () => {},
-      reset: () => {},
-      destroy: () => {},
-    };
-  }
-
-  const cfg = {
-    color: config.color || '#f5c518',
-    duration: config.duration !== undefined ? config.duration : 1800,
-    maxRadius: config.maxRadius !== undefined ? config.maxRadius : 40,
-    easing: config.easing || 'circleOut',
-  };
-
-  // Get container - find the globe's parent
+const getGlobeContainer = () => {
   const globeCanvas = document.querySelector('canvas');
-  if (!globeCanvas || !globeCanvas.parentElement) {
-    console.error('[halo] cannot find globe container');
-    return {
-      showHalo: () => {},
-      showHaloForCountry: () => {},
-      reset: () => {},
-      destroy: () => {},
-    };
-  }
+  if (!globeCanvas?.parentElement) return null;
 
-  const container = globeCanvas.parentElement;
+  return {
+    globeCanvas,
+    container: globeCanvas.parentElement,
+  };
+};
 
-  // Ensure container has position:relative for absolute positioning to work
+const ensureRelativeContainer = (container) => {
   const originalPosition = container.style.position;
   if (!originalPosition || originalPosition === 'static') {
     container.style.position = 'relative';
   }
+};
 
-  // Find or create overlay canvas
+const ensureOverlayCanvas = (container) => {
   let canvas = document.getElementById('halo-canvas');
   if (!canvas) {
     canvas = document.createElement('canvas');
@@ -120,10 +244,15 @@ const createHaloManager = (globe, config = {}) => {
     container.appendChild(canvas);
   }
 
-  // Match globe canvas size
+  return canvas;
+};
+
+const syncHaloCanvasSize = (canvas, globeCanvas) => {
   canvas.width = globeCanvas.offsetWidth;
   canvas.height = globeCanvas.offsetHeight;
+};
 
+const logHaloCanvasSetup = (container, canvas, globeCanvas) => {
   log.debug('[halo] canvas setup', {
     containerId: container.id,
     containerPosition: container.style.position,
@@ -131,23 +260,94 @@ const createHaloManager = (globe, config = {}) => {
     canvasHeight: canvas.height,
     globeCanvasSize: { w: globeCanvas.offsetWidth, h: globeCanvas.offsetHeight },
   });
+};
+
+const lonLatToScreenTop = (globe, canvas, lon, lat) => {
+  try {
+    if (typeof globe.getScreenCoords === 'function') {
+      const screenCoords = globe.getScreenCoords(lat, lon);
+      if (screenCoords && Number.isFinite(screenCoords.x) && Number.isFinite(screenCoords.y)) {
+        log.debug('[halo] projection via globe.getScreenCoords', { lat, lon, screenCoords });
+        return screenCoords;
+      }
+    }
+  } catch (e) {
+    console.warn('[halo] globe.getScreenCoords failed', e);
+  }
+
+  try {
+    const pos3d = lonLatTo3D(lon, lat);
+    return project3DToScreen(globe, canvas, pos3d);
+  } catch (e) {
+    console.warn('[halo] fallback projection also failed', e);
+    return null;
+  }
+};
+
+const createHaloEntry = (lon, lat, screenPos, opts, cfg) => ({
+  lon,
+  lat,
+  screenX: screenPos.x,
+  screenY: screenPos.y,
+  startTime: opts.startTime !== undefined ? opts.startTime : Date.now(),
+  duration: opts.duration !== undefined ? opts.duration : cfg.duration,
+  maxRadius: opts.maxRadius !== undefined ? opts.maxRadius : cfg.maxRadius,
+  easing: opts.easing || cfg.easing,
+  color: opts.color || cfg.color,
+});
+
+const scheduleHaloUpdate = (activeHalos, rafIdRef, updateHalos) => {
+  if (!rafIdRef.current && activeHalos.length > 0) {
+    rafIdRef.current = requestAnimationFrame(updateHalos);
+  }
+};
+
+const resetHalosTop = (activeHalos, ctx, canvas, rafIdRef) => {
+  activeHalos.length = 0;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (rafIdRef.current) {
+    cancelAnimationFrame(rafIdRef.current);
+    rafIdRef.current = null;
+  }
+};
+
+const destroyHaloManagerTop = (reset, canvas, handleResize) => {
+  reset();
+  window.removeEventListener('resize', handleResize);
+  if (canvas.parentElement) {
+    canvas.parentElement.removeChild(canvas);
+  }
+};
+
+const createHaloManager = (globe, config = {}) => {
+  if (!globe || typeof globe.scene !== 'function') {
+    console.error('[halo] globe object required');
+    return createEmptyHaloManager();
+  }
+
+  const cfg = getHaloConfig(config);
+
+  const globeDom = getGlobeContainer();
+  if (!globeDom) {
+    console.error('[halo] cannot find globe container');
+    return createEmptyHaloManager();
+  }
+
+  const { globeCanvas, container } = globeDom;
+  ensureRelativeContainer(container);
+  const canvas = ensureOverlayCanvas(container);
+  syncHaloCanvasSize(canvas, globeCanvas);
+  logHaloCanvasSetup(container, canvas, globeCanvas);
 
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     console.error('[halo] canvas 2d context failed');
-    return {
-      showHalo: () => {},
-      showHaloForCountry: () => {},
-      reset: () => {},
-      destroy: () => {},
-    };
+    return createEmptyHaloManager();
   }
 
-  // State
   const activeHalos = [];
-  let rafId = null;
+  const rafIdRef = { current: null };
 
-  // Easing functions
   const easings = {
     linear: (t) => t,
     circleOut: (t) => 1 - Math.sqrt(1 - t * t),
@@ -156,123 +356,18 @@ const createHaloManager = (globe, config = {}) => {
 
   const getEasing = (name) => easings[name] || easings.circleOut;
 
-  // Convert lon/lat to 3D world position on globe surface
-  const lonLatTo3D = (lon, lat) => {
-    // Convert to radians and project to sphere of radius 1
-    const radLat = (lat * Math.PI) / 180;
-    const radLon = (lon * Math.PI) / 180;
-    const x = Math.cos(radLat) * Math.cos(radLon);
-    const y = Math.sin(radLat);
-    const z = Math.cos(radLat) * Math.sin(radLon);
-    return { x, y, z };
-  };
-
-  // Project 3D world position to 2D screen coords using Globe.gl's camera
-  const project3DToScreen = (pos3d) => {
-    try {
-      const scene = globe.scene && globe.scene();
-      const camera =
-        globe.camera && (typeof globe.camera === 'function' ? globe.camera() : globe.camera);
-
-      if (!scene || !camera) {
-        console.warn('[halo] cannot access globe scene or camera');
-        return null;
-      }
-
-      // Get renderer
-      const renderer =
-        globe.renderer &&
-        (typeof globe.renderer === 'function' ? globe.renderer() : globe.renderer);
-      if (!renderer || !renderer.domElement) {
-        console.warn('[halo] cannot access globe renderer or dom element');
-        return null;
-      }
-
-      // Get Three.js if available (it's bundled in globe.gl)
-      const THREE = window.THREE;
-      if (!THREE || !THREE.Vector3) {
-        console.warn('[halo] Three.js Vector3 not available');
-        return null;
-      }
-
-      // Create Vector3 for the world position
-      const vec3d = new THREE.Vector3(pos3d.x, pos3d.y, pos3d.z);
-
-      // Project the point using the camera's projection matrix
-      // This converts world coordinates to normalized device coordinates (-1 to 1)
-      vec3d.project(camera);
-
-      // Convert from NDC to pixel coordinates
-      // X: from [-1, 1] to [0, canvas.width]
-      // Y: from [1, -1] to [0, canvas.height] (Y is inverted in canvas vs WebGL)
-      const screenX = ((vec3d.x + 1) * canvas.width) / 2;
-      const screenY = ((1 - vec3d.y) * canvas.height) / 2;
-
-      // Check if point is behind camera (z > 1 means off-far-plane, z < -1 means behind camera)
-      if (vec3d.z > 1 || vec3d.z < 0) {
-        console.warn('[halo] point outside camera frustum', { z: vec3d.z });
-        return null;
-      }
-
-      // Sanity check: coordinate should be on screen (with some tolerance for edge cases)
-      if (
-        screenX < -100 ||
-        screenX > canvas.width + 100 ||
-        screenY < -100 ||
-        screenY > canvas.height + 100
-      ) {
-        console.warn('[halo] projected coordinates way off-screen', { screenX, screenY });
-        return null;
-      }
-
-      return { x: screenX, y: screenY };
-    } catch (e) {
-      console.warn('[halo] projection failed', e);
-      return null;
-    }
-  };
-
-  // Convert lon/lat directly to screen coords
-  const lonLatToScreen = (lon, lat) => {
-    // Try globe.gl's built-in getScreenCoords method first (most reliable)
-    try {
-      if (typeof globe.getScreenCoords === 'function') {
-        const screenCoords = globe.getScreenCoords(lat, lon);
-        if (screenCoords && Number.isFinite(screenCoords.x) && Number.isFinite(screenCoords.y)) {
-          log.debug('[halo] projection via globe.getScreenCoords', { lat, lon, screenCoords });
-          return screenCoords;
-        }
-      }
-    } catch (e) {
-      console.warn('[halo] globe.getScreenCoords failed', e);
-    }
-
-    // Fallback to 3D projection method
-    try {
-      const pos3d = lonLatTo3D(lon, lat);
-      return project3DToScreen(pos3d);
-    } catch (e) {
-      console.warn('[halo] fallback projection also failed', e);
-      return null;
-    }
-  };
-
-  // Show halo at specific lon/lat
   const showHalo = (lon, lat, opts = {}) => {
     if (!Number.isFinite(lon) || !Number.isFinite(lat)) {
       console.warn('[halo] invalid coordinates', { lon, lat });
       return;
     }
 
-    const screenPos = lonLatToScreen(lon, lat);
-
-    // If projection failed or point is behind camera, don't show halo
+    const screenPos = lonLatToScreenTop(globe, canvas, lon, lat);
     if (!screenPos) {
       console.warn('[halo] cannot project to screen', { lon, lat });
       return;
     }
 
-    // Log with more detail about coordinates
     log.debug('[halo] showHalo', {
       lon,
       lat,
@@ -281,26 +376,10 @@ const createHaloManager = (globe, config = {}) => {
       screenPosValid: Number.isFinite(screenPos.x) && Number.isFinite(screenPos.y),
     });
 
-    const halo = {
-      lon,
-      lat,
-      screenX: screenPos.x,
-      screenY: screenPos.y,
-      startTime: opts.startTime !== undefined ? opts.startTime : Date.now(),
-      duration: opts.duration !== undefined ? opts.duration : cfg.duration,
-      maxRadius: opts.maxRadius !== undefined ? opts.maxRadius : cfg.maxRadius,
-      easing: opts.easing || cfg.easing,
-      color: opts.color || cfg.color,
-    };
-
-    activeHalos.push(halo);
-
-    if (!rafId) {
-      rafId = requestAnimationFrame(updateHalos);
-    }
+    activeHalos.push(createHaloEntry(lon, lat, screenPos, opts, cfg));
+    scheduleHaloUpdate(activeHalos, rafIdRef, updateHalos);
   };
 
-  // Show halo for country (auto-resolve centroid)
   const showHaloForCountry = (country, opts = {}) => {
     if (!country) return;
 
@@ -313,107 +392,23 @@ const createHaloManager = (globe, config = {}) => {
     showHalo(centroid.lng, centroid.lat, opts);
   };
 
-  // Animation loop
   const updateHalos = () => {
     const now = Date.now();
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Debug: Draw canvas border to check if it's visible
-    if (false) {
-      // set to true to debug
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // Update and draw halos
-    for (let i = activeHalos.length - 1; i >= 0; i--) {
-      const halo = activeHalos[i];
-      const elapsed = now - halo.startTime;
-      const progress = Math.min(1, elapsed / halo.duration);
-
-      if (progress < 1) {
-        const eased = getEasing(halo.easing)(progress);
-        const radius = eased * halo.maxRadius;
-        const opacity = 1 - progress;
-
-        // Validate halo screen coordinates
-        if (!Number.isFinite(halo.screenX) || !Number.isFinite(halo.screenY)) {
-          console.warn('[halo] invalid screen coordinates', {
-            screenX: halo.screenX,
-            screenY: halo.screenY,
-          });
-          activeHalos.splice(i, 1);
-          continue;
-        }
-
-        // Draw expanding ring
-        ctx.strokeStyle = halo.color;
-        ctx.globalAlpha = opacity * 0.8;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(halo.screenX, halo.screenY, radius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        if (progress < 0.05) {
-          // Per-frame trace — only active when DEBUG is enabled (via worldleLiteLogger.debug)
-          log.debug('[halo] frame', {
-            progress: progress.toFixed(3),
-            radius: radius.toFixed(1),
-            pos: [halo.screenX.toFixed(0), halo.screenY.toFixed(0)],
-            canvasSize: [canvas.width, canvas.height],
-            opacity: opacity.toFixed(2),
-          });
-        }
-
-        // Draw fading center glow
-        if (progress < 0.3) {
-          ctx.fillStyle = halo.color;
-          ctx.globalAlpha = opacity * 0.3 * (1 - progress / 0.3);
-          ctx.beginPath();
-          ctx.arc(halo.screenX, halo.screenY, radius * 0.3, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else {
-        activeHalos.splice(i, 1);
-      }
-    }
-
-    ctx.globalAlpha = 1;
+    drawHaloFrame(ctx, activeHalos, now, getEasing, {
+      canvas,
+      debug: log.debug,
+    });
 
     if (activeHalos.length > 0) {
-      rafId = requestAnimationFrame(updateHalos);
+      rafIdRef.current = requestAnimationFrame(updateHalos);
     } else {
-      rafId = null;
+      rafIdRef.current = null;
     }
   };
 
-  // Reset all halos
-  const reset = () => {
-    activeHalos.length = 0;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (rafId) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
-  };
-
-  // Cleanup
-  const destroy = () => {
-    reset();
-    window.removeEventListener('resize', handleResize);
-    if (canvas.parentElement) {
-      canvas.parentElement.removeChild(canvas);
-    }
-  };
-
-  // Resize handler
-  const handleResize = () => {
-    canvas.width = globeCanvas.offsetWidth;
-    canvas.height = globeCanvas.offsetHeight;
-  };
+  const reset = () => resetHalosTop(activeHalos, ctx, canvas, rafIdRef);
+  const handleResize = () => syncHaloCanvasSize(canvas, globeCanvas);
+  const destroy = () => destroyHaloManagerTop(reset, canvas, handleResize);
 
   window.addEventListener('resize', handleResize);
 
@@ -427,4 +422,4 @@ const createHaloManager = (globe, config = {}) => {
   };
 };
 
-export { createHaloManager };
+export { createHaloManager, drawHaloFrame, project3DToScreen, resolveCentroid };

@@ -7,6 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "check:complexity": "node scripts/check-complexity.mjs",
     "vendor:verify": "node scripts/verify-vendor.mjs",
     "vendor:update": "node scripts/update-vendor.mjs",
     "dev": "vite",
