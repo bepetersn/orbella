@@ -84,4 +84,3 @@ export function createCountryGuessLookup(countriesData, countryByName) {
     countryLookupEntries: entries,
   };
 }
-

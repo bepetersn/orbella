@@ -22,4 +22,3 @@ export const ROUND_OUTCOME = {
   revealed: 'revealed',
   missed: 'missed',
 };
-

@@ -288,4 +288,3 @@ export function getSuggestedCountryNames(query, limit = 8) {
     .map(({ countryName }) => countryName)
     .slice(0, limit);
 }
-

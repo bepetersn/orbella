@@ -28,4 +28,3 @@ export function toLooseGuessKey(guessName) {
     .filter((word) => word.length > 1)
     .join('');
 }
-

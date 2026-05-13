@@ -153,5 +153,3 @@ const stateProxy = new Proxy(
 );
 
 export { stateProxy as state };
-
-

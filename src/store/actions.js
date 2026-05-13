@@ -93,4 +93,3 @@ export function setSelectedContinent(selectedContinent) {
   log.debug('[actions] setSelectedContinent', selectedContinent);
   dispatch({ type: STATE_ACTIONS.setSelectedContinent, selectedContinent });
 }
-

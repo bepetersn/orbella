@@ -67,7 +67,10 @@ export function initializeCopy(dom, COPY, buildId) {
  * Attaches all click and input event listeners declared in CLICK_BINDINGS.
  */
 export function bindEventListeners(dom, runtime) {
-  log.debug('[bootstrap] bindEventListeners - btn refs:', { hint: !!dom.hintBtn, reveal: !!dom.revealBtn });
+  log.debug('[bootstrap] bindEventListeners - btn refs:', {
+    hint: !!dom.hintBtn,
+    reveal: !!dom.revealBtn,
+  });
   for (const [domKey, method] of CLICK_BINDINGS) {
     dom[domKey]?.addEventListener('click', () => round[method]?.());
   }

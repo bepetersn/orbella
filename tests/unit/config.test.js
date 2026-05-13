@@ -23,9 +23,7 @@ describe('Config / Constants', () => {
 
     it('should maintain consistent timing hierarchy: correct < miss', () => {
       // A correct-guess transition should feel snappier than the miss delay
-      expect(gameConfig.ROUND_ADVANCE_MS.correct).toBeLessThan(
-        gameConfig.ROUND_ADVANCE_MS.miss
-      );
+      expect(gameConfig.ROUND_ADVANCE_MS.correct).toBeLessThan(gameConfig.ROUND_ADVANCE_MS.miss);
     });
   });
 
@@ -57,9 +55,7 @@ describe('Config / Constants', () => {
     });
 
     it('should export exactly the expected set of outcome keys', () => {
-      expect(Object.keys(ROUND_OUTCOME).sort()).toEqual(
-        ['active', 'missed', 'revealed', 'won']
-      );
+      expect(Object.keys(ROUND_OUTCOME).sort()).toEqual(['active', 'missed', 'revealed', 'won']);
     });
   });
 

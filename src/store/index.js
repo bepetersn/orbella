@@ -11,7 +11,7 @@ import {
   startRound,
   revealRoundAnswer,
   requestRoundHint,
-  submitRoundGuess
+  submitRoundGuess,
 } from './round.js';
 import {
   loadCountriesIntoState,
@@ -22,7 +22,7 @@ import {
   incrementPlayed,
   incrementHintsUsed,
   resetScores,
-  setSelectedContinent
+  setSelectedContinent,
 } from './actions.js';
 
 export const gameStore = {
@@ -46,5 +46,5 @@ export const gameStore = {
   resolveCountryGuess,
   getSuggestedCountryNames,
   ROUND_OUTCOME,
-  ACTIONS: STATE_ACTIONS
+  ACTIONS: STATE_ACTIONS,
 };

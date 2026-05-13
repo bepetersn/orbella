@@ -228,4 +228,3 @@ export function submitRoundGuess(guessName, maxMissesPerRound = 3) {
     guessName: normalizedGuess,
   };
 }
-
