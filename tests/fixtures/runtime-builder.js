@@ -48,6 +48,7 @@ export async function buildRuntime(overrides = {}) {
 
     dom: {
       input: null,
+      inputWrapper: null,
       suggestionsBox: null,
       feedback: null,
       heroEyebrow: null,

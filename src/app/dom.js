@@ -13,6 +13,7 @@
 export function queryDomElements() {
   return {
     input: document.getElementById('guessInput'),
+    inputWrapper: document.getElementById('input-wrapper'),
     suggestionsBox: document.getElementById('suggestions'),
     continentFilter: document.getElementById('continent-filter'),
     revealBtn: document.getElementById('btn-reveal'),
@@ -44,7 +45,9 @@ export function queryDomElements() {
     ruleReveal: document.getElementById('rule-reveal'),
     scoreCorrect: document.getElementById('numCorrect'),
     scorePlayed: document.getElementById('numPlayed'),
+    regionProgress: document.getElementById('region-progress'),
     hintsUsedInRound: document.getElementById('numHintsUsed'),
     hintUsage: document.getElementById('hints-round'),
+    leftSidebar: document.getElementById('left-sidebar'),
   };
 }

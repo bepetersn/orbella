@@ -91,6 +91,7 @@ describe('round/control', () => {
     // DOM elements needed by renderRoundState / submitGuess
     const make = (tag = 'div') => document.createElement(tag);
     runtime.dom.input = make('input');
+    runtime.dom.inputWrapper = make();
     runtime.dom.revealTarget = make();
     runtime.dom.revealPanel = make();
     runtime.dom.revealBtn = make('button');

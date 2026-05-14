@@ -40,6 +40,13 @@ The generator passes through the original Natural Earth fields from the source d
 - `geometryRingCount`: number of rings across polygons and multipolygons
 - `neighbors`: sorted list of country names that share at least one snapped border vertex with this country (used for the "Adjacent" proximity label)
 - `neighborIsoCodes`: ISO 3166-1 alpha-2 codes of `neighbors`, for fast adjacency lookups at runtime
+- `facts`: object of enriched country data merged from `pipeline/data/country-facts-supplement.json` (sourced from the REST Countries API). Shape:
+  - `capital` — capital city name, or `null`
+  - `languages` — array of language names spoken (e.g. `["French"]`), or `[]`
+  - `currencies` — array of `{ code, name, symbol }` objects, or `[]`
+  - `area` — total area in km² (integer), or `null`
+  - `population` — estimated population (integer), or `null`
+  - `subregion` — more specific region label (e.g. `"Western Europe"`), or `null`
 
 ## Consumer expectations
 

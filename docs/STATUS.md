@@ -2,6 +2,7 @@
 
 *Last updated: May 13, 2026*
 
+
 ---
 
 ## What It Is
@@ -23,7 +24,7 @@ Worldle Lite is a single-page geography guessing game. Each round zooms a 3D glo
 
 ### Tests
 
-All **383 tests pass** across **31 test files** as of the last run.
+All **391 tests pass** across **31 test files** as of the last run.
 
 | Scope | Files | Tests |
 |---|---|---|
@@ -38,7 +39,8 @@ All **383 tests pass** across **31 test files** as of the last run.
 Coverage is **75.72% overall**. `src/store/` sits at **93.23%**, `src/app/round` at **88.93%**, `src/app` overall at **87.51%**, and `src/map/` at **46.78%**. The biggest remaining map gaps are `globe.js` (**35.07%**) and `globe-halo.js` (**36.7%**), while the extracted shared helper in `src/map/utils.js` is **100%** covered.
 
 ### Recent Work (last 3 commits)
-
+- **Added desktop-only region progress indicator:** Implemented a region progress display in the score area that shows solved vs eligible countries per selected region; wired updates from round control and region selection. (May 13, 2026)
+-
 - **Brought globe and halo factory complexity back under control and added a reusable CC script:** Further split globe/halo orchestration into top-level helpers, added more map helper tests, and checked the current acorn pass with `createWorldleGlobe` at **10**, `createRuntimeStubTop` at **3**, `createHaloManager` at **13**, and `resolveCentroid` at **5**; `npm run check:complexity` now defaults to the full `src/` tree and accepts narrower file or directory targets.
 - **Reduced globe-layer cyclomatic complexity and added helper coverage:** Extracted `applyGlobeExclusionsTop`, `buildProcessedFeaturesTop`, and `markTargetTop` from `src/map/globe.js`, moved `lonLatTo3D` into `src/map/utils.js`, and pulled `project3DToScreen` plus `drawHaloFrame` out of `src/map/globe-halo.js`, with real-module unit tests covering the new seams.
 - **Lifted app-layer coverage with targeted runtime-backed tests:** Expanded `input` and `round/ui` coverage and added a dedicated `debug` test file, raising overall coverage to 89.86% and eliminating the prior low-coverage app-module debt.

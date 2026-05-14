@@ -52,7 +52,9 @@
   --wrong-feedback:   #991b1b;
   --wrong-feedback-bg:rgba(255, 236, 240, 0.98);
   --wrong-feedback-bdr:rgba(217, 77, 103, 0.32);
-  --correct-msg:      #475569;
+  --correct-msg:           #166534;
+  --correct-msg-bg:         rgba(220, 252, 231, 0.98);
+  --correct-msg-bdr:        rgba(47, 143, 107, 0.32);
   --btn-disabled-fg:  #475569;
   --select-arrow:     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23475569' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --icon-bulb:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18h6M10 22h4M8 12a4 4 0 1 1 8 0c0 2-1.2 3-2 4-.6.7-1 1.4-1 2h-2c0-.6-.4-1.3-1-2-.8-1-2-2-2-4Z'/%3E%3C/svg%3E");
@@ -120,7 +122,9 @@
   --wrong-feedback:   #ffc1cb;
   --wrong-feedback-bg:rgba(90, 39, 56, 0.90);
   --wrong-feedback-bdr:rgba(255, 159, 176, 0.32);
-  --correct-msg:      #cbd5e1;
+  --correct-msg:           #86efac;
+  --correct-msg-bg:         rgba(20, 83, 45, 0.88);
+  --correct-msg-bdr:        rgba(92, 199, 158, 0.32);
   --btn-disabled-fg:  #94a3b8;
   --select-arrow:     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23e2e8f0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --shadow:           0 14px 32px rgba(2, 6, 23, 0.58);
@@ -1147,6 +1151,104 @@ body > * {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
+/* Region progress — shown on wider screens only */
+#region-progress {
+  display: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--label-fill);
+  white-space: nowrap;
+}
+
+@media (min-width: 720px) {
+  #region-progress {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+}
+
+/* Left sidebar containing region progress — desktop only */
+@media (min-width: 900px) {
+  #left-sidebar {
+    position: fixed;
+    /* nudge slightly right from the gutter */
+    left: 36px;
+    top: 110px;
+    width: 180px;
+    max-width: 16vw;
+    box-sizing: border-box;
+    padding: 8px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--surface-soft);
+    box-shadow: var(--shadow);
+    z-index: 30;
+  }
+
+  #left-sidebar .sidebar-header {
+    font-weight: 800;
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: var(--label-fill);
+  }
+
+  #left-sidebar .sidebar-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Push main content right to avoid overlap with the fixed sidebar; keep layout compact */
+  #main-content {
+    margin-left: 220px;
+    max-width: calc(100% - 240px);
+  }
+
+  /* Shift and shrink the map container so sidebar and map split space */
+  #map-container {
+    margin-left: 220px;
+    max-width: calc(100% - 240px);
+  }
+
+  /* Ensure all peer elements of #map-container inside #app-shell share the same left offset */
+  #app-shell > #map-controls,
+  #app-shell > #map-container,
+  #app-shell > #map-legend,
+  #app-shell > #main-content {
+    margin-left: 220px;
+    max-width: calc(100% - 240px);
+  }
+}
+
+/* Progress bar visuals */
+#left-sidebar .region-label {
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--label-fill);
+}
+
+#left-sidebar .progress-track {
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.02));
+  border-radius: 999px;
+  border: 1px solid var(--surface-soft);
+  overflow: hidden;
+}
+
+#left-sidebar .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--btn-reveal-bg), var(--btn-guess-bg));
+  transition: width 320ms ease;
+}
+
+#left-sidebar .progress-meta {
+  font-size: 12px;
+  color: var(--score-color);
+  font-weight: 700;
+}
+
 .score-item {
   display: inline-flex;
   align-items: baseline;
@@ -1170,7 +1272,18 @@ body > * {
   color: var(--label-fill);
 }
 
-.correct-msg { color: var(--correct-msg); }
+.correct-msg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--correct-msg);
+  background: var(--correct-msg-bg);
+  border: 1px solid var(--correct-msg-bdr);
+  box-shadow: 0 10px 18px rgba(47, 143, 107, 0.10);
+}
 .wrong-msg   { color: var(--wrong-feedback); }
 .failure-msg { color: var(--wrong-feedback); }
 
@@ -1253,6 +1366,10 @@ input:focus-visible {
   transform: translateY(-1px);
 }
 
+button[hidden] {
+  display: none !important;
+}
+
 button {
   display: inline-flex;
   align-items: center;
@@ -1273,6 +1390,7 @@ button {
 #btn-hint::before,
 #btn-reveal::before,
 #btn-replay-halo::before,
+#btn-next-round::before,
 #btn-reset::before {
   content: "";
   display: inline-flex;
@@ -1289,6 +1407,78 @@ button {
   line-height: 1;
   text-align: center;
   box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+#btn-hint {
+  background: var(--btn-hint-bg);
+  color: white;
+}
+
+#btn-hint:not([hidden]):hover {
+  background: var(--btn-hint-hover);
+}
+
+#btn-hint:active {
+  background: var(--btn-hint-active);
+}
+
+#btn-reveal {
+  background: var(--btn-reveal-bg);
+  color: white;
+}
+
+#btn-reveal:not([hidden]):hover {
+  background: var(--btn-reveal-hover);
+}
+
+#btn-reveal:active {
+  background: var(--btn-reveal-active);
+}
+
+#btn-replay-halo {
+  background: var(--btn-replay-bg);
+  color: white;
+}
+
+#btn-replay-halo:not([hidden]):hover {
+  background: var(--btn-replay-hover);
+}
+
+#btn-replay-halo:active {
+  background: var(--btn-replay-active);
+}
+
+#btn-next-round {
+  background: var(--btn-guess-bg);
+  color: white;
+  min-width: 144px;
+  font-size: 15px;
+}
+
+#btn-next-round:not([hidden]):hover {
+  background: var(--btn-guess-hover);
+}
+
+#btn-next-round:active {
+  background: var(--btn-guess-active);
+}
+
+@keyframes btn-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+#btn-hint:not([hidden]),
+#btn-reveal:not([hidden]),
+#btn-next-round:not([hidden]),
+#btn-replay-halo:not([hidden]) {
+  animation: btn-appear 0.18s ease forwards;
 }
 
 #btn-guess,

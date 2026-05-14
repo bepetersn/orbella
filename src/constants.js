@@ -76,6 +76,7 @@ export const gameConstants = {
       replayHalo: 'Replay halo',
       autoAdvance: 'Auto-advance',
       nextRound: 'Next round',
+      nextRoundOnMiss: 'New game',
       reset: 'New game',
     },
     hints: {

@@ -51,6 +51,20 @@ function registerSolvedCountry(match) {
   solvedSet.add(getActions().normalizeGuess(countryName));
   solvedCountriesByRegion.set(regionKey, solvedSet);
 
+  // Update region progress UI immediately when a country is registered solved.
+  try {
+    const eligibleCountryCount = getEligibleCountriesForRegion().length;
+    const regionKey = getState().store.selectedContinent || null;
+    getRuntime().roundUi?.updateRegionProgress?.(
+      regionKey,
+      getRegionLabel(),
+      solvedSet.size,
+      eligibleCountryCount
+    );
+  } catch (e) {
+    log.warn('[round] updateRegionProgress failed', e);
+  }
+
   const eligibleCountryCount = getEligibleCountriesForRegion().length;
   if (
     !eligibleCountryCount ||
@@ -338,35 +352,72 @@ export function renderRoundState() {
     getDom().revealTarget.textContent = '';
   }
 
-  // 4. Render input/reveal control states.
+  // 4. Render input row and all action buttons via show/hide (not disabled).
+  const isActive = roundState.outcome === ROUND_OUTCOME.active;
+  const roundFinished = !isActive;
+
+  // Collapse the input row when round is over.
+  if (getDom().inputWrapper) {
+    getDom().inputWrapper.hidden = !isActive;
+  }
+
   if (getDom().input) {
-    getDom().input.placeholder =
-      roundState.outcome === ROUND_OUTCOME.active
-        ? getConfig().COPY.input.idlePlaceholder
-        : getConfig().COPY.input.lockedPlaceholder;
+    getDom().input.placeholder = isActive
+      ? getConfig().COPY.input.idlePlaceholder
+      : getConfig().COPY.input.lockedPlaceholder;
   }
 
+  // Reveal button — only during an active round.
   if (getDom().revealBtn) {
-    getDom().revealBtn.disabled = roundState.outcome !== ROUND_OUTCOME.active;
+    getDom().revealBtn.hidden = !isActive;
   }
 
+  // Hint button — only during active round AND while hints remain.
+  if (getDom().hintBtn) {
+    getDom().hintBtn.hidden = !isActive || roundState.hintsRemaining <= 0;
+  }
+
+  // Replay halo — visible whenever a target exists (active or finished).
   if (getDom().replayHaloBtn) {
-    getDom().replayHaloBtn.disabled = !getState().store.targetCountry;
+    getDom().replayHaloBtn.hidden = !getState().store.targetCountry;
   }
 
+  // Next round — shown only when round is finished AND not currently auto-advancing.
+  // Always hidden during an active round regardless of other conditions.
   if (getDom().nextRoundBtn) {
-    const roundFinished = roundState.outcome !== ROUND_OUTCOME.active;
-    const autoAdvanceEnabled = getRuntime().autoAdvance?.isEnabled?.() ?? true;
-    const transitionRunning = getRuntime().timers.isActive('roundTransition');
-
-    getDom().nextRoundBtn.hidden = !(roundFinished && (!autoAdvanceEnabled || !transitionRunning));
-    getDom().nextRoundBtn.disabled = !roundFinished;
+    if (isActive) {
+      getDom().nextRoundBtn.hidden = true;
+    } else {
+      const autoAdvanceEnabled = getRuntime().autoAdvance?.isEnabled?.() ?? true;
+      const transitionRunning = getRuntime().timers.isActive('roundTransition');
+      getDom().nextRoundBtn.hidden = autoAdvanceEnabled && transitionRunning;
+      // Label: 'New game' when all guesses exhausted, 'Next round' otherwise.
+      const missedRound = roundState.outcome === ROUND_OUTCOME.missed;
+      getDom().nextRoundBtn.textContent = missedRound
+        ? getConfig().COPY.buttons.nextRoundOnMiss
+        : getConfig().COPY.buttons.nextRound;
+    }
   }
 
   // 5. Keep hint button state in sync, and sync the score display.
   syncHintState();
   getRuntime().roundUi.updateHintUsage();
   getRuntime().roundUi.updateStats();
+
+  // Also sync the region progress display so it updates on render passes
+  try {
+    const regionKey = getState().store.selectedContinent || null;
+    const solvedSet = solvedCountriesByRegion.get(regionKey) || new Set();
+    const eligibleCountryCount = getEligibleCountriesForRegion().length;
+    getRuntime().roundUi?.updateRegionProgress?.(
+      regionKey,
+      getRegionLabel(),
+      solvedSet.size,
+      eligibleCountryCount
+    );
+  } catch (e) {
+    log.warn('[round] updateRegionProgress failed during render', e);
+  }
 }
 
 /**

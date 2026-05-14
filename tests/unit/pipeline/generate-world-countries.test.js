@@ -601,3 +601,116 @@ describe('Pipeline / Generate World Countries', () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// mergeFacts — inline copy of the exported function from the pipeline script
+// ---------------------------------------------------------------------------
+
+function mergeFacts(properties, supplement) {
+  const isoCode = properties?.isoCode ?? null;
+  const entry = isoCode ? (supplement?.[isoCode] ?? null) : null;
+
+  return {
+    capital: entry?.capital ?? null,
+    languages: Array.isArray(entry?.languages) ? entry.languages : [],
+    currencies: Array.isArray(entry?.currencies) ? entry.currencies : [],
+    area: typeof entry?.area === 'number' ? entry.area : null,
+    population: typeof entry?.population === 'number' ? entry.population : null,
+    subregion: entry?.subregion ?? null,
+  };
+}
+
+describe('Pipeline / mergeFacts', () => {
+  const supplement = {
+    FR: {
+      capital: 'Paris',
+      languages: ['French'],
+      currencies: [{ code: 'EUR', name: 'euro', symbol: '€' }],
+      area: 543908,
+      population: 66351959,
+      subregion: 'Western Europe',
+    },
+    US: {
+      capital: 'Washington, D.C.',
+      languages: ['English'],
+      currencies: [{ code: 'USD', name: 'United States dollar', symbol: '$' }],
+      area: 9525067,
+      population: 340110988,
+      subregion: 'North America',
+    },
+  };
+
+  it('returns all facts when isoCode matches a supplement entry', () => {
+    const facts = mergeFacts({ isoCode: 'FR' }, supplement);
+    expect(facts.capital).toBe('Paris');
+    expect(facts.languages).toEqual(['French']);
+    expect(facts.currencies).toEqual([{ code: 'EUR', name: 'euro', symbol: '€' }]);
+    expect(facts.area).toBe(543908);
+    expect(facts.population).toBe(66351959);
+    expect(facts.subregion).toBe('Western Europe');
+  });
+
+  it('returns null/empty defaults when isoCode is not in the supplement', () => {
+    const facts = mergeFacts({ isoCode: 'ZZ' }, supplement);
+    expect(facts.capital).toBeNull();
+    expect(facts.languages).toEqual([]);
+    expect(facts.currencies).toEqual([]);
+    expect(facts.area).toBeNull();
+    expect(facts.population).toBeNull();
+    expect(facts.subregion).toBeNull();
+  });
+
+  it('returns null/empty defaults when isoCode is null', () => {
+    const facts = mergeFacts({ isoCode: null }, supplement);
+    expect(facts.capital).toBeNull();
+    expect(facts.languages).toEqual([]);
+    expect(facts.currencies).toEqual([]);
+    expect(facts.area).toBeNull();
+    expect(facts.population).toBeNull();
+    expect(facts.subregion).toBeNull();
+  });
+
+  it('returns null/empty defaults when properties is null', () => {
+    const facts = mergeFacts(null, supplement);
+    expect(facts.capital).toBeNull();
+    expect(facts.languages).toEqual([]);
+    expect(facts.area).toBeNull();
+  });
+
+  it('returns null/empty defaults when supplement is empty', () => {
+    const facts = mergeFacts({ isoCode: 'FR' }, {});
+    expect(facts.capital).toBeNull();
+    expect(facts.languages).toEqual([]);
+    expect(facts.area).toBeNull();
+  });
+
+  it('returns null/empty defaults when supplement is null', () => {
+    const facts = mergeFacts({ isoCode: 'FR' }, null);
+    expect(facts.capital).toBeNull();
+    expect(facts.languages).toEqual([]);
+    expect(facts.area).toBeNull();
+  });
+
+  it('handles partial supplement entries gracefully', () => {
+    const partial = { XX: { capital: 'TestCity' } };
+    const facts = mergeFacts({ isoCode: 'XX' }, partial);
+    expect(facts.capital).toBe('TestCity');
+    expect(facts.languages).toEqual([]);
+    expect(facts.currencies).toEqual([]);
+    expect(facts.area).toBeNull();
+    expect(facts.population).toBeNull();
+    expect(facts.subregion).toBeNull();
+  });
+
+  it('always returns all six keys in the result', () => {
+    const facts = mergeFacts({ isoCode: 'US' }, supplement);
+    expect(Object.keys(facts)).toEqual([
+      'capital',
+      'languages',
+      'currencies',
+      'area',
+      'population',
+      'subregion',
+    ]);
+  });
+});

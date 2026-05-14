@@ -85,25 +85,33 @@
   </div>
 </header>
 
-<div id="map-controls">
-  <label for="continent-filter">Region:</label>
-  <select id="continent-filter" aria-label="Filter by continent">
-    <option value="">All countries</option>
-  </select>
-  <button id="btn-reset" type="button"></button>
-</div>
+<aside id="left-sidebar" aria-label="Region progress" hidden>
+  <div class="sidebar-card">
+    <div class="sidebar-header">Region Progress</div>
+    <div id="region-progress" aria-live="polite"></div>
+  </div>
+</aside>
 
-<div id="map-container">
-  <div id="globeViz" style="width:100%;height:600px"></div>
-</div>
+<div id="app-shell">
+  <div id="map-controls">
+    <label for="continent-filter">Region:</label>
+    <select id="continent-filter" aria-label="Filter by continent">
+      <option value="">All countries</option>
+    </select>
+    <button id="btn-reset" type="button"></button>
+  </div>
 
-<div id="map-legend" aria-label="Map legend">
+  <div id="map-container">
+    <div id="globeViz" style="width:100%;height:600px"></div>
+  </div>
+
+  <div id="map-legend" aria-label="Map legend">
   <div class="legend-item"><span class="legend-swatch legend-target"></span><span>Target country</span></div>
   <div class="legend-item"><span class="legend-swatch legend-correct"></span><span>Solved country</span></div>
   <div class="legend-item"><span class="legend-swatch legend-guess"></span><span>Missed guess</span></div>
 </div>
 
-<div id="main-content">
+  <div id="main-content">
 <div id="below-map">
   <div id="score">
     <span class="score-item" id="score-solved">Solved: <span id="numCorrect">0</span> / <span id="numPlayed">0</span></span>
@@ -124,13 +132,13 @@
     <div id="hint-text"></div>
   </div>
   <div id="controls">
-    <div class="input-wrapper">
+    <div class="input-wrapper" id="input-wrapper">
       <input id="guessInput" placeholder="Type a country name..." autocomplete="off" spellcheck="false" inputmode="search" enterkeyhint="go" />
       <div id="suggestions"></div>
     </div>
-    <button id="btn-hint" type="button"></button>
-    <button id="btn-reveal" type="button"></button>
-    <button id="btn-replay-halo" type="button"></button>
+    <button id="btn-hint" type="button" hidden></button>
+    <button id="btn-reveal" type="button" hidden></button>
+    <button id="btn-replay-halo" type="button" hidden></button>
     <button id="btn-next-round" type="button" hidden></button>
   </div>
 </div>

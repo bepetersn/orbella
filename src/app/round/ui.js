@@ -230,6 +230,58 @@ export function updateStats() {
   }
 }
 
+/**
+ * Update the region progress display (e.g. "Europe: 10 / 44 (23%)").
+ * Hidden on small screens via CSS.
+ * @param {string} regionLabel
+ * @param {number} solvedCount
+ * @param {number} totalCount
+ */
+export function updateRegionProgress(regionKey, regionLabel, solvedCount = 0, totalCount = 0) {
+  const dom = getDom();
+  if (!dom.regionProgress || !dom.leftSidebar) return;
+
+  // If no region is actively selected (null/empty) or the selection is 'all', hide the sidebar.
+  if (!regionKey) {
+    dom.regionProgress.innerHTML = '';
+    dom.leftSidebar.hidden = true;
+    dom.leftSidebar.style.display = 'none';
+    return;
+  }
+
+  // When viewing the entire world label or no total, do not display the region progress.
+  if (
+    !regionLabel ||
+    regionLabel === 'the world' ||
+    regionLabel.toLowerCase?.() === 'all countries' ||
+    !totalCount ||
+    totalCount <= 0
+  ) {
+    dom.regionProgress.innerHTML = '';
+    dom.leftSidebar.hidden = true;
+    dom.leftSidebar.style.display = 'none';
+    return;
+  }
+
+  const pct = Math.round((solvedCount / totalCount) * 100);
+  // Respect responsive breakpoints: only force `display: block` on wide viewports.
+  const shouldShowSidebar =
+    typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(min-width: 900px)').matches
+      : false;
+
+  dom.leftSidebar.hidden = false;
+  dom.leftSidebar.style.display = shouldShowSidebar ? 'block' : '';
+
+  dom.regionProgress.innerHTML = `
+    <div class="region-label">${regionLabel}</div>
+    <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="${regionLabel} progress">
+      <div class="progress-fill" style="width: ${pct}%;"></div>
+    </div>
+    <div class="progress-meta">${solvedCount} / ${totalCount} (${pct}%)</div>
+  `;
+}
+
 /** Briefly apply the shake animation to the input field and return focus to it. */
 export function shakeInput() {
   getDom().input.classList.add('shake');
