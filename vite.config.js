@@ -27,9 +27,18 @@ try {
 }
 
 export default defineConfig({
+  // Base path for GitHub Pages. Set the env var `GH_PAGES_BASE` to
+  // "/your-repo-name/" when publishing to a project page. Defaults to
+  // root (`/`) which is suitable for user/org pages or a custom domain.
+  base: process.env.GH_PAGES_BASE || '/',
   root: '.',
   build: {
-    outDir: 'dist',
+    // Output directly to `public/` so GitHub Pages can serve from the
+    // repository's `public/` folder. This is equivalent to `docs/` for
+    // Pages but avoids the overloaded `docs` name. If you prefer a
+    // `gh-pages` branch, leave this as `dist` and publish the branch
+    // instead.
+    outDir: 'public',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'worldle-lite.html'),
