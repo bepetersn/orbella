@@ -300,6 +300,95 @@ export function submitGuess() {
   }
 }
 
+// Top-level helpers extracted from `renderRoundState` to reduce cyclomatic
+// complexity of that function. They intentionally use the local getters so
+// unit tests and runtime wiring remain unchanged.
+function renderRevealPanel(show) {
+  if (getDom().revealPanel) {
+    getDom().revealPanel.hidden = !show;
+  }
+
+  if (!getDom().revealTarget) {
+    return;
+  }
+
+  if (show) {
+    const displayName =
+      getState().store.targetCountry.properties.displayName ??
+      getState().store.targetCountry.properties.name ??
+      '';
+    const link = document.createElement('a');
+    link.className = 'reveal-country-link';
+    link.href = getRuntime().roundUi.buildWikipediaUrl(displayName);
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = displayName;
+
+    getDom().revealTarget.textContent = `${getConfig().COPY.reveal.answerPrefix}`;
+    getDom().revealTarget.appendChild(link);
+  } else {
+    getDom().revealTarget.textContent = '';
+  }
+}
+
+function renderInputRowAndButtons(active, roundState) {
+  if (getDom().inputWrapper) {
+    getDom().inputWrapper.hidden = !active;
+  }
+
+  if (getDom().input) {
+    getDom().input.placeholder = active
+      ? getConfig().COPY.input.idlePlaceholder
+      : getConfig().COPY.input.lockedPlaceholder;
+  }
+
+  if (getDom().revealBtn) {
+    getDom().revealBtn.hidden = !active;
+  }
+
+  if (getDom().hintBtn) {
+    getDom().hintBtn.hidden = !active || roundState.hintsRemaining <= 0;
+  }
+
+  if (getDom().replayHaloBtn) {
+    getDom().replayHaloBtn.hidden = !getState().store.targetCountry;
+  }
+
+  if (getDom().nextRoundBtn) {
+    if (active) {
+      getDom().nextRoundBtn.hidden = true;
+    } else {
+      const autoAdvanceEnabled = getRuntime().autoAdvance?.isEnabled?.() ?? true;
+      const transitionRunning = getRuntime().timers.isActive('roundTransition');
+      getDom().nextRoundBtn.hidden = autoAdvanceEnabled && transitionRunning;
+      const missedRound = roundState.outcome === ROUND_OUTCOME.missed;
+      getDom().nextRoundBtn.textContent = missedRound
+        ? getConfig().COPY.buttons.nextRoundOnMiss
+        : getConfig().COPY.buttons.nextRound;
+    }
+  }
+}
+
+function postRenderSync() {
+  syncHintState();
+  getRuntime().roundUi.updateHintUsage();
+  getRuntime().roundUi.updateStats();
+
+  try {
+    const regionKey = getState().store.selectedContinent || null;
+    const solvedSet = solvedCountriesByRegion.get(regionKey) || new Set();
+    const eligibleCountryCount = getEligibleCountriesForRegion().length;
+    getRuntime().roundUi?.updateRegionProgress?.(
+      regionKey,
+      getRegionLabel(),
+      solvedSet.size,
+      eligibleCountryCount
+    );
+  } catch (e) {
+    log.warn('[round] updateRegionProgress failed during render', e);
+  }
+}
+
 /**
  * Sync all round-state-dependent UI: the reveal panel visibility and text,
  * the input placeholder, the reveal button, and the hint button.
@@ -329,95 +418,20 @@ export function renderRoundState() {
     roundState.outcome !== ROUND_OUTCOME.won
   );
 
-  // 3. Render reveal panel visibility and answer text.
-  if (getDom().revealPanel) {
-    getDom().revealPanel.hidden = !showRevealPanel;
-  }
-
-  if (showRevealPanel) {
-    const displayName =
-      getState().store.targetCountry.properties.displayName ??
-      getState().store.targetCountry.properties.name ??
-      '';
-    const link = document.createElement('a');
-    link.className = 'reveal-country-link';
-    link.href = getRuntime().roundUi.buildWikipediaUrl(displayName);
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = displayName;
-
-    getDom().revealTarget.textContent = `${getConfig().COPY.reveal.answerPrefix}`;
-    getDom().revealTarget.appendChild(link);
-  } else {
-    getDom().revealTarget.textContent = '';
-  }
+  // 3. Render reveal panel visibility and answer text (delegated above).
 
   // 4. Render input row and all action buttons via show/hide (not disabled).
   const isActive = roundState.outcome === ROUND_OUTCOME.active;
-  const roundFinished = !isActive;
 
-  // Collapse the input row when round is over.
-  if (getDom().inputWrapper) {
-    getDom().inputWrapper.hidden = !isActive;
-  }
-
-  if (getDom().input) {
-    getDom().input.placeholder = isActive
-      ? getConfig().COPY.input.idlePlaceholder
-      : getConfig().COPY.input.lockedPlaceholder;
-  }
-
-  // Reveal button — only during an active round.
-  if (getDom().revealBtn) {
-    getDom().revealBtn.hidden = !isActive;
-  }
-
-  // Hint button — only during active round AND while hints remain.
-  if (getDom().hintBtn) {
-    getDom().hintBtn.hidden = !isActive || roundState.hintsRemaining <= 0;
-  }
-
-  // Replay halo — visible whenever a target exists (active or finished).
-  if (getDom().replayHaloBtn) {
-    getDom().replayHaloBtn.hidden = !getState().store.targetCountry;
-  }
-
-  // Next round — shown only when round is finished AND not currently auto-advancing.
-  // Always hidden during an active round regardless of other conditions.
-  if (getDom().nextRoundBtn) {
-    if (isActive) {
-      getDom().nextRoundBtn.hidden = true;
-    } else {
-      const autoAdvanceEnabled = getRuntime().autoAdvance?.isEnabled?.() ?? true;
-      const transitionRunning = getRuntime().timers.isActive('roundTransition');
-      getDom().nextRoundBtn.hidden = autoAdvanceEnabled && transitionRunning;
-      // Label: 'New game' when all guesses exhausted, 'Next round' otherwise.
-      const missedRound = roundState.outcome === ROUND_OUTCOME.missed;
-      getDom().nextRoundBtn.textContent = missedRound
-        ? getConfig().COPY.buttons.nextRoundOnMiss
-        : getConfig().COPY.buttons.nextRound;
-    }
-  }
+  // 4. Render input row and all action buttons via show/hide (delegated above).
 
   // 5. Keep hint button state in sync, and sync the score display.
-  syncHintState();
-  getRuntime().roundUi.updateHintUsage();
-  getRuntime().roundUi.updateStats();
+  // 5. Post-render sync (delegated above).
 
-  // Also sync the region progress display so it updates on render passes
-  try {
-    const regionKey = getState().store.selectedContinent || null;
-    const solvedSet = solvedCountriesByRegion.get(regionKey) || new Set();
-    const eligibleCountryCount = getEligibleCountriesForRegion().length;
-    getRuntime().roundUi?.updateRegionProgress?.(
-      regionKey,
-      getRegionLabel(),
-      solvedSet.size,
-      eligibleCountryCount
-    );
-  } catch (e) {
-    log.warn('[round] updateRegionProgress failed during render', e);
-  }
+  // Execute extracted render steps
+  renderRevealPanel(showRevealPanel);
+  renderInputRowAndButtons(isActive, roundState);
+  postRenderSync();
 }
 
 /**
