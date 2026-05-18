@@ -3,6 +3,32 @@
 This document is the canonical, short-form guide for using AI assistants with the Worldle Lite repository.
 Link from `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` to keep a single source of truth.
 
+IMPORTANT: create a git worktree before editing
+
+Before making any file changes in this repository, create an isolated `git worktree` branch and perform edits there. Do not edit files directly in the main working tree. Using a worktree keeps AI-driven changes isolated, makes commits and reviews traceable, and prevents accidental changes to the primary working copy.
+
+Example (see the detailed `Local agent workflow` below):
+
+```bash
+git fetch origin
+git worktree add ../wt-agent -b ai/agent-<id>-<topic> main
+cd ../wt-agent
+```
+
+Follow the Local agent workflow later in this document for the full example and commit conventions.
+
+IMPORTANT: create a `git worktree` before editing files
+
+Before making any changes to files in this repository, create a local git worktree and work inside that branch. This keeps your edits isolated from the main working tree and makes commits and reviews traceable. Example:
+
+```bash
+git fetch origin
+git worktree add ../wt-agent -b ai/agent-<id>-<topic> main
+cd ../wt-agent
+```
+
+All further instructions in this document assume you are working inside a worktree branch. Do not edit files directly in the primary working directory.
+
 ## Purpose
 
 - Explain permitted AI roles and responsibilities for this project.
@@ -26,7 +52,7 @@ Rationale: these patterns are documented tech-debt and changing them without a c
 
 ## Contributor Workflow (AI + Human)
 
-1. Branch from `main` with a descriptive name.
+1. Create a `git worktree` from `main` and work inside it (see example above). This must be done before modifying any files in the repository.
 2. Run `npm run format` and `npm test` locally; fix issues until green.
 3. Update `docs/STATUS.md` as required (Recent Work, counts, last updated).
 4. Open a PR and request a human review. AI-originated PRs must include a reviewer assignment and the checklist below.

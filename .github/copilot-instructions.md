@@ -8,6 +8,10 @@ Worldle Lite is a single-page geography guessing game (Vite + Vitest, vanilla ES
 - [docs/STATUS.md](../docs/STATUS.md) — current test results, coverage numbers, recent work, and the prioritised tech-debt backlog.
 ---
 
+IMPORTANT: create a `git worktree` before editing files
+
+Before modifying any files, create an isolated `git worktree` branch and perform edits there. Do not edit the main working tree directly. See `docs/AI-GUIDELINES.md` for the full Local agent workflow and example commands.
+
 ## ⚠️ Always update `docs/STATUS.md` after making changes
 
 After completing any task that affects the codebase, **you must update [docs/STATUS.md](../docs/STATUS.md)**. This is not optional. Specifically:

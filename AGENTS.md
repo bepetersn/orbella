@@ -7,6 +7,9 @@ distinct misses.
 
 **Read these before making changes:**
 - [docs/AI-GUIDELINES.md](docs/AI-GUIDELINES.md) — canonical AI usage guide (roles, guardrails, workflows, prompt templates). See `.github/copilot-instructions.md` for project-specific architecture notes.
+- IMPORTANT: create a `git worktree` before editing files
+
+Before making any edits to this repository, create a dedicated `git worktree` branch and work inside it. Do not edit files directly in the main working tree. See `docs/AI-GUIDELINES.md` 'Local agent workflow' for an example and recommended commands.
 - [docs/STATUS.md](docs/STATUS.md) — current test count, coverage
    numbers, recent work, and prioritised tech-debt backlog.
 - [docs/reviews/code-review-2026-05-07.md](docs/reviews/code-review-2026-05-07.md)
