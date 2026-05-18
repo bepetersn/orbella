@@ -171,32 +171,15 @@ export function zoomToCountry(ctx, country) {
 }
 
 export function showLocationHalo(ctx, country) {
-  const renderableCountry = getRenderableFeature(ctx, country);
-  const bounds = ctx.path.bounds(renderableCountry);
-  const dx = bounds[1][0] - bounds[0][0];
-  const dy = bounds[1][1] - bounds[0][1];
-
-  if (dx < HALO_SIZE_THRESHOLD || dy < HALO_SIZE_THRESHOLD) {
-    const centroid = ctx.path.centroid(renderableCountry);
-    const transform = ctx.d3.zoomTransform(ctx.svg.node());
-    const k = transform.k;
-
-    const halo = ctx.g
-      .append('circle')
-      .attr('class', 'location-halo')
-      .attr('cx', centroid[0])
-      .attr('cy', centroid[1])
-      .attr('r', 0)
-      .style('stroke', HALO_STROKE_COLOR)
-      .style('stroke-width', HALO_STROKE_WIDTH / k)
-      .style('opacity', 1);
-
-    halo
-      .transition()
-      .duration(HALO_DURATION_MS)
-      .ease(ctx.d3.easeCircleOut)
-      .attr('r', HALO_RADIUS / k)
-      .style('opacity', 0)
-      .remove();
+  // 2D / SVG map rendering is no longer supported. Keep this function
+  // as a safe no-op so callers (e.g. runtime stubs) can still invoke it
+  // without error. If a 3D globe is present, `worldMapInst.showLocationHalo`
+  // is wired to the globe halo manager instead.
+  try {
+    if (console && console.warn) {
+      console.warn('[map] showLocationHalo: 2D SVG halo deprecated; skipping');
+    }
+  } catch (e) {
+    /* ignore */
   }
 }

@@ -356,93 +356,12 @@ const buildProcessedFeaturesTop = (renderFeatures, flipped) => {
   }
 };
 
-const centroidFromPropertiesTop = (properties, isMultiPolygon) => {
-  if (isMultiPolygon || !properties) return null;
-
-  if (Array.isArray(properties.geometryCenter) && properties.geometryCenter.length >= 2) {
-    return {
-      lat: properties.geometryCenter[1],
-      lng: properties.geometryCenter[0],
-    };
-  }
-
-  if (Array.isArray(properties.geometryBounds) && properties.geometryBounds.length >= 4) {
-    const [minLon, minLat, maxLon, maxLat] = properties.geometryBounds;
-    return {
-      lat: (minLat + maxLat) / 2,
-      lng: (minLon + maxLon) / 2,
-    };
-  }
-
-  return null;
-};
-
-const largestGeometryRingTop = (geometry) => {
-  if (geometry?.type === 'Polygon') {
-    return geometry.coordinates?.[0] || null;
-  }
-
-  if (geometry?.type !== 'MultiPolygon') {
-    return null;
-  }
-
-  let best = null;
-  let bestLen = -1;
-
-  for (const poly of geometry.coordinates) {
-    const ring = poly[0];
-    if (Array.isArray(ring) && ring.length > bestLen) {
-      best = ring;
-      bestLen = ring.length;
-    }
-  }
-
-  return best;
-};
-
-const centroidFromRingTop = (ring) => {
-  if (!Array.isArray(ring) || !ring.length) return null;
-
-  let sumLon = 0;
-  let sumLat = 0;
-  let count = 0;
-
-  for (const pt of ring) {
-    if (Array.isArray(pt) && pt.length >= 2 && Number.isFinite(pt[0]) && Number.isFinite(pt[1])) {
-      sumLon += pt[0];
-      sumLat += pt[1];
-      count += 1;
-    }
-  }
-
-  if (count === 0) return null;
-
-  return {
-    lat: sumLat / count,
-    lng: sumLon / count,
-  };
-};
-
-// Top-level: compute a { lat, lng } centroid from a country feature.
-// Returns null when no centroid can be determined.
-// NOTE: For MultiPolygon features we intentionally ignore precomputed
-// `geometryCenter` / `geometryBounds` properties because they are calculated
-// over the full unprocessed geometry, which may include excluded polygon parts
-// (e.g. French Guiana for France) and would pull the centroid to the wrong
-// location. For simple Polygon features the precomputed values are fine.
-const getCountryCentroidTop = (country) => {
-  try {
-    const isMulti = country?.geometry?.type === 'MultiPolygon';
-    const propertyCentroid = centroidFromPropertiesTop(country?.properties, isMulti);
-    if (propertyCentroid) return propertyCentroid;
-
-    const ring = largestGeometryRingTop(country?.geometry);
-    return centroidFromRingTop(ring);
-  } catch (e) {
-    /* ignore */
-  }
-  return null;
-};
+import {
+  centroidFromProperties as centroidFromPropertiesTop,
+  centroidFromRing as centroidFromRingTop,
+  largestGeometryRing as largestGeometryRingTop,
+  resolveCentroid as getCountryCentroidTop,
+} from './utils.js';
 
 // Top-level: apply a state patch to a matching feature and refresh globe polygons.
 // Shared by markTarget, markSolved, markWrong to eliminate repeated find-mutate-refresh boilerplate.
@@ -875,6 +794,8 @@ const installLonFlipControlsTop = (globe, renderFeatures, { info = noop, warn = 
   }
 };
 
+import { createHaloAdapter } from './halo.js';
+
 const attachHaloManagerTop = (stub, globe, haloFactory, { info = noop, warn = noop } = {}) => {
   try {
     if (typeof haloFactory !== 'function') {
@@ -885,10 +806,11 @@ const attachHaloManagerTop = (stub, globe, haloFactory, { info = noop, warn = no
     const haloMgr = haloFactory(globe, HALO_CONFIG);
     info('halo manager created', HALO_CONFIG);
 
+    const adapter = createHaloAdapter(haloMgr, null);
     stub.showLocationHalo = (country, opts = {}) => {
       info('showLocationHalo called for', country?.properties?.name);
       try {
-        haloMgr.showHaloForCountry(country, opts);
+        adapter.showLocationHalo(country, opts);
       } catch (e) {
         warn('showLocationHalo failed', e);
       }

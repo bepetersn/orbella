@@ -12,7 +12,7 @@
  */
 
 import { worldleLiteLogger as log } from '../app/logger.js';
-import { lonLatTo3D } from './utils.js';
+import { lonLatTo3D, resolveCentroid } from './utils.js';
 
 const DEFAULT_HALO_CONFIG = {
   color: '#f5c518',
@@ -145,73 +145,7 @@ const drawHaloFrame = (ctx, halos, now, getEasing, { canvas, debug = () => {} } 
   ctx.globalAlpha = 1;
 };
 
-const centroidFromProperties = (properties) => {
-  if (
-    properties &&
-    Array.isArray(properties.geometryCenter) &&
-    properties.geometryCenter.length >= 2
-  ) {
-    return { lat: properties.geometryCenter[1], lng: properties.geometryCenter[0] };
-  }
-
-  if (
-    properties &&
-    Array.isArray(properties.geometryBounds) &&
-    properties.geometryBounds.length >= 4
-  ) {
-    const [minLon, minLat, maxLon, maxLat] = properties.geometryBounds;
-    return { lat: (minLat + maxLat) / 2, lng: (minLon + maxLon) / 2 };
-  }
-
-  return null;
-};
-
-const firstGeometryRing = (geometry) => {
-  if (geometry?.type === 'MultiPolygon') return geometry.coordinates?.[0]?.[0] || null;
-  if (geometry?.type === 'Polygon') return geometry.coordinates?.[0] || null;
-  return null;
-};
-
-const centroidFromRing = (parts) => {
-  if (!Array.isArray(parts) || !parts.length) return null;
-
-  let sumLon = 0;
-  let sumLat = 0;
-  let count = 0;
-
-  for (const pt of parts) {
-    if (Array.isArray(pt) && pt.length >= 2 && Number.isFinite(pt[0]) && Number.isFinite(pt[1])) {
-      sumLon += pt[0];
-      sumLat += pt[1];
-      count += 1;
-    }
-  }
-
-  if (count > 0) {
-    return { lat: sumLat / count, lng: sumLon / count };
-  }
-
-  return null;
-};
-
-// Helper: resolve country centroid from feature properties or geometry
-const resolveCentroid = (country) => {
-  if (!country) return null;
-
-  const propertyCentroid = centroidFromProperties(country.properties);
-  if (propertyCentroid) return propertyCentroid;
-
-  // Compute from geometry (first polygon)
-  if (country.geometry) {
-    try {
-      return centroidFromRing(firstGeometryRing(country.geometry));
-    } catch (e) {
-      // ignore geometry parsing errors
-    }
-  }
-
-  return null;
-};
+// `resolveCentroid` is provided by `src/map/utils.js` to avoid duplication
 
 const getGlobeContainer = () => {
   const globeCanvas = document.querySelector('canvas');

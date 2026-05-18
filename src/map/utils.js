@@ -81,3 +81,79 @@ export const getSvgDimensions = (ctx) => {
   }
   return { actualWidth: Number(ctx?.width) || 0, actualHeight: Number(ctx?.height) || 0 };
 };
+
+// Centroid helpers used across map modules. Exported to avoid duplicate
+// implementations in `globe.js` and `globe-halo.js`.
+export const centroidFromProperties = (properties, isMultiPolygon) => {
+  if (isMultiPolygon || !properties) return null;
+
+  if (Array.isArray(properties.geometryCenter) && properties.geometryCenter.length >= 2) {
+    return {
+      lat: properties.geometryCenter[1],
+      lng: properties.geometryCenter[0],
+    };
+  }
+
+  if (Array.isArray(properties.geometryBounds) && properties.geometryBounds.length >= 4) {
+    const [minLon, minLat, maxLon, maxLat] = properties.geometryBounds;
+    return { lat: (minLat + maxLat) / 2, lng: (minLon + maxLon) / 2 };
+  }
+
+  return null;
+};
+
+export const firstGeometryRing = (geometry) => {
+  if (geometry?.type === 'MultiPolygon') return geometry.coordinates?.[0]?.[0] || null;
+  if (geometry?.type === 'Polygon') return geometry.coordinates?.[0] || null;
+  return null;
+};
+
+export const largestGeometryRing = (geometry) => {
+  if (geometry?.type === 'Polygon') return geometry.coordinates?.[0] || null;
+  if (geometry?.type !== 'MultiPolygon') return null;
+
+  let best = null;
+  let bestLen = -1;
+  for (const poly of geometry.coordinates) {
+    const ring = poly[0];
+    if (Array.isArray(ring) && ring.length > bestLen) {
+      best = ring;
+      bestLen = ring.length;
+    }
+  }
+  return best;
+};
+
+export const centroidFromRing = (ring) => {
+  if (!Array.isArray(ring) || !ring.length) return null;
+
+  let sumLon = 0;
+  let sumLat = 0;
+  let count = 0;
+
+  for (const pt of ring) {
+    if (Array.isArray(pt) && pt.length >= 2 && Number.isFinite(pt[0]) && Number.isFinite(pt[1])) {
+      sumLon += pt[0];
+      sumLat += pt[1];
+      count += 1;
+    }
+  }
+
+  if (count === 0) return null;
+  return { lat: sumLat / count, lng: sumLon / count };
+};
+
+export const resolveCentroid = (country) => {
+  if (!country) return null;
+  try {
+    const isMulti = country?.geometry?.type === 'MultiPolygon';
+    const propertyCentroid = centroidFromProperties(country?.properties, isMulti);
+    if (propertyCentroid) return propertyCentroid;
+
+    // Prefer largest ring centroid for better visual placement on complex features
+    const ring = largestGeometryRing(country?.geometry) || firstGeometryRing(country?.geometry);
+    return centroidFromRing(ring);
+  } catch (e) {
+    return null;
+  }
+};
