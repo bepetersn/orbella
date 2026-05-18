@@ -17,6 +17,8 @@
     "deploy:gh-pages": "gh-pages -d public",
     "preview": "vite preview",
     "test": "vitest --run",
+    "test:unit": "vitest --run tests/unit",
+    "test:integration": "vitest --run tests/integration",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --run --coverage",
     "test:e2e": "playwright test",
