@@ -1,0 +1,19 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Prepare commit message with AI metadata template if not present.
+# Skips merge/squash commits.
+MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+if [ "$COMMIT_SOURCE" = "merge" ] || [ "$COMMIT_SOURCE" = "squash" ]; then
+  exit 0
+fi
+
+if [ -z "$MSG_FILE" ]; then
+  exit 0
+fi
+
+if ! grep -q "^AI-Generated:" "$MSG_FILE" 2>/dev/null; then
+  printf "\n# If this commit was produced or assisted by an AI, add the following:\n# AI-Generated: true\n# AI-Notes: Short prompt summary or files changed\n" >> "$MSG_FILE"
+fi
