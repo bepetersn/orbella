@@ -3,6 +3,7 @@
 Worldle Lite is a single-page geography guessing game (Vite + Vitest, vanilla ES modules, Globe.gl + D3). Each round zooms a 3D globe to a highlighted country; the player names it before exhausting three distinct misses.
 
 **Key documentation:**
+- [docs/AI-GUIDELINES.md](../docs/AI-GUIDELINES.md) — canonical AI usage guide (roles, guardrails, workflows, prompt templates). Link here for quick reference.
 - [README.md](../README.md) — project overview, features, how to run, module map.
 - [docs/STATUS.md](../docs/STATUS.md) — current test results, coverage numbers, recent work, and the prioritised tech-debt backlog.
 ---

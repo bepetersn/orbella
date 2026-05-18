@@ -39,9 +39,9 @@ All **395 tests pass** across **33 test files** as of the last run.
 Coverage is **75.72% overall**. `src/store/` sits at **93.23%**, `src/app/round` at **88.93%**, `src/app` overall at **87.51%**, and `src/map/` at **46.78%**. The biggest remaining map gaps are `globe.js` (**35.07%**) and `globe-halo.js` (**36.7%**), while the extracted shared helper in `src/map/utils.js` is **100%** covered.
 
 ### Recent Work (last 3 commits)
+- **Document import-order and small fixes:** Add import-order comment to `src/main.js`, update `.github/copilot-instructions.md` guidance, and run formatting on `src/app/debug.js`. (May 17, 2026)
+- **Deprecate 2D SVG halo:** Disabled the SVG/D3 `showLocationHalo` implementation and consolidated runtime halo behaviour to the 3D globe halo manager. (May 17, 2026)
 - **Set Vite base for GitHub Pages:** Set default `base` to `/orbella/` in `vite.config.js` (override with `GH_PAGES_BASE`), and documented the change. (May 17, 2026)
-- **Add integration tests:** Added integration tests for `targetSelector` (persistence + recent-window behaviour) and `map/state` helpers. (May 17, 2026)
-- **Prepared repository for GitHub Pages deployment:** Configured `vite.config.js` to build into `public/`, added `build:public` and `deploy:gh-pages` scripts and the `gh-pages` devDependency to `package.json`. (May 13, 2026)
 
 ---
 
@@ -59,3 +59,26 @@ Coverage is **75.72% overall**. `src/store/` sits at **93.23%**, `src/app/round`
 1. **Raise map-layer coverage** — build on the new helper seams in `src/map/globe.js`, `src/map/globe-halo.js`, and `src/map/utils.js` so the Globe.gl orchestration paths stop dominating the remaining uncovered lines.
 2. **Fix `debug.js` indentation.**
 3. Consider Playwright E2E tests (scaffolded in `package.json` as `test:e2e` but not yet written).
+
+## After making changes — update `docs/STATUS.md`
+
+This is required, not optional:
+- Prepend a bullet to **Recent Work** (keep to 3 items).
+- Update test counts and coverage numbers if they changed.
+- Remove resolved debt items; add new ones with severity.
+- Update the **Last updated** date at the top.
+
+### When to update `docs/STATUS.md` (formalized)
+
+If you (human or AI) change code, tests, or docs, update these fields before merging:
+
+- **Last updated:** today's date (top of file)
+- **Recent Work:** prepend one sentence per logical change (keep to 3 most recent)
+- **Tests:** total test count and per-scope table (update counts if tests added/removed)
+- **Coverage:** overall percentage and per-module breakdown when coverage changes
+- **Known Issues / Tech Debt:** remove or add items with a short severity note
+- **Next Priorities:** adjust ordering if priorities shift due to the change
+
+Example Recent Work sentence:
+
+ - Add `docs/AI-GUIDELINES.md` consolidating AI usage rules and PR checklist. (May 17, 2026)

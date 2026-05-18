@@ -6,13 +6,11 @@ highlighted country; the player names it before exhausting three
 distinct misses.
 
 **Read these before making changes:**
-- [.github/copilot-instructions.md](.github/copilot-instructions.md) —
-  full architecture map, tech-debt guardrails, code style, and test
-  conventions. **This is the canonical AI-assistant context file.**
+- [docs/AI-GUIDELINES.md](docs/AI-GUIDELINES.md) — canonical AI usage guide (roles, guardrails, workflows, prompt templates). See `.github/copilot-instructions.md` for project-specific architecture notes.
 - [docs/STATUS.md](docs/STATUS.md) — current test count, coverage
-  numbers, recent work, and prioritised tech-debt backlog.
+   numbers, recent work, and prioritised tech-debt backlog.
 - [docs/reviews/code-review-2026-05-07.md](docs/reviews/code-review-2026-05-07.md)
-  — detailed review notes on architecture problems.
+   — detailed review notes on architecture problems.
 
 ---
 
