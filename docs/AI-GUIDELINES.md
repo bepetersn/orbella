@@ -80,6 +80,10 @@ Add these templates to the PR description when asking AI to generate code.
 
 ## Git commits & AI
 
+As part of your work, you must move toward making a git commit (or commits) when you are sure you have finished your work and there is completed work to commit. Keep commits smaller / discrete, as far as is possible.
+
+Ask for clarification if it's not clear if you are finished. State the commit message that you will use. Ask if it's acceptable to commit.
+
 Clear commit practice helps keep AI contributions auditable and reviewable. Follow these rules for any AI-assisted commits:
 
 - Commit granularity: make small, focused, and atomic commits. Each commit should implement one logical change (e.g., "fix: add unit test for lonLatTo3D").
@@ -103,9 +107,31 @@ AI-Notes: Prompt asked to fix `getBestFuzzyCountryMatch` edge-case; added trimmi
 
 Rationale: these conventions make it easy for reviewers to spot AI-produced changes, reproduce verification steps, and understand intent.
 
-## Contact / Questions
+## Local agent workflow (git worktree)
 
-If unsure, open a draft PR and tag `@maintainers` or ask in the repository issue tracker before merging.
+Use `git worktree` to keep your work isolated from the main working tree. This provides a simple, local branch-per-task workflow without cloning the repo.
 
-----
-Last updated: 2026-05-17
+Quick setup (example for one agent):
+
+```bash
+git fetch origin
+git worktree add ../wt-agent -b ai/agent-<id>-<topic> main
+cd ../wt-agent
+# make changes, run format and tests, commit
+npm run format && npm test
+git add .
+git commit -m "fix(map): tidy lonLat math\n\nRan: npm run format && npm test (all tests passed)\n\nAI-Generated: true\nAI-Notes: short prompt summary and files changed"
+git push -u origin ai/agent-<id>-<topic>
+```
+
+Useful commands:
+- `git worktree list` — list active worktrees
+- `git worktree remove ../wt-agent` — remove a finished worktree
+- `git worktree prune` — prune stale metadata
+- `git worktree add ...`
+
+Conventions:
+- Branch naming: `ai/<agent-id>-<short-topic>` (e.g., `ai/agentA-fuzzy-match`).
+- Keep commits small and focused; include `AI-Generated:` and `AI-Notes:` trailers (hooks help enforce this).
+
+Once finished with all work in a particular area and a particular chat on a subject -- at the same time that a commit is being made--if no more work is forthcoming--, be ready and willing to merge your worktree back to the main / master branch, as your final action.
