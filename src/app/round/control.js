@@ -15,10 +15,10 @@ import { worldleLiteLogger as log } from '../logger.js';
 
 import { getRuntime } from '../runtime.js';
 
-const getDom = () => getRuntime().dom ?? {};
-const getState = () => getRuntime().state ?? {};
-const getConfig = () => getRuntime().config ?? {};
-const getActions = () => getRuntime().actions ?? {};
+const getDom = () => getRuntime().dom;
+const getState = () => getRuntime().state;
+const getConfig = () => getRuntime().config;
+const getActions = () => getRuntime().actions;
 const solvedCountriesByRegion = new Map();
 const celebratedRegions = new Set();
 
@@ -500,6 +500,19 @@ export function startRound() {
   }
 
   // Normal startRound flow — bootstrap is responsible for initial sequencing.
+  // If this `startRound` invocation begins a fresh game (no rounds played
+  // yet), ensure the module-level caches used for "solved by region" and
+  // celebration tracking do not persist across games. These were previously
+  // module singletons that survived `resetScores()` and produced incorrect
+  // behaviour on New Game.
+  if ((getState().numPlayed ?? 0) === 0) {
+    if (solvedCountriesByRegion.size > 0 || celebratedRegions.size > 0) {
+      solvedCountriesByRegion.clear();
+      celebratedRegions.clear();
+      log.debug('[round] startRound - cleared module-level solved/celebration caches for new game');
+    }
+  }
+
   const { clearRoundTransition } = getRuntime().roundTransitions;
   const { clearFeedback, clearHints, renderGuessPlaceholders } = getRuntime().roundUi;
 
