@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 # Prepare commit message with AI metadata template if not present.
 # Skips merge/squash commits.
 MSG_FILE="$1"
