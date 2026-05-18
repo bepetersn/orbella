@@ -30,7 +30,10 @@ export default defineConfig({
   // Base path for GitHub Pages. Set the env var `GH_PAGES_BASE` to
   // "/your-repo-name/" when publishing to a project page. Defaults to
   // root (`/`) which is suitable for user/org pages or a custom domain.
-  base: process.env.GH_PAGES_BASE || '/',
+  // Default to the project-page base for `orbella`. Users can override
+  // this at publish time by setting the `GH_PAGES_BASE` environment
+  // variable (e.g. `GH_PAGES_BASE=/orbella/`).
+  base: process.env.GH_PAGES_BASE || '/orbella/',
   root: '.',
   build: {
     // Output directly to `public/` so GitHub Pages can serve from the

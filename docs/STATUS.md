@@ -1,6 +1,6 @@
 # Project Status — Worldle Lite
 
-*Last updated: May 15, 2026*
+*Last updated: May 17, 2026*
 
 
 ---
@@ -24,7 +24,7 @@ Worldle Lite is a single-page geography guessing game. Each round zooms a 3D glo
 
 ### Tests
 
-All **391 tests pass** across **31 test files** as of the last run.
+All **395 tests pass** across **33 test files** as of the last run.
 
 | Scope | Files | Tests |
 |---|---|---|
@@ -33,16 +33,15 @@ All **391 tests pass** across **31 test files** as of the last run.
 | Unit — map | 4 | 51 |
 | Unit — config / theme / targeting / entry | 5 | 43 |
 | Unit — app (other) | 8 | 57 |
-| Integration | 2 | 21 |
+| Integration | 4 | 25 |
 | Pipeline | 1 | 45 |
 
 Coverage is **75.72% overall**. `src/store/` sits at **93.23%**, `src/app/round` at **88.93%**, `src/app` overall at **87.51%**, and `src/map/` at **46.78%**. The biggest remaining map gaps are `globe.js` (**35.07%**) and `globe-halo.js` (**36.7%**), while the extracted shared helper in `src/map/utils.js` is **100%** covered.
 
 ### Recent Work (last 3 commits)
+- **Set Vite base for GitHub Pages:** Set default `base` to `/orbella/` in `vite.config.js` (override with `GH_PAGES_BASE`), and documented the change. (May 17, 2026)
+- **Add integration tests:** Added integration tests for `targetSelector` (persistence + recent-window behaviour) and `map/state` helpers. (May 17, 2026)
 - **Prepared repository for GitHub Pages deployment:** Configured `vite.config.js` to build into `public/`, added `build:public` and `deploy:gh-pages` scripts and the `gh-pages` devDependency to `package.json`. (May 13, 2026)
-- **Brought globe and halo factory complexity back under control and added a reusable CC script:** Further split globe/halo orchestration into top-level helpers, added more map helper tests, and checked the current acorn pass with `createWorldleGlobe` at **10**, `createRuntimeStubTop` at **3**, `createHaloManager` at **13**, and `resolveCentroid` at **5**; `npm run check:complexity` now defaults to the full `src/` tree and accepts narrower file or directory targets.
-- **Reduced globe-layer cyclomatic complexity and added helper coverage:** Extracted `applyGlobeExclusionsTop`, `buildProcessedFeaturesTop`, and `markTargetTop` from `src/map/globe.js`, moved `lonLatTo3D` into `src/map/utils.js`, and pulled `project3DToScreen` plus `drawHaloFrame` out of `src/map/globe-halo.js`, with real-module unit tests covering the new seams.
-- **Rationalised `src/map/` utilities and imports:** Restored missing helpers to `src/map/utils.js` (`getCountryKey`, `getRenderableFeature`, `isCountryInContinent`, `normalizeCountryFeature`, `isPlayableCountry`, `safeId`, `getSvgDimensions`) and updated consuming modules to use them; ran Prettier and the full test suite (391 tests passing). (May 15, 2026)
 
 ---
 
