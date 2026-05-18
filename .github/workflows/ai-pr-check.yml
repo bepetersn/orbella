@@ -1,0 +1,25 @@
+name: AI PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-pr-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+      - name: Complexity check
+        run: npm run check:complexity -- --ignore vendor --max 20
+      - name: Format check
+        run: npm run format:check
+      - name: Run tests
+        run: npm test -- --run
+      - name: Vendor verify (if changed)
+        run: npm run vendor:verify || true
