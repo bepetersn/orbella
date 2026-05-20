@@ -2,6 +2,8 @@
 
 Worldle Lite is a lightweight, single-page geography guessing game. Each round zooms the map to one country, and your job is to name it before you run out of distinct misses.
 
+## High-Level Note for Contributing 
+
 IMPORTANT: create a `git worktree` before editing files
 
 Before making any changes to files in this repository, create a local `git worktree` and work inside that branch. Do not edit files directly in the main working tree. Example:
