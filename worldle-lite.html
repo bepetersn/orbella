@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Worldle Lite</title>
+  <link rel="icon" href="/assets/favicon-wk4T-2Pn.svg" type="image/svg+xml" />
+  <script>
+    (() => {
+      const themeKey = "worldle-lite-theme";
+      let storedTheme = null;
+
+      try {
+        storedTheme = window.localStorage.getItem(themeKey);
+      } catch {
+        storedTheme = null;
+      }
+
+      const preferredTheme = storedTheme === "light" || storedTheme === "dark"
+        ? storedTheme
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+
+      document.documentElement.dataset.theme = preferredTheme;
+    })();
+  </script>
+  <script>
+    // Global error boundary — surfaces uncaught errors and unhandled promise
+    // rejections that would otherwise be invisible in production.
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('[worldle-lite] Uncaught error:', { message, source, lineno, colno, error });
+    };
+    window.addEventListener('unhandledrejection', function(event) {
+      console.error('[worldle-lite] Unhandled promise rejection:', event.reason);
+    });
+  </script>
+  <script type="module" crossorigin src="/assets/main-C9SNdl-b.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-BHyA-UGY.css">
+</head>
+<body>
+
+<div id="topbar">
+  <button id="settings-toggle" type="button" aria-label="Open settings" aria-expanded="false" aria-controls="settings-modal">⚙︎</button>
+  <span id="build-marker" aria-label="Build marker">Build: loading…</span>
+</div>
+
+<div id="settings-modal" role="dialog" aria-labelledby="settings-title" hidden>
+  <div id="settings-backdrop"></div>
+  <div id="settings-panel">
+    <div id="settings-header">
+      <h2 id="settings-title">Settings</h2>
+      <button id="settings-close" type="button" aria-label="Close settings" aria-expanded="true">✕</button>
+    </div>
+    <div id="settings-content">
+      <div id="settings-section" class="settings-option">
+        <label class="toggle-chip" id="theme-toggle-label" for="theme-toggle">
+          <input id="theme-toggle" type="checkbox" />
+          <span>Dark mode</span>
+        </label>
+      </div>
+      <div id="settings-section" class="settings-option">
+        <label class="toggle-chip" id="debug-toggle-label" for="debug-toggle">
+          <input id="debug-toggle" type="checkbox" />
+          <span>Debug On</span>
+        </label>
+      </div>
+      <div id="settings-section" class="settings-option">
+        <label class="toggle-chip" id="auto-advance-toggle-label" for="auto-advance-toggle">
+          <input id="auto-advance-toggle" type="checkbox" checked />
+          <span>Auto-advance on Correct</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header id="hero" aria-labelledby="app-title">
+  <p class="eyebrow" id="hero-eyebrow"></p>
+  <h1 id="app-title"></h1>
+  <p id="app-subtitle"></p>
+  <div id="hero-rules" aria-label="How each round works">
+    <span class="rule-chip" id="rule-misses"></span>
+    <span class="rule-chip" id="rule-autocomplete"></span>
+    <span class="rule-chip" id="rule-reveal"></span>
+  </div>
+</header>
+
+<div id="map-controls">
+  <label for="continent-filter">Region:</label>
+  <select id="continent-filter" aria-label="Filter by continent">
+    <option value="">All countries</option>
+  </select>
+  <button id="btn-reset" type="button">New game</button>
+</div>
+
+<div id="map-container">
+  <div id="globeViz" style="width:100%;height:600px"></div>
+</div>
+
+<div id="map-legend" aria-label="Map legend">
+  <div class="legend-item"><span class="legend-swatch legend-target"></span><span>Target country</span></div>
+  <div class="legend-item"><span class="legend-swatch legend-correct"></span><span>Solved country</span></div>
+  <div class="legend-item"><span class="legend-swatch legend-guess"></span><span>Missed guess</span></div>
+</div>
+
+<div id="main-content">
+<div id="below-map">
+  <div id="score">
+    <span class="score-item" id="score-solved">Solved: <span id="numCorrect">0</span> / <span id="numPlayed">0</span></span>
+    <span class="score-item" id="hints-round">Hints this round: <span id="numHintsUsed">0</span></span>
+    <span class="score-item" id="hints-total">Total hints used: <span id="totalHintsUsed">0</span></span>
+  </div>
+  <div id="feedback"></div>
+  <div id="round-transition" aria-live="polite" aria-hidden="true">
+    <div id="round-transition-label"></div>
+    <div id="round-transition-track">
+      <div id="round-transition-fill"></div>
+    </div>
+  </div>
+  <div id="reveal-panel">
+    <div id="revealTarget"></div>
+  </div>
+  <div id="hint-panel" aria-live="polite">
+    <div id="hint-text"></div>
+  </div>
+  <div id="controls">
+    <div class="input-wrapper">
+      <input id="guessInput" placeholder="Type a country name..." autocomplete="off" spellcheck="false" inputmode="search" enterkeyhint="go" />
+      <div id="suggestions"></div>
+    </div>
+    <button id="btn-hint" type="button">Hint</button>
+    <button id="btn-reveal" type="button">Reveal</button>
+    <button id="btn-replay-halo" type="button">Replay halo</button>
+    <button id="btn-next-round" type="button" hidden>Next round</button>
+  </div>
+</div>
+
+  <div id="guess-list-wrap" aria-label="Your Guesses">
+    <div id="guess-list-label">Your Guesses</div>
+    <div id="guess-list" role="list" aria-live="polite"></div>
+  </div>
+</div>
+
+<div id="celebration" aria-hidden="true">
+  <div id="celebration-card" role="status" aria-live="polite">
+    <div id="celebration-title">Congratulations!</div>
+    <div id="celebration-text"></div>
+  </div>
+  <div id="confetti-layer" aria-hidden="true"></div>
+</div>
+
+<!-- Prefer a local vendored copy if present (drop src/vendor/globe.gl.min.js to pin a version),
+     then fall back to the CDN. -->
+</body>
+</html>
