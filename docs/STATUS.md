@@ -1,13 +1,13 @@
-# Project Status — Worldle Lite
+# Project Status — Orbella
 
-*Last updated: May 17, 2026*
+*Last updated: May 21, 2026*
 
 
 ---
 
 ## What It Is
 
-Worldle Lite is a single-page geography guessing game. Each round zooms a 3D globe to a highlighted country; the player names it before exhausting three distinct misses. Features include autocomplete suggestions, wrong-guess map highlighting, optional reveal mode, auto-advance, light/dark theme, and audio/vibration feedback.
+Orbella is a single-page geography guessing game. Each round zooms a 3D globe to a highlighted country; the player names it before exhausting three distinct misses. Features include autocomplete suggestions, wrong-guess map highlighting, optional reveal mode, auto-advance, light/dark theme, and audio/vibration feedback.
 
 **Stack:** Vite (bundler + dev server), Vitest (test runner), Globe.gl + D3 (map rendering), vanilla JS ES modules.
 
@@ -24,7 +24,7 @@ Worldle Lite is a single-page geography guessing game. Each round zooms a 3D glo
 
 ### Tests
 
-All **395 tests pass** across **33 test files** as of the last run.
+All **389 tests pass** across **33 test files** as of the last run.
 
 | Scope | Files | Tests |
 |---|---|---|
@@ -39,9 +39,9 @@ All **395 tests pass** across **33 test files** as of the last run.
 Coverage is **75.72% overall**. `src/store/` sits at **93.23%**, `src/app/round` at **88.93%**, `src/app` overall at **87.51%**, and `src/map/` at **46.78%**. The biggest remaining map gaps are `globe.js` (**35.07%**) and `globe-halo.js` (**36.7%**), while the extracted shared helper in `src/map/utils.js` is **100%** covered.
 
 ### Recent Work (last 3 commits)
-- **Document import-order and small fixes:** Add import-order comment to `src/main.js`, update `.github/copilot-instructions.md` guidance, and run formatting on `src/app/debug.js`. (May 17, 2026)
-- **Deprecate 2D SVG halo:** Disabled the SVG/D3 `showLocationHalo` implementation and consolidated runtime halo behaviour to the 3D globe halo manager. (May 17, 2026)
-- **Set Vite base for GitHub Pages:** Set default `base` to `/orbella/` in `vite.config.js` (override with `GH_PAGES_BASE`), and documented the change. (May 17, 2026)
+- **Fix corrupted unit test and restore test suite:** Repair `tests/unit/app/debug.test.js` so the Vitest suite runs green. (May 21, 2026)
+- **Rename globe API & logger to Orbella:** Export `createOrbellaGlobe`, add `createWorldleGlobe` alias, introduce `orbellaLogger` with backwards-compatible aliases, and update tests accordingly. (May 21, 2026)
+- **Conservative rename to Orbella:** Add `orbella-*` storage keys with legacy fallbacks, add orbella-prefixed window aliases and export aliases, and update tests and ambient types. (May 21, 2026)
 
 ---
 
